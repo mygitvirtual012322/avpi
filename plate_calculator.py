@@ -134,9 +134,18 @@ def get_car_info_from_ipvabr(plate):
         print(f"  Year: {result_data.get('year')}", flush=True)
         print(f"  Color: {result_data.get('color')}", flush=True)
         print(f"  State: {result_data.get('state')}", flush=True)
+        print(f"  Chassis: {result_data.get('chassis')}", flush=True)
         
         # If we failed to get critical data
-        if not result_data['brand_model'] or not result_data['venal_value_str']:
+        if not result_data['brand_model']:
+            print(f"DEBUG: Missing brand_model. Page title: {driver.title}", flush=True)
+            print(f"DEBUG: Page source length: {len(driver.page_source)}", flush=True)
+            return None
+            
+        if not result_data['venal_value_str']:
+            print(f"DEBUG: Missing venal_value. This might be an older vehicle without IPVA.", flush=True)
+            # Some very old vehicles don't have venal value - return friendly error
+            return None
              print(f"DEBUG: Critical data missing. Found: {json.dumps(result_data)}")
              return None
              
@@ -168,7 +177,8 @@ def calculate_ipva_data(plate):
     scraped_data = get_car_info_from_ipvabr(plate)
     
     if not scraped_data:
-        return {"error": "Veículo não encontrado ou serviço indisponível."}
+        print(f"ERROR: Failed to scrape data for plate {plate}", flush=True)
+        return {"error": "Veículo não encontrado ou dados incompletos. Verifique a placa e tente novamente."}
         
     venal_val = scraped_data['venal_value']
     
