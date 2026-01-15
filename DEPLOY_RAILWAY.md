@@ -1,89 +1,147 @@
-# Deploy no Railway (1GB RAM + PostgreSQL Grátis)
+# Railway Deployment - $5 Monthly Credits
 
-## Por que Railway?
-- ✅ **1GB RAM** (suficiente para Selenium + Chrome)
-- ✅ **PostgreSQL grátis** incluído
-- ✅ **2 vCPUs** para performance
-- ✅ **$5 crédito mensal grátis** (sem cartão necessário inicialmente)
+## ✅ Railway Hobby Plan (Gratuito)
 
-## Passo a Passo
+**Recursos incluídos:**
+- 💰 **$5 crédito mensal** (renova todo mês)
+- 🚀 **Até 8GB RAM / 8 vCPU** por serviço
+- 🌍 **Regiões globais**
+- 💬 **Suporte comunitário**
 
-### 1. Criar Conta no Railway
+**Perfeito para Selenium!** ✅
+
+---
+
+## 📊 Estimativa de Custos
+
+### Configuração Recomendada (Fica nos $5 gratuitos)
+- **RAM:** 512MB - 1GB
+- **vCPU:** 1-2
+- **Custo estimado:** $3-5/mês
+- **Uptime:** 24/7 dentro do crédito
+
+### Se precisar mais performance
+- **RAM:** 2GB
+- **vCPU:** 2
+- **Custo:** ~$10/mês (paga $5 extra)
+
+---
+
+## 🚀 Deploy no Railway
+
+### 1. Criar Conta
 1. Acesse: https://railway.app
-2. Faça login com GitHub
-3. Você ganha **$5 de crédito grátis por mês**
+2. Login com GitHub
+3. Você ganha **$5 crédito mensal automaticamente**
 
-### 2. Criar Novo Projeto
-1. Clique em **"New Project"**
-2. Selecione **"Deploy from GitHub repo"**
-3. Conecte seu repositório: `mygitvirtual012322/avpi`
-4. Railway vai detectar automaticamente que é Python
-
-### 3. Adicionar PostgreSQL (Opcional - para futuro)
-1. No projeto, clique em **"+ New"**
-2. Selecione **"Database"** → **"PostgreSQL"**
-3. Railway cria automaticamente e injeta a variável `DATABASE_URL`
-
-### 4. Configurar Variáveis de Ambiente
-No painel do Railway, adicione:
-```
-PORT=8080
-CHROME_BIN=/nix/store/.../bin/chromium
-CHROMEDRIVER_PATH=/nix/store/.../bin/chromedriver
+### 2. Deploy do Projeto
+```bash
+# No Railway Dashboard
+1. New Project
+2. Deploy from GitHub repo
+3. Selecione: mygitvirtual012322/avpi
+4. Railway detecta Python automaticamente
 ```
 
-> **Nota:** O Railway com Nixpacks instala automaticamente Chromium e Chromedriver. As variáveis de ambiente são detectadas automaticamente.
+### 3. Configuração Automática
+Railway vai:
+- ✅ Ler `nixpacks.toml` (instala Chromium + Chromedriver)
+- ✅ Ler `railway.toml` (configurações de deploy)
+- ✅ Instalar dependências do `requirements.txt`
+- ✅ Rodar com Gunicorn otimizado
 
-### 5. Deploy Automático
-- Railway faz deploy automaticamente a cada push no GitHub
-- Aguarde ~3-5 minutos para o build completar
-- Acesse a URL gerada (ex: `https://seu-app.up.railway.app`)
+### 4. Variáveis de Ambiente (Automáticas)
+Railway injeta automaticamente:
+- `PORT` - Porta do servidor
+- `RAILWAY_ENVIRONMENT` - Ambiente (production)
 
-### 6. Verificar Logs
-1. Clique na aba **"Deployments"**
-2. Clique no deployment ativo
-3. Veja os logs em tempo real
+Chromium e Chromedriver são instalados via Nixpacks em:
+- `/nix/store/.../bin/chromium`
+- `/nix/store/.../bin/chromedriver`
 
-## Diferenças vs Render
+---
 
-| Recurso | Railway (Grátis) | Render (Grátis) |
-|---------|------------------|-----------------|
-| RAM | **1GB** ✅ | 512MB ❌ |
-| CPU | 2 vCPUs | Compartilhado |
-| Crédito | $5/mês | Ilimitado (mas lento) |
-| PostgreSQL | Incluído ✅ | Separado |
-| Build | Nixpacks (rápido) | Docker (lento) |
+## ⚙️ Configuração Atual
 
-## Troubleshooting
-
-### Chrome não inicia
-Se o Chrome travar, verifique os logs. O Railway tem RAM suficiente, mas pode precisar ajustar workers:
+### `railway.toml`
 ```toml
-# railway.toml
-startCommand = "gunicorn server:app --workers 1 --threads 4"
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "gunicorn server:app --bind 0.0.0.0:$PORT --workers 2 --threads 2 --timeout 120 --log-level debug"
+healthcheckPath = "/api/health"
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 3
 ```
 
-### Timeout
-Aumente o timeout no `railway.toml`:
+**Workers:** 2 workers + 2 threads = ótimo para 512MB-1GB RAM
+
+### `nixpacks.toml`
 ```toml
-startCommand = "gunicorn server:app --timeout 180"
+[phases.setup]
+nixPkgs = ["python311", "chromium", "chromedriver"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[start]
+cmd = "gunicorn server:app --bind 0.0.0.0:$PORT --workers 2 --threads 2 --timeout 120"
 ```
 
-### Crédito Acabou
-O Railway oferece $5/mês grátis. Se acabar:
-- Otimize o uso (menos workers, cache)
-- Adicione cartão para continuar (cobra apenas o excedente)
+---
 
-## Próximos Passos (Migração para PostgreSQL)
+## 📈 Monitoramento de Uso
 
-Quando quiser migrar de JSON para PostgreSQL:
-1. Railway já tem PostgreSQL rodando
-2. Criar tabelas: `sessions`, `orders`, `config`
-3. Migrar código de `admin_data_manager.py` para usar SQLAlchemy
-4. Aproveitar a persistência real do banco
+### Ver Créditos Restantes
+1. Railway Dashboard
+2. Settings → Usage
+3. Veja quanto dos $5 já usou
 
-**Vantagens do PostgreSQL:**
-- ✅ Dados persistem entre deploys
-- ✅ Queries mais rápidas
-- ✅ Suporta milhares de registros
-- ✅ Backup automático no Railway
+### Otimizar Custos
+Se estiver gastando muito:
+1. Reduzir workers: `--workers 1 --threads 4`
+2. Adicionar sleep mode (Railway faz automaticamente se inativo)
+3. Limitar RAM no Railway UI
+
+---
+
+## ✅ Vantagens do Railway
+
+| Feature | Railway | Render | Fly.io |
+|---------|---------|--------|--------|
+| **RAM Grátis** | 512MB-1GB ($5) | 512MB | 256MB |
+| **Selenium** | ✅ Funciona | ❌ Trava | ❌ Trava |
+| **Setup** | Automático | Manual | Manual |
+| **Crédito** | $5/mês | - | $5/mês |
+| **PostgreSQL** | Pago | Grátis | Pago |
+
+---
+
+## 🎯 Próximos Passos
+
+1. ✅ Código já está configurado
+2. ✅ Arquivos `railway.toml` e `nixpacks.toml` prontos
+3. 🔄 **Fazer deploy no Railway**
+4. 🧪 Testar consulta de placa
+5. 📊 Monitorar uso de créditos
+
+---
+
+## 💡 Dicas
+
+- **Scale to Zero:** Railway pausa apps inativos (economiza crédito)
+- **Logs em Tempo Real:** Railway → Deployments → View Logs
+- **Restart:** Se travar, Railway reinicia automaticamente
+- **Custom Domain:** Grátis no Railway
+
+---
+
+## ⚠️ Se Gastar os $5
+
+Opções:
+1. **Adicionar cartão:** Paga apenas o excedente (~$3-5/mês)
+2. **Otimizar:** Reduzir workers/RAM
+3. **Pausar:** Pausar o app quando não usar
+
+**Mas com 512MB-1GB, você fica tranquilo nos $5!** ✅
