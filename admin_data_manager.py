@@ -193,3 +193,8 @@ def get_stats():
         "pix_list": pix_list[:20],  # Last 20
         "online_users": online_users
     }
+
+# Alias for backward compatibility
+def log_pix(plate, amount, pix_code):
+    """Alias for log_pix_generated"""
+    return log_pix_generated(plate, amount, pix_code)
