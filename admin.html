@@ -589,6 +589,87 @@
             return Math.floor(seconds / 3600) + 'h atrás';
         }
 
+        // Axis Gateway Functions
+        async function loadAxisConfig() {
+            try {
+                const response = await fetch('/api/admin/get_axis_config');
+                const config = await response.json();
+
+                document.getElementById('axisEnabled').checked = config.enabled || false;
+                document.getElementById('axisApiKey').value = config.api_key || '';
+                document.getElementById('axisPostbackUrl').value = config.postback_url || '';
+            } catch (e) {
+                console.error('Error loading Axis config:', e);
+            }
+        }
+
+        async function saveAxisConfig() {
+            try {
+                const config = {
+                    enabled: document.getElementById('axisEnabled').checked,
+                    api_key: document.getElementById('axisApiKey').value,
+                    postback_url: document.getElementById('axisPostbackUrl').value
+                };
+
+                const response = await fetch('/api/admin/save_axis_config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAxisStatus('success', 'Configuração salva com sucesso!', 'As configurações do Gateway Axis foram atualizadas.');
+                } else {
+                    showAxisStatus('error', 'Erro ao salvar', result.error || 'Erro desconhecido');
+                }
+            } catch (e) {
+                showAxisStatus('error', 'Erro ao salvar', e.message);
+            }
+        }
+
+        async function testAxisConnection() {
+            showAxisStatus('info', 'Testando conexão...', 'Aguarde enquanto testamos a conexão com a API Axis.');
+
+            try {
+                const response = await fetch('/api/admin/test_axis', {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAxisStatus('success', 'Conexão bem-sucedida!', `Transação de teste criada: ${result.transaction_id || 'OK'}`);
+                } else {
+                    showAxisStatus('error', 'Falha na conexão', result.error || 'Não foi possível conectar à API Axis');
+                }
+            } catch (e) {
+                showAxisStatus('error', 'Erro de conexão', e.message);
+            }
+        }
+
+        function showAxisStatus(type, title, message) {
+            const statusDiv = document.getElementById('axisStatus');
+            const titleEl = document.getElementById('axisStatusTitle');
+            const messageEl = document.getElementById('axisStatusMessage');
+
+            const colors = {
+                success: { bg: '#d4edda', border: '#c3e6cb', text: '#155724' },
+                error: { bg: '#f8d7da', border: '#f5c6cb', text: '#721c24' },
+                info: { bg: '#d1ecf1', border: '#bee5eb', text: '#0c5460' }
+            };
+
+            const color = colors[type] || colors.info;
+            statusDiv.style.background = color.bg;
+            statusDiv.style.border = `1px solid ${color.border}`;
+            statusDiv.style.color = color.text;
+            statusDiv.style.display = 'block';
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+        }
+
         function logout() {
             localStorage.removeItem('admin_token');
             window.location.href = 'admin_new.html';
