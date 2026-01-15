@@ -146,8 +146,6 @@ def get_car_info_from_ipvabr(plate):
             print(f"DEBUG: Missing venal_value. This might be an older vehicle without IPVA.", flush=True)
             # Some very old vehicles don't have venal value - return friendly error
             return None
-             print(f"DEBUG: Critical data missing. Found: {json.dumps(result_data)}")
-             return None
              
         # Parse Venal Value
         # Remove R$, dot, replace comma with dot
