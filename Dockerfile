@@ -19,8 +19,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Create directory for local data persistence
-RUN mkdir -p admin_data
+# Create directory for local data persistence and correct permissions
+RUN mkdir -p admin_data && chmod 777 admin_data
 
 # Environment variables
 ENV PORT=8080
