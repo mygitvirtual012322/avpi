@@ -10,7 +10,6 @@ ENV/
 
 # Admin data (sensitive)
 admin_data/
-*.json
 
 # IDE
 .vscode/

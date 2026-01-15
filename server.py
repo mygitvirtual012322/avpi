@@ -13,7 +13,7 @@ import meta_pixel
 import uuid
 from order_manager import order_manager
 
-PORT = 8000
+PORT = int(os.environ.get('PORT', 8000))
 
 class IPVAHandler(http.server.SimpleHTTPRequestHandler):
     
