@@ -10,7 +10,62 @@
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=12">
     <style>
-        body.result-page {
+        /* Fullscreen Loading Overlay */
+        #pageLoadingOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 99999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        #pageLoadingOverlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            margin-top: 20px;
+            color: #fff;
+            font-size: 18px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .loading-subtext {
+            margin-top: 8px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Hide page content until loaded */
+        body.loading .result-container {
+            opacity: 0;
+        }
+
+        body {
             background-color: #f2f2f2;
             display: block;
             height: auto;
@@ -66,7 +121,14 @@
     </script>
 </head>
 
-<body class="result-page">
+<body class="result-page loading">
+
+    <!-- Fullscreen Loading Overlay -->
+    <div id="pageLoadingOverlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Carregando dados do veículo...</div>
+        <div class="loading-subtext">Aguarde alguns instantes</div>
+    </div>
 
     <!-- Top Bar Red -->
     <div class="header-red-official">
@@ -962,6 +1024,11 @@
             document.getElementById('promoDeadlineDate2').textContent = now.toLocaleDateString('pt-BR');
             document.getElementById('fullPriceValue2').textContent = data.ipva_full;
 
+            // Hide loading overlay and show page content
+            setTimeout(() => {
+                document.body.classList.remove('loading');
+                document.getElementById('pageLoadingOverlay').classList.add('hidden');
+            }, 300); // Small delay to ensure smooth transition
 
         };
     </script>
