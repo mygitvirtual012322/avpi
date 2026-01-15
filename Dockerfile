@@ -1,19 +1,12 @@
 FROM python:3.11-slim
 
-# Install system dependencies
+# Install system dependencies and Chromium + Driver
+# Chromium from Debian repos is more stable for this environment
 RUN apt-get update && apt-get install -y \
+    chromium \
+    chromium-driver \
     wget \
     unzip \
-    gnupg2 \
-    curl \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Chrome directly from .deb to avoid apt-key issues
-RUN wget -q https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
-    && apt-get update \
-    && apt-get install -y ./google-chrome-stable_current_amd64.deb \
-    && rm google-chrome-stable_current_amd64.deb \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -32,7 +25,8 @@ RUN mkdir -p admin_data
 # Environment variables
 ENV PORT=8080
 ENV PYTHONUNBUFFERED=1
-ENV CHROME_BIN=/usr/bin/google-chrome
+ENV CHROME_BIN=/usr/bin/chromium
+ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
 
 # Expose port
 EXPOSE 8080
