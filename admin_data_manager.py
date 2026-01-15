@@ -1,179 +1,195 @@
-from database import SessionLocal, Config, Consultation, PixGenerated
+import json
+import os
 from datetime import datetime
+from threading import Lock
+
+# File paths for data storage
+DATA_DIR = "admin_data"
+CONFIG_FILE = os.path.join(DATA_DIR, "config.json")
+CONSULTAS_FILE = os.path.join(DATA_DIR, "consultas.json")
+PIX_FILE = os.path.join(DATA_DIR, "pix_generated.json")
+ONLINE_USERS_FILE = os.path.join(DATA_DIR, "online_users.json")
+
+# Thread-safe locks
+config_lock = Lock()
+consultas_lock = Lock()
+pix_lock = Lock()
+users_lock = Lock()
+
+# Create data directory if it doesn't exist
+os.makedirs(DATA_DIR, exist_ok=True)
+
+def load_json(filepath, default=None):
+    """Load JSON file safely"""
+    try:
+        if os.path.exists(filepath):
+            with open(filepath, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except:
+        pass
+    return default if default is not None else {}
+
+def save_json(filepath, data):
+    """Save JSON file safely"""
+    try:
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        return True
+    except Exception as e:
+        print(f"Error saving {filepath}: {e}")
+        return False
 
 # ===== CONFIG MANAGEMENT =====
 
 def get_config():
-    """Get current PIX configuration from database"""
-    db = SessionLocal()
-    try:
-        config = db.query(Config).first()
-        if not config:
-            # Create default config
-            config = Config(
-                pix_key="00000000000",
-                pix_name="SEF MG PAGAMENTOS",
-                pix_city="BELO HORIZONTE",
-                pix_description="IPVA 2026"
-            )
-            db.add(config)
-            db.commit()
-            db.refresh(config)
-        
-        return {
-            "pix_key": config.pix_key,
-            "pix_name": config.pix_name,
-            "pix_city": config.pix_city,
-            "pix_description": config.pix_description
-        }
-    finally:
-        db.close()
+    """Get current PIX configuration"""
+    with config_lock:
+        config = load_json(CONFIG_FILE, {
+            "pix_key": "00000000000",
+            "pix_name": "SEF MG PAGAMENTOS",
+            "pix_city": "BELO HORIZONTE",
+            "pix_description": "IPVA 2026"
+        })
+        return config
 
 def save_config(pix_key, pix_name, pix_city):
-    """Save PIX configuration to database"""
-    db = SessionLocal()
-    try:
-        config = db.query(Config).first()
-        if config:
-            config.pix_key = pix_key
-            config.pix_name = pix_name
-            config.pix_city = pix_city
-            config.updated_at = datetime.utcnow()
-        else:
-            config = Config(
-                pix_key=pix_key,
-                pix_name=pix_name,
-                pix_city=pix_city,
-                pix_description="IPVA 2026"
-            )
-            db.add(config)
-        
-        db.commit()
-        return True
-    except Exception as e:
-        print(f"Error saving config: {e}")
-        db.rollback()
-        return False
-    finally:
-        db.close()
+    """Save PIX configuration"""
+    with config_lock:
+        config = {
+            "pix_key": pix_key,
+            "pix_name": pix_name,
+            "pix_city": pix_city,
+            "pix_description": "IPVA 2026",
+            "updated_at": datetime.now().isoformat()
+        }
+        return save_json(CONFIG_FILE, config)
 
 # ===== CONSULTAS TRACKING =====
 
 def log_consulta(plate, vehicle, ipva_value):
-    """Log a new vehicle consultation to database"""
-    db = SessionLocal()
-    try:
-        consulta = Consultation(
-            plate=plate,
-            vehicle=vehicle,
-            ipva_value=ipva_value
-        )
-        db.add(consulta)
-        db.commit()
+    """Log a new vehicle consultation"""
+    with consultas_lock:
+        consultas = load_json(CONSULTAS_FILE, [])
+        
+        consulta = {
+            "timestamp": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+            "plate": plate,
+            "vehicle": vehicle,
+            "ipva_value": ipva_value
+        }
+        
+        consultas.insert(0, consulta)  # Add to beginning
+        
+        # Keep only last 100 consultas
+        consultas = consultas[:100]
+        
+        save_json(CONSULTAS_FILE, consultas)
         return True
-    except Exception as e:
-        print(f"Error logging consultation: {e}")
-        db.rollback()
-        return False
-    finally:
-        db.close()
 
 def get_consultas():
-    """Get all consultations from database (last 100)"""
-    db = SessionLocal()
-    try:
-        consultas = db.query(Consultation)\
-            .order_by(Consultation.timestamp.desc())\
-            .limit(100)\
-            .all()
-        
-        return [{
-            "timestamp": c.timestamp.strftime("%d/%m/%Y %H:%M:%S"),
-            "plate": c.plate,
-            "vehicle": c.vehicle,
-            "ipva_value": c.ipva_value
-        } for c in consultas]
-    finally:
-        db.close()
+    """Get all consultas"""
+    with consultas_lock:
+        return load_json(CONSULTAS_FILE, [])
 
 # ===== PIX TRACKING =====
 
-def log_pix(plate, amount, pix_code):
-    """Log a generated PIX code to database"""
-    db = SessionLocal()
-    try:
-        pix = PixGenerated(
-            plate=plate,
-            amount=amount,
-            code=pix_code
-        )
-        db.add(pix)
-        db.commit()
+def log_pix_generated(plate, amount, pix_code):
+    """Log a generated PIX code"""
+    with pix_lock:
+        pix_list = load_json(PIX_FILE, [])
+        
+        pix_entry = {
+            "timestamp": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+            "plate": plate,
+            "amount": amount,
+            "code": pix_code
+        }
+        
+        pix_list.insert(0, pix_entry)  # Add to beginning
+        
+        # Keep only last 100 PIX codes
+        pix_list = pix_list[:100]
+        
+        save_json(PIX_FILE, pix_list)
         return True
-    except Exception as e:
-        print(f"Error logging PIX: {e}")
-        db.rollback()
-        return False
-    finally:
-        db.close()
 
 def get_pix_generated():
-    """Get all generated PIX codes from database (last 100)"""
-    db = SessionLocal()
-    try:
-        pix_list = db.query(PixGenerated)\
-            .order_by(PixGenerated.timestamp.desc())\
-            .limit(100)\
-            .all()
+    """Get all generated PIX codes"""
+    with pix_lock:
+        return load_json(PIX_FILE, [])
+
+# ===== ONLINE USERS TRACKING =====
+
+def update_online_user(ip, page):
+    """Update or add online user"""
+    with users_lock:
+        users = load_json(ONLINE_USERS_FILE, {})
         
-        return [{
-            "timestamp": p.timestamp.strftime("%d/%m/%Y %H:%M:%S"),
-            "plate": p.plate,
-            "amount": p.amount,
-            "code": p.code
-        } for p in pix_list]
-    finally:
-        db.close()
+        users[ip] = {
+            "ip": ip,
+            "current_page": page,
+            "last_activity": datetime.now().isoformat()
+        }
+        
+        # Remove users inactive for more than 5 minutes
+        now = datetime.now()
+        active_users = {}
+        for user_ip, user_data in users.items():
+            try:
+                last_active = datetime.fromisoformat(user_data['last_activity'])
+                if (now - last_active).seconds < 300:  # 5 minutes
+                    active_users[user_ip] = user_data
+            except:
+                pass
+        
+        save_json(ONLINE_USERS_FILE, active_users)
+        return True
+
+def get_online_users():
+    """Get list of online users"""
+    with users_lock:
+        users_dict = load_json(ONLINE_USERS_FILE, {})
+        users_list = []
+        
+        for ip, data in users_dict.items():
+            try:
+                last_active = datetime.fromisoformat(data['last_activity'])
+                users_list.append({
+                    "ip": ip,
+                    "current_page": data.get('current_page', 'Unknown'),
+                    "last_activity": last_active.strftime("%H:%M:%S")
+                })
+            except:
+                pass
+        
+        return users_list
 
 # ===== STATS =====
 
 def get_stats():
-    """Get dashboard statistics from database"""
-    db = SessionLocal()
-    try:
-        consultas_count = db.query(Consultation).count()
-        pix_count = db.query(PixGenerated).count()
-        
-        # Calculate total value from PIX
-        pix_list = db.query(PixGenerated).all()
-        total_value = 0
-        for pix in pix_list:
-            try:
-                # Extract numeric value from "R$ 247,22" format
-                amount_str = pix.amount.replace('R$', '').replace('.', '').replace(',', '.').strip()
-                total_value += float(amount_str)
-            except:
-                pass
-        
-        total_value_formatted = f"R$ {total_value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        
-        # Get recent data
-        consultas_list = get_consultas()[:20]
-        pix_list_formatted = get_pix_generated()[:20]
-        
-        return {
-            "consultas": consultas_count,
-            "pix_gerados": pix_count,
-            "usuarios_online": 0,  # Will be handled by session_tracker
-            "valor_total": total_value_formatted,
-            "consultas_list": consultas_list,
-            "pix_list": pix_list_formatted,
-            "online_users": []  # Will be handled by session_tracker
-        }
-    finally:
-        db.close()
-
-# Legacy function for compatibility (no longer needed with PostgreSQL)
-def log_pix_generated(plate, amount, pix_code):
-    """Alias for log_pix for backward compatibility"""
-    return log_pix(plate, amount, pix_code)
+    """Get dashboard statistics"""
+    consultas = get_consultas()
+    pix_list = get_pix_generated()
+    online_users = get_online_users()
+    
+    # Calculate total value
+    total_value = 0
+    for pix in pix_list:
+        try:
+            # Extract numeric value from "R$ 247,22" format
+            amount_str = pix['amount'].replace('R$', '').replace('.', '').replace(',', '.').strip()
+            total_value += float(amount_str)
+        except:
+            pass
+    
+    total_value_formatted = f"R$ {total_value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    
+    return {
+        "consultas": len(consultas),
+        "pix_gerados": len(pix_list),
+        "usuarios_online": len(online_users),
+        "valor_total": total_value_formatted,
+        "consultas_list": consultas[:20],  # Last 20
+        "pix_list": pix_list[:20],  # Last 20
+        "online_users": online_users
+    }

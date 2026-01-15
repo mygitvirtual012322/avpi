@@ -1,140 +1,142 @@
-from database import SessionLocal, UserSession
+import json
+import os
 from datetime import datetime, timedelta
-from sqlalchemy import func
+
+USER_SESSIONS_FILE = 'admin_data/user_sessions.json'
 
 class SessionTracker:
-    """Track user sessions and journey stages using PostgreSQL"""
+    """Track user sessions and journey stages"""
     
     STAGE_INITIAL = 'initial_form'
     STAGE_RESULTS = 'viewing_results'
     STAGE_PIX_MODAL = 'pix_modal'
     
+    def __init__(self):
+        os.makedirs('admin_data', exist_ok=True)
+        self.sessions = self._load_sessions()
+    
+    def _load_sessions(self):
+        """Load sessions from file"""
+        if os.path.exists(USER_SESSIONS_FILE):
+            with open(USER_SESSIONS_FILE, 'r') as f:
+                return json.load(f)
+        return {}
+    
+    def _save_sessions(self):
+        """Save sessions to file"""
+        with open(USER_SESSIONS_FILE, 'w') as f:
+            json.dump(self.sessions, f, indent=2)
+    
     def create_or_update_session(self, session_id, stage, utm_source=None, ip_address=None, plate=None):
-        """Create or update user session in database"""
-        db = SessionLocal()
-        try:
-            session = db.query(UserSession).filter(UserSession.session_id == session_id).first()
-            now = datetime.utcnow()
-            
-            if not session:
-                # New session
-                session = UserSession(
-                    session_id=session_id,
-                    created_at=now,
-                    utm_source=utm_source or 'direct',
-                    ip_address=ip_address,
-                    current_stage=stage,
-                    stages=[{'stage': stage, 'timestamp': now.isoformat()}]
-                )
-                db.add(session)
-            else:
-                # Update existing session
-                session.last_active = now
-                session.current_stage = stage
-                
-                if plate:
-                    session.plate = plate
-                
-                # Add stage to history if not already there
-                stages = session.stages or []
-                if not stages or stages[-1]['stage'] != stage:
-                    stages.append({
-                        'stage': stage,
-                        'timestamp': now.isoformat()
-                    })
-                    session.stages = stages
-            
-            db.commit()
-        except Exception as e:
-            print(f"Error updating session: {e}")
-            db.rollback()
-        finally:
-            db.close()
+        """Create or update user session"""
+        now = datetime.now().isoformat()
+        
+        if session_id not in self.sessions:
+            # New session
+            self.sessions[session_id] = {
+                'created_at': now,
+                'utm_source': utm_source or 'direct',
+                'ip_address': ip_address,
+                'stages': []
+            }
+        
+        # Update session
+        session = self.sessions[session_id]
+        session['last_active'] = now
+        session['current_stage'] = stage
+        
+        if plate:
+            session['plate'] = plate
+        
+        # Add stage to history if not already there
+        if not session['stages'] or session['stages'][-1]['stage'] != stage:
+            session['stages'].append({
+                'stage': stage,
+                'timestamp': now
+            })
+        
+        self._save_sessions()
     
     def mark_pix_copied(self, session_id):
         """Mark that user copied PIX code"""
-        db = SessionLocal()
-        try:
-            session = db.query(UserSession).filter(UserSession.session_id == session_id).first()
-            if session:
-                session.pix_copied = True
-                session.pix_copied_at = datetime.utcnow()
-                db.commit()
-        except Exception as e:
-            print(f"Error marking PIX copied: {e}")
-            db.rollback()
-        finally:
-            db.close()
+        if session_id in self.sessions:
+            self.sessions[session_id]['pix_copied'] = True
+            self.sessions[session_id]['pix_copied_at'] = datetime.now().isoformat()
+            self._save_sessions()
     
     def get_online_users(self, minutes=5):
         """Get users active in last N minutes"""
-        db = SessionLocal()
-        try:
-            cutoff = datetime.utcnow() - timedelta(minutes=minutes)
-            sessions = db.query(UserSession)\
-                .filter(UserSession.last_active >= cutoff)\
-                .all()
-            
-            return [{
-                'session_id': s.session_id,
-                'ip': s.ip_address or 'Unknown',
-                'current_stage': s.current_stage or 'unknown',
-                'utm_source': s.utm_source or 'direct',
-                'last_active': s.last_active.isoformat() if s.last_active else '',
-                'plate': s.plate or '-',
-                'pix_copied': s.pix_copied or False
-            } for s in sessions]
-        finally:
-            db.close()
+        cutoff = datetime.now() - timedelta(minutes=minutes)
+        online = []
+        
+        for session_id, session in self.sessions.items():
+            if 'last_active' in session:
+                last_active = datetime.fromisoformat(session['last_active'])
+                if last_active > cutoff:
+                    online.append({
+                        'session_id': session_id,
+                        'ip': session.get('ip_address', 'Unknown'),
+                        'current_stage': session.get('current_stage', 'unknown'),
+                        'utm_source': session.get('utm_source', 'direct'),
+                        'last_active': session['last_active'],
+                        'plate': session.get('plate', '-'),
+                        'pix_copied': session.get('pix_copied', False)
+                    })
+        
+        return online
     
     def get_stats(self):
         """Get session statistics"""
-        db = SessionLocal()
-        try:
-            total_sessions = db.query(UserSession).count()
-            online_count = len(self.get_online_users())
+        total_sessions = len(self.sessions)
+        online_count = len(self.get_online_users())
+        
+        # Count by stage
+        stage_counts = {
+            self.STAGE_INITIAL: 0,
+            self.STAGE_RESULTS: 0,
+            self.STAGE_PIX_MODAL: 0
+        }
+        
+        pix_copied_count = 0
+        utm_sources = {}
+        
+        for session in self.sessions.values():
+            current_stage = session.get('current_stage')
+            if current_stage in stage_counts:
+                stage_counts[current_stage] += 1
             
-            # Count by stage
-            stage_counts = {
-                self.STAGE_INITIAL: db.query(UserSession).filter(UserSession.current_stage == self.STAGE_INITIAL).count(),
-                self.STAGE_RESULTS: db.query(UserSession).filter(UserSession.current_stage == self.STAGE_RESULTS).count(),
-                self.STAGE_PIX_MODAL: db.query(UserSession).filter(UserSession.current_stage == self.STAGE_PIX_MODAL).count()
-            }
+            if session.get('pix_copied'):
+                pix_copied_count += 1
             
-            pix_copied_count = db.query(UserSession).filter(UserSession.pix_copied == True).count()
-            
-            # Count by UTM source
-            utm_results = db.query(UserSession.utm_source, func.count(UserSession.id))\
-                .group_by(UserSession.utm_source)\
-                .all()
-            utm_sources = {utm: count for utm, count in utm_results}
-            
-            return {
-                'total_sessions': total_sessions,
-                'online_now': online_count,
-                'stage_counts': stage_counts,
-                'pix_copied_count': pix_copied_count,
-                'utm_sources': utm_sources
-            }
-        finally:
-            db.close()
+            utm = session.get('utm_source', 'direct')
+            utm_sources[utm] = utm_sources.get(utm, 0) + 1
+        
+        return {
+            'total_sessions': total_sessions,
+            'online_now': online_count,
+            'stage_counts': stage_counts,
+            'pix_copied_count': pix_copied_count,
+            'utm_sources': utm_sources
+        }
     
     def cleanup_old_sessions(self, days=7):
         """Remove sessions older than N days"""
-        db = SessionLocal()
-        try:
-            cutoff = datetime.utcnow() - timedelta(days=days)
-            deleted = db.query(UserSession)\
-                .filter(UserSession.last_active < cutoff)\
-                .delete()
-            db.commit()
-            return deleted
-        except Exception as e:
-            print(f"Error cleaning up sessions: {e}")
-            db.rollback()
-            return 0
-        finally:
-            db.close()
+        cutoff = datetime.now() - timedelta(days=days)
+        
+        to_remove = []
+        for session_id, session in self.sessions.items():
+            if 'last_active' in session:
+                last_active = datetime.fromisoformat(session['last_active'])
+                if last_active < cutoff:
+                    to_remove.append(session_id)
+        
+        for session_id in to_remove:
+            del self.sessions[session_id]
+        
+        if to_remove:
+            self._save_sessions()
+        
+        return len(to_remove)
 
 # Global tracker instance
 tracker = SessionTracker()

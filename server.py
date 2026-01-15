@@ -11,10 +11,6 @@ import meta_pixel
 import uuid
 from order_manager import order_manager
 
-# Initialize database tables on startup
-from database import init_db
-init_db()
-
 app = Flask(__name__, static_folder='.', static_url_path='')
 
 # Serve HTML pages
