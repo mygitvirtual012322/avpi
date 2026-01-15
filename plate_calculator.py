@@ -139,9 +139,7 @@ def get_car_info_from_ipvabr(plate):
         result_data['state'] = get_value_by_label("Estado:")
         result_data['city'] = get_value_by_label("Município:")
         result_data['venal_value_str'] = get_value_by_label("Valor Venal") # e.g. "R$ 115.469,00"
-        
-        # Chassis não existe no ipvabr.com.br - deixar vazio
-        result_data['chassis'] = None
+        result_data['chassis'] = get_value_by_label("Chassi:")  # e.g. "*****M074366"
         
         # Specific fix for "Cor" and "Combustível" if sometimes they don't have colons or match exactly
         if not result_data['color']: result_data['color'] = get_value_by_label("Cor")
