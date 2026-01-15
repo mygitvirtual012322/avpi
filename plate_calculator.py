@@ -1,58 +1,56 @@
 import json
 import requests
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
-import time
+from bs4 import BeautifulSoup
 import re
 from config import IPVA_ALIQUOTA, PROMO_DISCOUNT_RATE, LICENSING_FEE
 
 def get_car_info_from_ipvabr(plate):
     """
-    Uses Selenium to scrape vehicle info and Venal Value from ipvabr.com.br.
+    Uses Requests + BeautifulSoup to scrape vehicle info and Venal Value from ipvabr.com.br.
     Target URL: https://www.ipvabr.com.br/placa/{plate}
     """
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36")
+    url = f"https://www.ipvabr.com.br/placa/{plate}"
     
-    # Performance Optimizations
-    options.page_load_strategy = 'eager' # Don't wait for full load
-    prefs = {"profile.managed_default_content_settings.images": 2, "profile.default_content_settings.css": 2}
-    options.add_experimental_option("prefs", prefs)
-
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
-    
-    result_data = {}
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Referer": "https://www.ipvabr.com.br/",
+        "Connection": "keep-alive"
+    }
     
     try:
-        url = f"https://www.ipvabr.com.br/placa/{plate}"
-        driver.get(url)
-        wait = WebDriverWait(driver, 15)
+        response = requests.get(url, headers=headers, timeout=10)
         
-        # Wait for the Brand/Model table (looking for 'Marca:')
-        wait.until(EC.presence_of_element_located((By.XPATH, "//td[contains(text(), 'Marca:')]")))
+        if response.status_code != 200:
+            print(f"DEBUG: Failed to fetch page. Status: {response.status_code}")
+            return None
+            
+        soup = BeautifulSoup(response.text, 'html.parser')
+        result_data = {}
         
-        # Helper to extract cell text next to a label
+        # Helper to find data in the table structure of ipvabr.com.br
+        # Expected structure: <td>Label:</td> <td>Value</td>
         def get_value_by_label(label_text):
-            try:
-                # Find TD with label, get next sibling TD
-                # Use normalize-space to handle whitespace issues
-                elem = driver.find_element(By.XPATH, f"//td[contains(text(), '{label_text}')]/following-sibling::td")
-                return elem.text.strip()
-            except:
-                return None
+            # Find the td containing the label
+            label_td = soup.find('td', string=lambda text: text and label_text in text)
+            if label_td:
+                # Get the next sibling td which contains the value
+                value_td = label_td.find_next_sibling('td')
+                if value_td:
+                    return value_td.get_text(strip=True)
+            return None
 
+        # Data Extraction
         brand = get_value_by_label("Marca:")
         model = get_value_by_label("Modelo:")
         
         if brand and model:
             result_data['brand_model'] = f"{brand} {model}"
+        elif brand:
+             result_data['brand_model'] = brand
+        elif model:
+             result_data['brand_model'] = model
         else:
             result_data['brand_model'] = None
 
@@ -65,40 +63,51 @@ def get_car_info_from_ipvabr(plate):
         result_data['engine'] = get_value_by_label("Motor:")
         result_data['venal_value_str'] = get_value_by_label("Valor Venal") # e.g. "R$ 115.469,00"
         
-        # Specific fix for "Cor" and "Combustível" sometimes having colons or not
+        # Fallbacks for labels without colon
         if not result_data['color']: result_data['color'] = get_value_by_label("Cor")
         if not result_data['fuel']: result_data['fuel'] = get_value_by_label("Combustível")
         if not result_data['state']: result_data['state'] = get_value_by_label("Estado")
-        if not result_data['city']: result_data['city'] = get_value_by_label("Município") # Try without colon or different case
+        if not result_data['city']: result_data['city'] = get_value_by_label("Município")
         
-        # If we failed to get critical data
+        # If we failed to get critical data, try alternative parsing (sometimes labels are different)
+        if not result_data['brand_model']:
+            # Fallback: Try to grab from title or other elements if specific table structure fails
+            # But for now, valid check is enough
+            pass
+
+        if not result_data['venal_value_str']:
+             print(f"DEBUG: Critical data missing (Venal Value). Data found: {json.dumps(result_data)}")
+             # Fallback for old cars or different layout?
+             # Let's try to find any price looking string if specific label fails
+             pass
+
         if not result_data['brand_model'] or not result_data['venal_value_str']:
-             print(f"DEBUG: Critical data missing. Found: {json.dumps(result_data)}")
+             print(f"DEBUG: Missing critical info. {result_data}")
              return None
              
         # Parse Venal Value
         # "R$ 115.469,00" -> 115469.00
-        raw_val = result_data['venal_value_str'].replace("R$", "").replace(".", "").replace(",", ".").strip()
-        result_data['venal_value'] = float(raw_val)
+        try:
+            raw_val = result_data['venal_value_str'].replace("R$", "").replace(".", "").replace(",", ".").strip()
+            result_data['venal_value'] = float(raw_val)
+        except ValueError:
+            print(f"DEBUG: Could not parse value: {result_data['venal_value_str']}")
+            return None
         
         return result_data
 
     except Exception as e:
-        print(f"Error scraping ipvabr: {e}")
-        try:
-            driver.save_screenshot("debug_ipvabr_error.png")
-        except:
-            pass
+        print(f"Error scraping ipvabr with requests: {e}")
         return None
-    finally:
-        driver.quit()
 
 def calculate_ipva_data(plate):
     # 1. Scrape ipvabr.com.br
-    print(f"Consulta placa {plate} no ipvabr.com.br...")
+    print(f"Consulta placa {plate} no ipvabr.com.br (via requests)...")
     scraped_data = get_car_info_from_ipvabr(plate)
     
     if not scraped_data:
+        # Fallback Mock Data if scraping fails (to prevent 500 error in demo)
+        # Uncomment below to enable fallback or just return Error
         return {"error": "Veículo não encontrado ou serviço indisponível."}
         
     venal_val = scraped_data['venal_value']
