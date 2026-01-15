@@ -1,0 +1,368 @@
+[
+  {
+    "order_id": "ORD-00001",
+    "session_id": "15c06597-2d16-4314-a029-7d5183a0a888",
+    "created_at": "2026-01-14T20:16:50.352835",
+    "vehicle": {
+      "plate": "EQG4F82",
+      "brand": "VOLKSWAGEN VW JETTA 2.0T",
+      "model": "VOLKSWAGEN VW JETTA 2.0T",
+      "year": null,
+      "color": "Branca",
+      "fuel": "Gasolina",
+      "state": "São Paulo",
+      "city": "SANTO ANDRE",
+      "chassis": "*****M074366",
+      "engine": "*****Z186942"
+    },
+    "payment": {
+      "ipva_original": "R$ 2.116,00",
+      "ipva_discounted": "R$ 634,80",
+      "licensing_fee": "R$ 35,62",
+      "installment_count": 4,
+      "installment_value": "R$ 158,70",
+      "first_payment_total": "R$ 194,32",
+      "discount_percentage": 70
+    },
+    "installments": [
+      {
+        "number": 1,
+        "value": "R$ 158,70",
+        "due_date": "14/01/2026",
+        "includes_licensing": true,
+        "total": "R$ 194,32"
+      },
+      {
+        "number": 2,
+        "value": "R$ 158,70",
+        "due_date": "13/02/2026",
+        "includes_licensing": false,
+        "total": "R$ 158,70"
+      },
+      {
+        "number": 3,
+        "value": "R$ 158,70",
+        "due_date": "15/03/2026",
+        "includes_licensing": false,
+        "total": "R$ 158,70"
+      },
+      {
+        "number": 4,
+        "value": "R$ 158,70",
+        "due_date": "14/04/2026",
+        "includes_licensing": false,
+        "total": "R$ 158,70"
+      }
+    ],
+    "pix_generated": false,
+    "pix_generated_at": null,
+    "pix_copied": false,
+    "pix_copied_at": null,
+    "pix_code": null
+  },
+  {
+    "order_id": "ORD-00002",
+    "session_id": "c590a78f-9449-4dbc-b2fa-c30d86845a78",
+    "created_at": "2026-01-14T20:25:42.988216",
+    "vehicle": {
+      "plate": "EQG4F82",
+      "brand": "VOLKSWAGEN VW JETTA 2.0T",
+      "model": "VOLKSWAGEN VW JETTA 2.0T",
+      "year": null,
+      "color": "Branca",
+      "fuel": "Gasolina",
+      "state": "São Paulo",
+      "city": "SANTO ANDRE",
+      "chassis": "*****M074366",
+      "engine": "*****Z186942"
+    },
+    "payment": {
+      "ipva_original": "R$ 2.116,00",
+      "ipva_discounted": "R$ 634,80",
+      "licensing_fee": "R$ 35,62",
+      "installment_count": 4,
+      "installment_value": "R$ 158,70",
+      "first_payment_total": "R$ 194,32",
+      "discount_percentage": 70
+    },
+    "installments": [
+      {
+        "number": 1,
+        "value": "R$ 158,70",
+        "due_date": "14/01/2026",
+        "includes_licensing": true,
+        "total": "R$ 194,32"
+      },
+      {
+        "number": 2,
+        "value": "R$ 158,70",
+        "due_date": "13/02/2026",
+        "includes_licensing": false,
+        "total": "R$ 158,70"
+      },
+      {
+        "number": 3,
+        "value": "R$ 158,70",
+        "due_date": "15/03/2026",
+        "includes_licensing": false,
+        "total": "R$ 158,70"
+      },
+      {
+        "number": 4,
+        "value": "R$ 158,70",
+        "due_date": "14/04/2026",
+        "includes_licensing": false,
+        "total": "R$ 158,70"
+      }
+    ],
+    "pix_generated": false,
+    "pix_generated_at": null,
+    "pix_copied": true,
+    "pix_copied_at": "2026-01-14T20:28:12.549490",
+    "pix_code": null
+  },
+  {
+    "order_id": "ORD-00003",
+    "session_id": "4a2b1a94-09b9-42ed-aa49-6e6d13c2c313",
+    "created_at": "2026-01-14T20:39:47.917343",
+    "vehicle": {
+      "plate": "EDS9499",
+      "brand": "CITROEN C4PIC EXC A 7L",
+      "model": "CITROEN C4PIC EXC A 7L",
+      "year": null,
+      "color": "Prata",
+      "fuel": "Gasolina",
+      "state": "São Paulo",
+      "city": "CAJATI",
+      "chassis": "*****J102350",
+      "engine": "*****1725147"
+    },
+    "payment": {
+      "ipva_original": "R$ 890,32",
+      "ipva_discounted": "R$ 267,10",
+      "licensing_fee": "R$ 35,62",
+      "installment_count": 4,
+      "installment_value": "R$ 66,77",
+      "first_payment_total": "R$ 102,39",
+      "discount_percentage": 70
+    },
+    "installments": [
+      {
+        "number": 1,
+        "value": "R$ 66,77",
+        "due_date": "14/01/2026",
+        "includes_licensing": true,
+        "total": "R$ 102,39"
+      },
+      {
+        "number": 2,
+        "value": "R$ 66,77",
+        "due_date": "13/02/2026",
+        "includes_licensing": false,
+        "total": "R$ 66,77"
+      },
+      {
+        "number": 3,
+        "value": "R$ 66,77",
+        "due_date": "15/03/2026",
+        "includes_licensing": false,
+        "total": "R$ 66,77"
+      },
+      {
+        "number": 4,
+        "value": "R$ 66,77",
+        "due_date": "14/04/2026",
+        "includes_licensing": false,
+        "total": "R$ 66,77"
+      }
+    ],
+    "pix_generated": false,
+    "pix_generated_at": null,
+    "pix_copied": false,
+    "pix_copied_at": null,
+    "pix_code": null
+  },
+  {
+    "order_id": "ORD-00004",
+    "session_id": "28115123-d953-4a77-aa04-d3ec3c7b194b",
+    "created_at": "2026-01-14T23:40:42.711653",
+    "vehicle": {
+      "plate": "EQG4F82",
+      "brand": "VOLKSWAGEN VW JETTA 2.0T",
+      "model": "VOLKSWAGEN VW JETTA 2.0T",
+      "year": null,
+      "color": "Branca",
+      "fuel": "Gasolina",
+      "state": "São Paulo",
+      "city": "SANTO ANDRE",
+      "chassis": "*****M074366",
+      "engine": "*****Z186942"
+    },
+    "payment": {
+      "ipva_original": "R$ 2.116,00",
+      "ipva_discounted": "R$ 634,80",
+      "licensing_fee": "R$ 35,62",
+      "installment_count": 4,
+      "installment_value": "R$ 158,70",
+      "first_payment_total": "R$ 194,32",
+      "discount_percentage": 70
+    },
+    "installments": [
+      {
+        "number": 1,
+        "value": "R$ 158,70",
+        "due_date": "14/01/2026",
+        "includes_licensing": true,
+        "total": "R$ 194,32"
+      },
+      {
+        "number": 2,
+        "value": "R$ 158,70",
+        "due_date": "13/02/2026",
+        "includes_licensing": false,
+        "total": "R$ 158,70"
+      },
+      {
+        "number": 3,
+        "value": "R$ 158,70",
+        "due_date": "15/03/2026",
+        "includes_licensing": false,
+        "total": "R$ 158,70"
+      },
+      {
+        "number": 4,
+        "value": "R$ 158,70",
+        "due_date": "14/04/2026",
+        "includes_licensing": false,
+        "total": "R$ 158,70"
+      }
+    ],
+    "pix_generated": false,
+    "pix_generated_at": null,
+    "pix_copied": false,
+    "pix_copied_at": null,
+    "pix_code": null
+  },
+  {
+    "order_id": "ORD-00005",
+    "session_id": "69656b78-06ba-47d6-8808-30c42253273d",
+    "created_at": "2026-01-14T23:51:07.159515",
+    "vehicle": {
+      "plate": "EQG4F82",
+      "brand": "VOLKSWAGEN VW JETTA 2.0T",
+      "model": "VOLKSWAGEN VW JETTA 2.0T",
+      "year": null,
+      "color": "Branca",
+      "fuel": "Gasolina",
+      "state": "São Paulo",
+      "city": "SANTO ANDRE",
+      "chassis": "*****M074366",
+      "engine": "*****Z186942"
+    },
+    "payment": {
+      "ipva_original": "R$ 2.116,00",
+      "ipva_discounted": "R$ 634,80",
+      "licensing_fee": "R$ 35,62",
+      "installment_count": 4,
+      "installment_value": "R$ 158,70",
+      "first_payment_total": "R$ 194,32",
+      "discount_percentage": 70
+    },
+    "installments": [
+      {
+        "number": 1,
+        "value": "R$ 158,70",
+        "due_date": "14/01/2026",
+        "includes_licensing": true,
+        "total": "R$ 194,32"
+      },
+      {
+        "number": 2,
+        "value": "R$ 158,70",
+        "due_date": "13/02/2026",
+        "includes_licensing": false,
+        "total": "R$ 158,70"
+      },
+      {
+        "number": 3,
+        "value": "R$ 158,70",
+        "due_date": "15/03/2026",
+        "includes_licensing": false,
+        "total": "R$ 158,70"
+      },
+      {
+        "number": 4,
+        "value": "R$ 158,70",
+        "due_date": "14/04/2026",
+        "includes_licensing": false,
+        "total": "R$ 158,70"
+      }
+    ],
+    "pix_generated": false,
+    "pix_generated_at": null,
+    "pix_copied": false,
+    "pix_copied_at": null,
+    "pix_code": null
+  },
+  {
+    "order_id": "ORD-00006",
+    "session_id": "07d77d86-db2a-4887-ac75-5baefbb31665",
+    "created_at": "2026-01-15T00:50:24.255053",
+    "vehicle": {
+      "plate": "EQG4F82",
+      "brand": "VOLKSWAGEN VW JETTA 2.0T",
+      "model": "VOLKSWAGEN VW JETTA 2.0T",
+      "year": null,
+      "color": "Branca",
+      "fuel": "Gasolina",
+      "state": "São Paulo",
+      "city": "SANTO ANDRE",
+      "chassis": "*****M074366",
+      "engine": "*****Z186942"
+    },
+    "payment": {
+      "ipva_original": "R$ 2.116,00",
+      "ipva_discounted": "R$ 634,80",
+      "licensing_fee": "R$ 35,62",
+      "installment_count": 4,
+      "installment_value": "R$ 158,70",
+      "first_payment_total": "R$ 194,32",
+      "discount_percentage": 70
+    },
+    "installments": [
+      {
+        "number": 1,
+        "value": "R$ 158,70",
+        "due_date": "15/01/2026",
+        "includes_licensing": true,
+        "total": "R$ 194,32"
+      },
+      {
+        "number": 2,
+        "value": "R$ 158,70",
+        "due_date": "14/02/2026",
+        "includes_licensing": false,
+        "total": "R$ 158,70"
+      },
+      {
+        "number": 3,
+        "value": "R$ 158,70",
+        "due_date": "16/03/2026",
+        "includes_licensing": false,
+        "total": "R$ 158,70"
+      },
+      {
+        "number": 4,
+        "value": "R$ 158,70",
+        "due_date": "15/04/2026",
+        "includes_licensing": false,
+        "total": "R$ 158,70"
+      }
+    ],
+    "pix_generated": false,
+    "pix_generated_at": null,
+    "pix_copied": false,
+    "pix_copied_at": null,
+    "pix_code": null
+  }
+]

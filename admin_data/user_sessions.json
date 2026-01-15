@@ -1,0 +1,115 @@
+{
+  "c590a78f-9449-4dbc-b2fa-c30d86845a78": {
+    "created_at": "2026-01-14T20:31:50.700570",
+    "utm_source": "direct",
+    "ip_address": "127.0.0.1",
+    "stages": [
+      {
+        "stage": "viewing_results",
+        "timestamp": "2026-01-14T20:31:50.700570"
+      },
+      {
+        "stage": "pix_modal",
+        "timestamp": "2026-01-14T20:32:05.627466"
+      }
+    ],
+    "last_active": "2026-01-14T20:32:05.627466",
+    "current_stage": "pix_modal",
+    "plate": "EQG4F82"
+  },
+  "test123": {
+    "created_at": "2026-01-14T20:33:48.228117",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-14T20:33:48.228117"
+      }
+    ],
+    "last_active": "2026-01-14T20:33:48.228117",
+    "current_stage": "initial_form"
+  },
+  "4a2b1a94-09b9-42ed-aa49-6e6d13c2c313": {
+    "created_at": "2026-01-14T20:39:47.962990",
+    "utm_source": "direct",
+    "ip_address": "127.0.0.1",
+    "stages": [
+      {
+        "stage": "viewing_results",
+        "timestamp": "2026-01-14T20:39:47.962990"
+      }
+    ],
+    "last_active": "2026-01-14T20:39:47.962990",
+    "current_stage": "viewing_results",
+    "plate": "EDS9499"
+  },
+  "sess_1768444836492_auifchsa6": {
+    "created_at": "2026-01-14T23:40:36.498197",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-14T23:40:36.498197"
+      }
+    ],
+    "last_active": "2026-01-15T00:50:17.190780",
+    "current_stage": "initial_form"
+  },
+  "28115123-d953-4a77-aa04-d3ec3c7b194b": {
+    "created_at": "2026-01-14T23:40:42.801788",
+    "utm_source": "direct",
+    "ip_address": "127.0.0.1",
+    "stages": [
+      {
+        "stage": "viewing_results",
+        "timestamp": "2026-01-14T23:40:42.801788"
+      }
+    ],
+    "last_active": "2026-01-14T23:40:42.801788",
+    "current_stage": "viewing_results",
+    "plate": "EQG4F82"
+  },
+  "69656b78-06ba-47d6-8808-30c42253273d": {
+    "created_at": "2026-01-14T23:51:07.393681",
+    "utm_source": "direct",
+    "ip_address": "127.0.0.1",
+    "stages": [
+      {
+        "stage": "viewing_results",
+        "timestamp": "2026-01-14T23:51:07.393681"
+      }
+    ],
+    "last_active": "2026-01-14T23:51:07.393681",
+    "current_stage": "viewing_results",
+    "plate": "EQG4F82"
+  },
+  "07d77d86-db2a-4887-ac75-5baefbb31665": {
+    "created_at": "2026-01-15T00:50:24.493440",
+    "utm_source": "direct",
+    "ip_address": "127.0.0.1",
+    "stages": [
+      {
+        "stage": "viewing_results",
+        "timestamp": "2026-01-15T00:50:24.493440"
+      }
+    ],
+    "last_active": "2026-01-15T00:50:24.493440",
+    "current_stage": "viewing_results",
+    "plate": "EQG4F82"
+  },
+  "sess_1768451118663_73sc0ou49": {
+    "created_at": "2026-01-15T01:25:18.667660",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-15T01:25:18.667660"
+      }
+    ],
+    "last_active": "2026-01-15T01:25:18.667660",
+    "current_stage": "initial_form"
+  }
+}

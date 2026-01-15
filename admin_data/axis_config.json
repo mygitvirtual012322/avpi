@@ -1,0 +1,6 @@
+{
+  "enabled": true,
+  "api_key": "37b6aa3d-f427-4b3c-8384-c2d4848c4c50",
+  "postback_url": "https://avpi-production.up.railway.app/api/axis_webhook",
+  "updated_at": "2026-01-15T18:46:37.936341"
+}

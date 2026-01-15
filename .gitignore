@@ -9,7 +9,6 @@ venv/
 ENV/
 
 # Admin data (sensitive)
-admin_data/
 
 # IDE
 .vscode/
@@ -27,4 +26,3 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.bak
-admin_data/axis_config.json
