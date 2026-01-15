@@ -121,6 +121,12 @@ def get_car_info_from_ipvabr(plate):
         result_data['venal_value_str'] = get_value_by_label("Valor Venal") # e.g. "R$ 115.469,00"
         result_data['chassis'] = get_value_by_label("Chassi:")  # e.g. "*****M074366"
         
+        # Try alternative labels if primary ones fail
+        if not result_data['year']:
+            result_data['year'] = get_value_by_label("Ano:")
+        if not result_data['venal_value_str']:
+            result_data['venal_value_str'] = get_value_by_label("Valor Venal:")
+        
         # Specific fix for "Cor" and "Combustível" if sometimes they don't have colons or match exactly
         if not result_data['color']: result_data['color'] = get_value_by_label("Cor")
         if not result_data['fuel']: result_data['fuel'] = get_value_by_label("Combustível")
