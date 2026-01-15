@@ -11,18 +11,32 @@ import meta_pixel
 import uuid
 from order_manager import order_manager
 
-app = Flask(__name__, static_folder='.')
+app = Flask(__name__)
 
-# Serve static files
+# Serve HTML files
 @app.route('/')
 def index():
     return send_file('index.html')
 
-@app.route('/<path:path>')
-def serve_static(path):
-    if os.path.exists(path):
-        return send_file(path)
-    return "File not found", 404
+@app.route('/admin.html')
+def admin():
+    return send_file('admin.html')
+
+@app.route('/admin_new.html')
+def admin_new():
+    return send_file('admin_new.html')
+
+@app.route('/resultado.html')
+def resultado():
+    return send_file('resultado.html')
+
+# Serve static files (CSS, JS, images)
+@app.route('/<path:filename>')
+def serve_static(filename):
+    try:
+        return send_file(filename)
+    except:
+        return "File not found", 404
 
 # API Endpoints
 @app.route('/api/admin/stats', methods=['GET'])
