@@ -220,4 +220,13 @@ def save_pixel():
 
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 8080))
+    print(f"=" * 60, flush=True)
+    print(f"🚀 Starting IPVA Server on port {PORT}", flush=True)
+    print(f"=" * 60, flush=True)
     app.run(host='0.0.0.0', port=PORT, debug=False)
+else:
+    # For Gunicorn (production)
+    print("=" * 60, flush=True)
+    print("🚀 IPVA Server loaded by Gunicorn", flush=True)
+    print(f"Environment: {os.environ.get('RAILWAY_ENVIRONMENT', 'local')}", flush=True)
+    print("=" * 60, flush=True)
