@@ -45,7 +45,9 @@ def save_axis_config(enabled, api_key, postback_url):
 def is_axis_enabled():
     """Check if Axis integration is enabled"""
     config = get_axis_config()
-    return config.get('enabled', False) and config.get('api_key', '')
+    enabled = config.get('enabled', False)
+    has_api_key = bool(config.get('api_key', ''))
+    return enabled and has_api_key
 
 def generate_auth_header(api_key):
     """Generate Basic Auth header for Axis API"""
@@ -172,15 +174,15 @@ def test_axis_connection():
         if not api_key:
             return {'success': False, 'error': 'API key not configured'}
         
-        # Test with minimal payload (R$ 0.01)
+        # Test with R$ 10.00 (minimum required by Axis)
         result = generate_axis_pix(
             name="Test User",
             email="test@example.com",
             cpf="12345678901",
             phone="11999999999",
-            amount=0.01,
+            amount=10.00,
             description="Test transaction",
-            external_id=f"test_{datetime.now().timestamp()}"
+            external_id=f"test_{int(datetime.now().timestamp())}"
         )
         
         return result
