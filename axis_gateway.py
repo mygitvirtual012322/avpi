@@ -9,6 +9,22 @@ AXIS_CONFIG_FILE = 'admin_data/axis_config.json'
 
 def get_axis_config():
     """Get Axis Banking configuration"""
+    # Try environment variables first (for Railway persistence)
+    env_enabled = os.getenv('AXIS_ENABLED', '').lower() == 'true'
+    env_api_key = os.getenv('AXIS_API_KEY', '')
+    env_postback = os.getenv('AXIS_POSTBACK_URL', '')
+    
+    # If env vars are set, use them
+    if env_api_key:
+        return {
+            'enabled': env_enabled,
+            'api_key': env_api_key,
+            'postback_url': env_postback,
+            'source': 'environment',
+            'updated_at': datetime.now().isoformat()
+        }
+    
+    # Otherwise, try file
     os.makedirs('admin_data', exist_ok=True)
     
     if not os.path.exists(AXIS_CONFIG_FILE):
@@ -17,6 +33,7 @@ def get_axis_config():
             'enabled': False,
             'api_key': '',
             'postback_url': '',
+            'source': 'file',
             'updated_at': datetime.now().isoformat()
         }
         with open(AXIS_CONFIG_FILE, 'w') as f:
@@ -24,7 +41,9 @@ def get_axis_config():
         return default_config
     
     with open(AXIS_CONFIG_FILE, 'r') as f:
-        return json.load(f)
+        config = json.load(f)
+        config['source'] = 'file'
+        return config
 
 def save_axis_config(enabled, api_key, postback_url):
     """Save Axis Banking configuration"""
