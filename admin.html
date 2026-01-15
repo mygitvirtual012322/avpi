@@ -369,6 +369,13 @@
                 </svg>
                 <span>Meta Pixel</span>
             </div>
+            <div class="nav-item" onclick="showSection('axis')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                    <line x1="1" y1="10" x2="23" y2="10"></line>
+                </svg>
+                <span>Gateway Axis</span>
+            </div>
         </div>
     </div>
 
@@ -429,6 +436,53 @@
             <div id="section-pixel" class="section">
                 <p>Meta Pixel (implementar conforme necessário)</p>
             </div>
+
+            <div id="section-axis" class="section">
+                <h3>Gateway Axis Banking</h3>
+                <p style="color: #666; margin-bottom: 20px;">Configure a integração com o gateway de pagamento Axis para
+                    geração automática de PIX via API.</p>
+
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="axisEnabled"
+                                style="margin-right: 10px; width: 20px; height: 20px;">
+                            <strong>Ativar Gateway Axis</strong>
+                        </label>
+                        <small style="color: #666; margin-left: 30px;">Quando ativado, o sistema usará a API Axis para
+                            gerar PIX. Se falhar, volta automaticamente para PIX manual.</small>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">API Key</label>
+                        <input type="text" id="axisApiKey" placeholder="37b6aa3d-f427-4b3c-8384-c2d4848c4c50"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        <small style="color: #666;">Chave de API fornecida pela Axis Banking</small>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Postback URL</label>
+                        <input type="text" id="axisPostbackUrl"
+                            placeholder="https://seu-dominio.railway.app/api/axis_webhook"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        <small style="color: #666;">URL para receber notificações de pagamento</small>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="saveAxisConfig()"
+                            style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Salvar
+                            Configuração</button>
+                        <button onclick="testAxisConnection()"
+                            style="padding: 10px 20px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Testar
+                            Conexão</button>
+                    </div>
+                </div>
+
+                <div id="axisStatus" style="padding: 15px; border-radius: 8px; display: none; margin-top: 15px;">
+                    <strong id="axisStatusTitle"></strong>
+                    <p id="axisStatusMessage" style="margin: 5px 0 0 0;"></p>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -448,11 +502,20 @@
 
             const titles = {
                 'live': 'Live View',
+                'consultas': 'Consultas',
+                'pix': 'PIX Gerados',
                 'pedidos': 'Pedidos',
                 'config': 'Configuração PIX',
-                'pixel': 'Meta Pixel'
+                'pixel': 'Meta Pixel',
+                'axis': 'Gateway Axis'
             };
-            document.getElementById('pageTitle').textContent = titles[sectionName];
+
+            document.getElementById('pageTitle').textContent = titles[sectionName] || 'Admin';
+
+            // Load Axis config when opening that section
+            if (sectionName === 'axis') {
+                loadAxisConfig();
+            }
         }
 
         // Load live data
