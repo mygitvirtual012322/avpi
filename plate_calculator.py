@@ -140,11 +140,22 @@ def get_car_info_from_ipvabr(plate):
         result_data['city'] = get_value_by_label("Município:")
         result_data['venal_value_str'] = get_value_by_label("Valor Venal") # e.g. "R$ 115.469,00"
         
+        # Chassis não existe no ipvabr.com.br - deixar vazio
+        result_data['chassis'] = None
+        
         # Specific fix for "Cor" and "Combustível" if sometimes they don't have colons or match exactly
         if not result_data['color']: result_data['color'] = get_value_by_label("Cor")
         if not result_data['fuel']: result_data['fuel'] = get_value_by_label("Combustível")
         if not result_data['state']: result_data['state'] = get_value_by_label("Estado")
         if not result_data['city']: result_data['city'] = get_value_by_label("Município")
+        
+        # DEBUG: Print scraped data
+        print(f"DEBUG Scraped Data:", flush=True)
+        print(f"  Brand/Model: {result_data.get('brand_model')}", flush=True)
+        print(f"  Venal Value: {result_data.get('venal_value_str')}", flush=True)
+        print(f"  Year: {result_data.get('year')}", flush=True)
+        print(f"  Color: {result_data.get('color')}", flush=True)
+        print(f"  State: {result_data.get('state')}", flush=True)
         
         # If we failed to get critical data
         if not result_data['brand_model'] or not result_data['venal_value_str']:
@@ -229,6 +240,9 @@ def calculate_ipva_data(plate):
         # Installments
         "installment_val": fmt(installment_val),
         "installments": 12,
+        
+        # Additional fields
+        "chassis": scraped_data.get('chassis', '-'),
         
         # Raw values for frontend math if needed
         "raw_total_discounted": total_discounted,
