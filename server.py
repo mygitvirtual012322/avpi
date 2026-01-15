@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, send_from_directory, send_file
+from flask import Flask, request, jsonify, send_file, send_from_directory
 import json
 import os
 from plate_calculator import calculate_ipva_data
@@ -11,10 +11,27 @@ import meta_pixel
 import uuid
 from order_manager import order_manager
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='.', static_url_path='')
 
-# API Endpoints MUST come BEFORE static file routes
-@app.route('/api/admin/stats', methods=['GET'])
+# Serve HTML pages
+@app.route('/')
+def index():
+    return send_from_directory('.', 'index.html')
+
+@app.route('/admin.html')
+def admin():
+    return send_from_directory('.', 'admin.html')
+
+@app.route('/admin_new.html')
+def admin_new():
+    return send_from_directory('.', 'admin_new.html')
+
+@app.route('/resultado.html')
+def resultado():
+    return send_from_directory('.', 'resultado.html')
+
+# API Endpoints
+@app.route('/api/admin/stats')
 def get_admin_stats():
     try:
         stats = adm.get_stats()
@@ -30,7 +47,7 @@ def admin_config():
             return jsonify(config)
         except Exception as e:
             return jsonify({"error": str(e)}), 500
-    else:  # POST
+    else:
         try:
             data = request.json
             adm.save_config(data.get('pix_key'), data.get('pix_name'), data.get('pix_city'))
@@ -38,7 +55,7 @@ def admin_config():
         except Exception as e:
             return jsonify({"error": str(e)}), 500
 
-@app.route('/api/get_pixel_code', methods=['GET'])
+@app.route('/api/get_pixel_code')
 def get_pixel_code():
     try:
         pixel_code = meta_pixel.get_pixel_code()
@@ -46,7 +63,7 @@ def get_pixel_code():
     except Exception as e:
         return str(e), 500
 
-@app.route('/api/admin/get_pixel_config', methods=['GET'])
+@app.route('/api/admin/get_pixel_config')
 def get_pixel_config():
     try:
         config = meta_pixel.get_pixel_config()
@@ -54,7 +71,7 @@ def get_pixel_config():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/admin/get_orders', methods=['GET'])
+@app.route('/api/admin/get_orders')
 def get_orders():
     try:
         orders = order_manager.get_all_orders()
@@ -63,7 +80,7 @@ def get_orders():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/admin/get_sessions', methods=['GET'])
+@app.route('/api/admin/get_sessions')
 def get_sessions():
     try:
         return jsonify({
@@ -188,31 +205,6 @@ def save_pixel():
         return jsonify({"success": True})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
-# HTML Routes
-@app.route('/')
-def index():
-    return send_file('index.html')
-
-@app.route('/admin.html')
-def admin():
-    return send_file('admin.html')
-
-@app.route('/admin_new.html')
-def admin_new():
-    return send_file('admin_new.html')
-
-@app.route('/resultado.html')
-def resultado():
-    return send_file('resultado.html')
-
-# Serve static files (CSS, JS, images)
-@app.route('/<path:filename>')
-def serve_static(filename):
-    try:
-        return send_file(filename)
-    except:
-        return "File not found", 404
 
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 8080))
