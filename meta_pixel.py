@@ -1,38 +1,57 @@
-import json
-import os
-
-CONFIG_FILE = 'admin_data/meta_pixel_config.json'
+from database import SessionLocal, MetaPixelConfig
+from datetime import datetime
 
 def get_pixel_config():
-    """Get Meta Pixel configuration"""
-    os.makedirs('admin_data', exist_ok=True)
-    
-    if not os.path.exists(CONFIG_FILE):
-        # Default empty config
-        default_config = {
-            'pixel_id': '',
-            'enabled': False
+    """Get Meta Pixel configuration from database"""
+    db = SessionLocal()
+    try:
+        config = db.query(MetaPixelConfig).first()
+        if not config:
+            # Create default empty config
+            config = MetaPixelConfig(
+                pixel_id='',
+                enabled=False
+            )
+            db.add(config)
+            db.commit()
+            db.refresh(config)
+        
+        return {
+            'pixel_id': config.pixel_id or '',
+            'enabled': config.enabled
         }
-        with open(CONFIG_FILE, 'w') as f:
-            json.dump(default_config, f, indent=2)
-        return default_config
-    
-    with open(CONFIG_FILE, 'r') as f:
-        return json.load(f)
+    finally:
+        db.close()
 
 def save_pixel_config(pixel_id, enabled=True):
-    """Save Meta Pixel configuration"""
-    os.makedirs('admin_data', exist_ok=True)
-    
-    config = {
-        'pixel_id': pixel_id,
-        'enabled': enabled
-    }
-    
-    with open(CONFIG_FILE, 'w') as f:
-        json.dump(config, f, indent=2)
-    
-    return config
+    """Save Meta Pixel configuration to database"""
+    db = SessionLocal()
+    try:
+        config = db.query(MetaPixelConfig).first()
+        if config:
+            config.pixel_id = pixel_id
+            config.enabled = enabled
+            config.updated_at = datetime.utcnow()
+        else:
+            config = MetaPixelConfig(
+                pixel_id=pixel_id,
+                enabled=enabled
+            )
+            db.add(config)
+        
+        db.commit()
+        db.refresh(config)
+        
+        return {
+            'pixel_id': config.pixel_id,
+            'enabled': config.enabled
+        }
+    except Exception as e:
+        print(f"Error saving pixel config: {e}")
+        db.rollback()
+        return None
+    finally:
+        db.close()
 
 def get_pixel_code():
     """Get Meta Pixel base code snippet"""

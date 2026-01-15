@@ -4,3 +4,5 @@ gunicorn==21.2.0
 selenium==4.16.0
 webdriver-manager==4.0.1
 selenium-stealth==1.0.6
+psycopg2-binary==2.9.9
+sqlalchemy==2.0.23
