@@ -1,130 +1,127 @@
 # Sistema IPVA - Consulta e Pagamento
 
-Sistema completo de consulta de IPVA com desconto de 70%, geração de PIX e admin dashboard em tempo real.
+Sistema web para consulta de IPVA com geração de PIX e tracking completo de conversão.
 
-## 🚀 Deploy no Fly.io
+## 🚀 Deploy no Railway
 
-### Pré-requisitos
-1. Instale o Fly CLI: `curl -L https://fly.io/install.sh | sh`
-2. Faça login: `fly auth login`
+Este projeto está configurado para deploy automático no Railway com **$5 créditos mensais gratuitos**.
 
-### Deploy
-```bash
-# Na pasta do projeto
-fly launch --no-deploy
+### Deploy Rápido
+1. Acesse: https://railway.app
+2. Login com GitHub
+3. **New Project** → **Deploy from GitHub repo**
+4. Selecione: `mygitvirtual012322/avpi`
+5. Aguarde 3-5 minutos
 
-# Faça deploy
-fly deploy
+Railway vai automaticamente:
+- ✅ Instalar Python 3.11
+- ✅ Instalar Chromium + Chromedriver
+- ✅ Instalar dependências
+- ✅ Rodar com Gunicorn (2 workers, 2 threads)
 
-# Abra o app
-fly open
-```
+### Recursos Utilizados
+- **RAM:** 512MB - 1GB (otimizado para $5 créditos)
+- **CPU:** 1-2 vCPUs
+- **Custo estimado:** $3-5/mês (dentro dos $5 gratuitos)
 
-## 📋 Funcionalidades
+## 📋 Features
 
-### Frontend
-- ✅ Consulta de IPVA por placa e Renavam
-- ✅ Cálculo com 70% de desconto
-- ✅ Parcelamento em 4x
+- ✅ Consulta de placa via scraping (Selenium + Chrome headless)
+- ✅ Cálculo automático de IPVA com desconto
 - ✅ Geração de código PIX
-- ✅ QR Code para pagamento
+- ✅ Tracking de conversão (Meta Pixel)
+- ✅ Painel administrativo completo
+- ✅ Tracking de jornada do usuário
+- ✅ Gestão de pedidos
 
-### Admin Dashboard
-- ✅ **Live View** com funil de conversão em tempo real
-- ✅ Tracking de 3 estágios da jornada:
-  - Formulário (inicial)
-  - Visualizando resultados
-  - Modal PIX (checkout)
-- ✅ Detecção de origem (UTM: Facebook/Google/Direct)
-- ✅ Lista de usuários online com IP, placa e estágio
-- ✅ Gestão completa de pedidos
-- ✅ Rastreamento de PIX gerado e copiado
-- ✅ Configuração de Meta Pixel ID
-- ✅ Atualização automática a cada 2 segundos
+## 🛠️ Stack Tecnológica
 
-### Integrações
-- ✅ Meta Pixel com eventos (PageView, InitiateCheckout, Purchase)
-- ✅ API de consulta IPVA
-- ✅ Geração de PIX dinâmico
-
-## 🔐 Acesso Admin
-
-**URL:** `/admin_new.html`
-
-**Credenciais padrão:**
-- Usuário: `admin`
-- Senha: `admin2026!`
-
-⚠️ **IMPORTANTE:** Altere as credenciais após o primeiro acesso!
-
-## 🛠️ Tecnologias
-
-- **Backend:** Python 3.11 + Flask + Gunicorn
-- **Frontend:** HTML, CSS, JavaScript vanilla
-- **Deploy:** Fly.io (Docker)
-- **Tracking:** Sistema próprio de sessões
-- **Analytics:** Meta Pixel
+- **Backend:** Flask + Gunicorn
+- **Scraping:** Selenium + selenium-stealth
+- **Browser:** Chromium (headless)
+- **Storage:** JSON (admin_data/)
+- **Deploy:** Railway (Nixpacks)
 
 ## 📁 Estrutura
 
 ```
-├── server.py              # Servidor Flask principal
-├── admin.html             # Dashboard admin com live view
-├── admin_new.html         # Página de login admin
-├── index.html             # Página inicial de consulta
-├── resultado.html         # Página de resultados e PIX
-├── admin_auth.py          # Sistema de autenticação
-├── session_tracker.py     # Tracking de jornada
+├── server.py              # Servidor Flask
+├── plate_calculator.py    # Scraping de placas
+├── admin_data_manager.py  # Gestão de dados
+├── session_tracker.py     # Tracking de sessões
 ├── order_manager.py       # Gestão de pedidos
-├── meta_pixel.py          # Integração Meta Pixel
-├── Dockerfile             # Container para Fly.io
-└── fly.toml               # Configuração Fly.io
+├── meta_pixel.py          # Meta Pixel integration
+├── pix_utils.py          # Geração de PIX
+├── index.html            # Página principal
+├── resultado.html        # Página de resultados
+├── admin.html            # Painel admin
+├── railway.toml          # Config Railway
+├── nixpacks.toml         # Config Nixpacks
+└── requirements.txt      # Dependências Python
 ```
 
-## 🔧 Configuração
+## 🔧 Desenvolvimento Local
 
-### Chave PIX
-Edite `config.py`:
-```python
-PIX_KEY = "sua_chave_pix"
-PIX_NAME = "SEU NOME"
-PIX_CITY = "SUA CIDADE"
+```bash
+# Instalar dependências
+pip install -r requirements.txt
+
+# Rodar servidor
+python server.py
+
+# Acessar
+http://localhost:8080
 ```
-
-### Meta Pixel
-Configure no admin: **Meta Pixel** → Digite o ID → Salvar
 
 ## 📊 Monitoramento
 
-O admin dashboard mostra em tempo real:
-- Quantos usuários em cada etapa do funil
-- Lista de usuários online com detalhes
-- Pedidos completos com dados do veículo
-- Taxa de conversão
-- Origem do tráfego (UTM)
+Após deploy no Railway:
+1. **Logs:** Railway Dashboard → Deployments → View Logs
+2. **Uso:** Settings → Usage (ver créditos restantes)
+3. **Health:** `https://seu-app.railway.app/api/health`
 
-## 🚨 Comandos Úteis Fly.io
+## ⚙️ Configurações
 
-```bash
-# Ver logs
-fly logs
+### Variáveis de Ambiente (Automáticas)
+- `PORT` - Porta do servidor (Railway injeta)
+- `CHROME_BIN` - Path do Chromium (Nixpacks)
+- `CHROMEDRIVER_PATH` - Path do driver (Nixpacks)
 
-# Ver status
-fly status
+### Admin Panel
+- URL: `/admin.html`
+- Credenciais: Configurar em `admin_auth.py`
 
-# Abrir dashboard
-fly dashboard
+## 🎯 Otimizações para Railway
 
-# Escalar (se precisar)
-fly scale count 1
+- ✅ Selenium com flags de economia de memória
+- ✅ Gunicorn com 2 workers + 2 threads
+- ✅ Timeout de 120s para scraping
+- ✅ Health check endpoint
+- ✅ Auto-restart em caso de falha
 
-# Ver secrets
-fly secrets list
+## 📝 Notas
 
-# Adicionar secret
-fly secrets set CHAVE=valor
-```
+- **Selenium:** Funciona perfeitamente com 512MB-1GB RAM no Railway
+- **Cloudflare:** Usa `selenium-stealth` para bypass
+- **Créditos:** $5/mês cobre uso 24/7 com tráfego leve/médio
+- **Scale:** Railway pausa automaticamente se inativo (economiza crédito)
 
-## 📝 Licença
+## 🆘 Troubleshooting
 
-Projeto privado - Todos os direitos reservados
+### Selenium travando
+- Verificar logs: `Railway → Deployments → Logs`
+- Aumentar RAM no Railway UI
+- Reduzir workers: `--workers 1 --threads 4`
+
+### Timeout na consulta
+- Normal: scraping pode levar 10-30s
+- Cloudflare bloqueando: verificar logs para "Attention Required"
+
+### Créditos acabando
+- Monitorar uso em Settings → Usage
+- Otimizar: reduzir workers ou adicionar sleep mode
+- Adicionar cartão: paga apenas excedente
+
+## 📄 Licença
+
+Uso privado.
