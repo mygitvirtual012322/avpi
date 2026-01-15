@@ -1,0 +1,787 @@
+/* Global Resets */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: #f5f5f5;
+    min-height: 100vh;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* Split Background */
+.mg-split-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    display: flex;
+    flex-direction: column;
+}
+
+.mg-header-bg {
+    flex: 1;
+    /* Top half white */
+    background-color: #ffffff;
+}
+
+.mg-footer-bg {
+    flex: 1;
+    /* Bottom half red */
+    background-color: #BF2126;
+}
+
+/* Main Container */
+.mg-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 24px;
+    padding-bottom: 0;
+    /* Flush footer */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Center horizontally */
+    justify-content: flex-start;
+    /* Allow scrolling without clipping */
+}
+
+/* Header / Logo */
+.mg-header-logo {
+    position: absolute;
+    top: 30px;
+    /* Increased from 24px */
+    left: 40px;
+}
+
+.sef-logo-img {
+    height: 45px;
+    /* Decreased from 60px */
+    width: auto;
+}
+
+/* Card */
+.mg-card {
+    background: #ffffff;
+    border-radius: 40px;
+    box-shadow: 0 4px 35px rgba(0, 0, 0, 0.08);
+    /* Soft shadow */
+    padding: 40px 48px;
+    width: 100%;
+    max-width: 900px;
+    /* Increased width */
+    margin-top: 40px;
+}
+
+/* Card Header */
+.mg-card-header .mg-back-link {
+    display: inline-flex;
+    align-items: center;
+    color: #136B9E;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 24px;
+    gap: 8px;
+}
+
+.mg-card-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: rgba(0, 0, 0, 0.87);
+    margin-bottom: 8px;
+    line-height: 1.3;
+}
+
+.mg-card-header .subtitle {
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.6);
+    margin-bottom: 32px;
+}
+
+/* Form */
+.mg-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.mg-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.mg-input-group label {
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.6);
+}
+
+.mg-input-group input {
+    width: 100%;
+    padding: 12px 0;
+    font-size: 16px;
+    border: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.42);
+    outline: none;
+    background: transparent;
+    transition: border-color 0.3s;
+}
+
+.mg-input-group input:focus {
+    border-bottom: 2px solid #136B9E;
+}
+
+.helper-text {
+    font-size: 12px;
+    color: rgba(0, 0, 0, 0.6);
+    line-height: 1.4;
+}
+
+/* Actions */
+.mg-actions {
+    margin-top: 24px;
+}
+
+.mg-btn-primary {
+    width: 100%;
+    background-color: #136B9E;
+    /* Primary Blue from MG site */
+    /* Or Red? Screenshot showed CONSULTAR button. Usually primary action is Blue or standard button color. 
+       Let's stick to Blue #136B9E found in tokens or maybe Red #BF2126 if it feels more main. 
+       Reviewing: Main color is Red/White. Buttons usually contrast. Blue is good. */
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 16px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    /* Slightly rounded */
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s;
+}
+
+.mg-btn-primary:hover {
+    background-color: #0f5680;
+}
+
+/* Footer Links */
+.mg-card-footer-links {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.87);
+}
+
+.mg-card-footer-links a {
+    color: #136B9E;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+/* Result Overlay (Reused from previous, styled to match) */
+.result-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.result-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.result-card {
+    background: white;
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    font-family: 'Open Sans', sans-serif;
+}
+
+.result-card h2 {
+    color: #BF2126;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 10px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 30px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #666;
+}
+
+.vehicle-details p {
+    margin: 8px 0;
+    color: #333;
+}
+
+.promo-banner {
+    margin-top: 25px;
+    background: #fdf2f2;
+    /* Light red bg */
+    border: 2px dashed #BF2126;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.promo-banner h3 {
+    color: #BF2126;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.discount-badge {
+    background: #25D366;
+    /* WhatsApp Green / Pix Green */
+    color: white;
+    font-weight: bold;
+    padding: 5px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 15px;
+}
+
+.price-box {
+    display: flex;
+    justify-content: space-between;
+    margin: 5px 0;
+    font-size: 14px;
+}
+
+.price-box.highlight {
+    font-size: 18px;
+    font-weight: bold;
+    color: #2e7d32;
+    margin-top: 10px;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+}
+
+.value.strikethrough {
+    text-decoration: line-through;
+    color: #888;
+}
+
+.pay-btn {
+    width: 100%;
+    background: #25D366;
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    margin-top: 15px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: transform 0.2s;
+}
+
+.pay-btn:hover {
+    transform: scale(1.02);
+}
+
+/* Result Overlay - Official Layout */
+.result-container.official-layout {
+    max-width: 100%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background: #f8f9fa;
+}
+
+.section-official {
+    padding: 20px 15px;
+    border-bottom: 1px solid #dee2e6;
+    background: #fff;
+}
+
+.section-official.bg-light {
+    background-color: #f8f9fa;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.section-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+/* Vehicle Grid */
+.vehicle-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    /* 4 columns on desktop */
+    gap: 20px;
+}
+
+.v-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+}
+
+.v-icon {
+    display: flex;
+    align-items: center;
+    color: #666;
+}
+
+.v-icon svg,
+.top-icon svg,
+.info-icon svg {
+    width: 18px;
+    height: 18px;
+    stroke: #777;
+    fill: none !important;
+    /* Force no fill */
+    stroke-width: 2px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Explicitly target shapes to override user agent defaults */
+.v-icon svg *,
+.top-icon svg *,
+.info-icon svg * {
+    fill: none !important;
+    stroke: inherit;
+}
+
+.top-icon svg {
+    stroke: #BF2126;
+    /* Override color for top icons */
+    margin-right: 6px;
+}
+
+.info-icon svg {
+    width: 14px;
+    height: 14px;
+    stroke: #666;
+    vertical-align: text-bottom;
+}
+
+/* Red Result Header */
+.header-red-official {
+    background-color: #b01b20;
+    /* Deep Gov Red */
+    color: white;
+    padding: 12px 60px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.header-red-official .sef-logo {
+    height: 30px;
+    filter: brightness(0) invert(1);
+    /* Force white if generic image */
+}
+
+.header-info-text {
+    text-align: right;
+}
+
+/* Footer Official */
+.footer-official {
+    background-color: #666;
+    color: white;
+    padding: 15px 40px;
+    text-align: center;
+    font-size: 13px;
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    gap: 10px;
+    width: 100%;
+}
+
+.footer-official a {
+    color: white;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+/* Promo Modal Styles */
+.promo-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: none;
+    /* Hidden by default */
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.promo-modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 90%;
+    width: 400px;
+    /* Adjust based on image */
+    text-align: center;
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.promo-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: block;
+}
+
+.btn-modal-action {
+    background-color: #28a745;
+    /* Green for success/promo */
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.2s;
+    text-transform: uppercase;
+}
+
+.btn-modal-action:hover {
+    background-color: #218838;
+}
+
+.btn-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #999;
+    cursor: pointer;
+}
+
+.v-label {
+    display: block;
+    color: #888;
+    font-size: 11px;
+}
+
+.v-value {
+    color: #333;
+    font-weight: 600;
+}
+
+/* Total Row */
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+.total-info {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.check-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    color: #333;
+}
+
+.total-value-box {
+    text-align: right;
+}
+
+.t-label {
+    display: block;
+    font-size: 12px;
+    color: #666;
+}
+
+.t-price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #333;
+}
+
+.btn-gerar-pagamento {
+    float: right;
+    background: #136B9E;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* Year Block */
+.year-block {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+.year-header {
+    background: #f8f9fa;
+    padding: 10px 15px;
+    border-bottom: 1px solid #ddd;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+}
+
+.cards-container {
+    padding: 15px;
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+}
+
+.pay-card {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-width: 160px;
+    flex: 1;
+}
+
+.pay-card.highlight-green {
+    border: 1px solid #198754;
+}
+
+.pay-card.highlight-green .card-header {
+    background: #e9f7ef;
+    color: #198754;
+    border-bottom: 1px solid #198754;
+}
+
+.card-header {
+    padding: 8px;
+    font-size: 12px;
+    border-bottom: 1px solid #eee;
+    background: #fcfcfc;
+}
+
+.card-body {
+    padding: 10px;
+    text-align: center;
+}
+
+.date-row {
+    font-size: 11px;
+    color: #666;
+    margin-bottom: 4px;
+}
+
+.date-val {
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.card-price {
+    font-size: 14px;
+    font-weight: 700;
+    color: #333;
+}
+
+/* Payment Selection Styles */
+.pay-card {
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s, border 0.2s;
+}
+
+.pay-card.selected {
+    border: 2px solid #28a745;
+    background-color: #f0fff4;
+}
+
+.card-checkbox {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    accent-color: #28a745;
+}
+
+.badge-overdue {
+    background: #dc3545;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    margin-left: 5px;
+    text-transform: uppercase;
+}
+
+.badge-promo {
+    background: #28a745;
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: bold;
+    margin-left: 5px;
+    text-transform: uppercase;
+}
+
+/* PIX Modal Specifics */
+.pix-modal-content {
+    text-align: center;
+    padding: 30px;
+    max-width: 450px;
+}
+
+.pix-logo {
+    height: 40px;
+    margin-bottom: 20px;
+}
+
+.qr-code-container {
+    margin: 20px auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    display: inline-block;
+    background: white;
+}
+
+.copy-paste-box {
+    width: 100%;
+    padding: 10px;
+    font-size: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: #f9f9f9;
+    word-break: break-all;
+    margin-bottom: 10px;
+    height: 60px;
+}
+
+.btn-copy-pix {
+    background: #136B9E;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+}
+
+.btn-copy-pix:hover {
+    background: #0f5680;
+}
+
+/* Mobile Responsive */
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .vehicle-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        /* Tighter gap */
+    }
+
+    .v-item {
+        font-size: 11px;
+        /* Smaller font */
+    }
+
+    .cards-container {
+        flex-direction: column;
+        padding: 5px;
+        gap: 10px;
+    }
+
+    .result-card.official-layout {
+        height: auto;
+        overflow-y: visible;
+    }
+
+    .promo-modal-content {
+        max-width: 95%;
+        width: 100%;
+        padding: 5px;
+    }
+
+    .footer-official {
+        font-size: 10px;
+        padding: 10px;
+        flex-wrap: nowrap;
+        /* Keep single line */
+        white-space: nowrap;
+    }
+}

@@ -1,0 +1,63 @@
+/* Carousel Container */
+.mg-person-carousel {
+    width: 100%;
+    max-width: 800px;
+    /* Limit width */
+    height: 350px;
+    margin-top: auto;
+    /* Push to bottom */
+    position: relative;
+    overflow: hidden;
+    /* Removed border-radius for flush look */
+    pointer-events: none;
+    line-height: 0;
+    /* Remove inline-block gaps */
+    margin-bottom: 0;
+    /* Ensure no bottom margin */
+}
+
+/* Mobile Adjustments */
+@media (max-width: 900px) {
+    .mg-person-carousel {
+        position: relative;
+        left: auto;
+        bottom: auto;
+        margin-top: 10px;
+        /* Minimized breathing room */
+        width: 100%;
+        max-width: 600px;
+        /* Allow more width */
+        height: 350px;
+        align-self: center;
+        display: flex;
+        justify-content: center;
+        overflow: visible;
+        /* Let it breathe */
+    }
+
+    .person-img {
+        position: absolute;
+        bottom: 0;
+        left: auto;
+        right: -50px;
+        /* Pull to right */
+        transform: none;
+        height: 100%;
+        width: auto;
+        max-width: none;
+    }
+}
+
+.person-img {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.person-img.active {
+    opacity: 1;
+}

