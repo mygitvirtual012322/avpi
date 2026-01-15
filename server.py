@@ -209,39 +209,6 @@ def track_pix_copy():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@app.route('/api/admin/orders')
-def get_orders():
-    try:
-        orders = order_manager.get_all_orders()
-        return jsonify({"orders": orders})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/admin/get_config')
-def get_admin_config():
-    try:
-        config = adm.get_config()
-        return jsonify(config)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/admin/save_config', methods=['POST'])
-def save_admin_config():
-    try:
-        data = request.json
-        adm.save_config(data.get('pix_key'), data.get('pix_name'), data.get('pix_city'))
-        return jsonify({"success": True})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route('/api/admin/get_pixel')
-def get_pixel_config():
-    try:
-        config = meta_pixel.get_pixel_config()
-        return jsonify(config)
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
 @app.route('/api/admin/save_pixel', methods=['POST'])
 def save_pixel():
     try:
