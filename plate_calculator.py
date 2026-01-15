@@ -149,18 +149,19 @@ def get_car_info_from_ipvabr(plate):
             return None
             
         if not result_data['venal_value_str']:
-            print(f"DEBUG: Missing venal_value. This might be an older vehicle without IPVA.", flush=True)
-            # Some very old vehicles don't have venal value - return friendly error
-            return None
-             
-        # Parse Venal Value
-        # Remove R$, dot, replace comma with dot
-        raw_val = result_data['venal_value_str'].replace("R$", "").replace(".", "").replace(",", ".").strip()
-        try:
-            result_data['venal_value'] = float(raw_val)
-        except ValueError:
-             print(f"DEBUG: Error parsing venal value: {raw_val}")
-             return None
+            print(f"DEBUG: Missing venal_value. Will try FIPE API as fallback.", flush=True)
+            # Don't return None - let the function continue and return partial data
+            # The FIPE fallback will handle this in calculate_ipva_data()
+              
+        # Parse Venal Value (only if we have it)
+        if result_data.get('venal_value_str'):
+            # Remove R$, dot, replace comma with dot
+            raw_val = result_data['venal_value_str'].replace("R$", "").replace(".", "").replace(",", ".").strip()
+            try:
+                result_data['venal_value'] = float(raw_val)
+            except ValueError:
+                print(f"DEBUG: Error parsing venal value: {raw_val}")
+                # Don't return None - let FIPE handle it
         
         return result_data
         
