@@ -1,55 +1,62 @@
 import json
 import re
-# Use undetected-chromedriver to bypass Cloudflare
-import undetected_chromedriver as uc
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium_stealth import stealth
 import time
 import os
 from config import IPVA_ALIQUOTA, PROMO_DISCOUNT_RATE, LICENSING_FEE
 
 def get_car_info_from_ipvabr(plate):
     """
-    Uses undetected-chromedriver to scrape vehicle info and Venal Value from ipvabr.com.br.
+    Uses Selenium with Stealth to scrape vehicle info and Venal Value from ipvabr.com.br.
     Target URL: https://www.ipvabr.com.br/placa/{plate}
     """
-    options = uc.ChromeOptions()
-    options.add_argument("--headless=new") # Modern headless mode
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36")
+    
+    # Render/Docker support: Use system Chromium if available
     options.add_argument("--disable-gpu")
+    options.add_argument("--disable-extensions")
     options.add_argument("--window-size=1920,1080")
+    options.add_argument("--start-maximized")
+    options.add_argument("--disable-blink-features=AutomationControlled")
     
     # Point to the binary just in case
-    browser_executable_path = os.environ.get('CHROME_BIN')
-    driver_executable_path = os.environ.get('CHROMEDRIVER_PATH')
+    if os.environ.get('CHROME_BIN'):
+        options.binary_location = os.environ.get('CHROME_BIN')
 
     try:
-        # undetected-chromedriver handles driver patching automatically
-        # caused conflicts with manual Service/Manager in some docker envs
-        # attempting simplest UC init
-        driver = uc.Chrome(
-            options=options,
-            browser_executable_path=browser_executable_path,
-            driver_executable_path=driver_executable_path,
-            version_main=110 # Force a version if needed, but usually auto-detected
+        # Check for system chromedriver (Docker)
+        system_driver_path = os.environ.get('CHROMEDRIVER_PATH', '/usr/bin/chromedriver')
+        if os.path.exists(system_driver_path):
+            service = Service(system_driver_path)
+        else:
+            # Fallback for local Mac/Windows
+            service = Service(ChromeDriverManager().install())
+            
+        driver = webdriver.Chrome(service=service, options=options)
+        
+        # Apply Stealth
+        stealth(driver,
+            languages=["pt-BR", "pt"],
+            vendor="Google Inc.",
+            platform="Win32",
+            webgl_vendor="Intel Inc.",
+            renderer="Intel Iris OpenGL Engine",
+            fix_hairline=True,
         )
+        
     except Exception as e:
-        print(f"Error initializing Undetected Chrome: {e}")
-        # Fallback to standard if UC fails (e.g. local mismatch)
-        try:
-             print("Falling back to standard Selenium...")
-             from selenium import webdriver
-             from selenium.webdriver.chrome.service import Service
-             from webdriver_manager.chrome import ChromeDriverManager
-             opts = webdriver.ChromeOptions()
-             opts.add_argument("--headless")
-             opts.add_argument("--no-sandbox")
-             driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=opts)
-        except Exception as e2:
-             print(f"Fallback failed: {e2}")
-             return None
+        print(f"Error initializing Chrome driver: {e}")
+        return None
 
     result_data = {}
     
@@ -57,7 +64,7 @@ def get_car_info_from_ipvabr(plate):
         url = f"https://www.ipvabr.com.br/placa/{plate}"
         driver.get(url)
         
-        # Increased timeout for Render free tier / Cloudflare challenge
+        # Increased timeout for Cloudflare challenge
         wait = WebDriverWait(driver, 30)
         
         # Wait for the Brand/Model table (looking for 'Marca:')

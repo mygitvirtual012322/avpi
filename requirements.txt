@@ -3,4 +3,4 @@ Werkzeug==3.0.1
 gunicorn==21.2.0
 selenium==4.16.0
 webdriver-manager==4.0.1
-undetected-chromedriver==3.5.5
+selenium-stealth==1.0.6
