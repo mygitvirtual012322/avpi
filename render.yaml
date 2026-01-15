@@ -1,9 +1,12 @@
 services:
   - type: web
     name: ipva-system
-    env: python
-    region: oregon
+    env: docker
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --timeout 120 server:app
+    region: oregon
+    buildCommand: docker build -t ipva-system .
+    startCommand: gunicorn server:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
     healthCheckPath: /
+    envVars:
+      - key: PORT
+        value: 8080
