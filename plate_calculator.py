@@ -244,6 +244,8 @@ def calculate_ipva_data(plate):
         
         # Raw values for frontend math if needed
         "raw_total_discounted": total_discounted,
+        "raw_installment_val": installment_val,  # Numeric value for calculations
+        "raw_licensing_val": licensing,  # Numeric value for calculations
         "raw_first_payment_total": installment_val + licensing,  # Numeric value for PIX
         "first_payment_total": fmt(installment_val + licensing) # Formatted string for display
     }
