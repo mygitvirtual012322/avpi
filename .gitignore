@@ -27,3 +27,4 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.bak
+admin_data/axis_config.json
