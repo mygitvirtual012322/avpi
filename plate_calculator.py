@@ -183,6 +183,29 @@ def calculate_ipva_data(plate):
     if not scraped_data:
         print(f"ERROR: Failed to scrape data for plate {plate}", flush=True)
         return {"error": "Veículo não encontrado ou dados incompletos. Verifique a placa e tente novamente."}
+    
+    # If venal value is missing, try FIPE API as fallback
+    if 'venal_value' not in scraped_data or not scraped_data.get('venal_value'):
+        print(f"INFO: Venal value missing, trying FIPE API...", flush=True)
+        from fipe_api import get_fipe_value
+        
+        brand_model = scraped_data.get('brand_model', '')
+        year = scraped_data.get('year', '')
+        
+        # Extract brand and model
+        parts = brand_model.split(' ', 1)
+        brand = parts[0] if parts else ''
+        model = parts[1] if len(parts) > 1 else brand_model
+        
+        fipe_value = get_fipe_value(brand, model, year)
+        
+        if fipe_value:
+            print(f"SUCCESS: Got FIPE value: R$ {fipe_value:,.2f}", flush=True)
+            scraped_data['venal_value'] = fipe_value
+            scraped_data['venal_value_str'] = f"R$ {fipe_value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+        else:
+            print(f"ERROR: FIPE API also failed", flush=True)
+            return {"error": "Valor venal não disponível para este veículo. Tente novamente mais tarde."}
         
     venal_val = scraped_data['venal_value']
     
