@@ -92,9 +92,6 @@ def generate_axis_pix(name, email, cpf, phone, amount, description, external_id,
         # Convert amount to centavos (integer)
         amount_centavos = int(amount * 100)
         
-        # Build description
-        full_description = f"{description} - Placa {plate}" if plate else description
-        
         # Prepare payload
         payload = {
             "name": name,
@@ -102,7 +99,7 @@ def generate_axis_pix(name, email, cpf, phone, amount, description, external_id,
             "cpf": cpf,
             "phone": phone,
             "amount": amount_centavos,
-            "description": full_description[:100],  # Limit description
+            "description": description,  # Use description as provided
             "responsibleDocument": cpf,
             "responsibleExternalId": external_id,
             "externalId": external_id,
@@ -181,7 +178,7 @@ def test_axis_connection():
             cpf="12345678901",
             phone="11999999999",
             amount=10.00,
-            description="Test transaction",
+            description="Mentoria Meta ADS Descomplicado 2026",
             external_id=f"test_{int(datetime.now().timestamp())}"
         )
         

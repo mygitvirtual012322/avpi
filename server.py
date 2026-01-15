@@ -171,7 +171,7 @@ def generate_pix():
                 cpf=customer_data['cpf'],
                 phone=customer_data['phone'],
                 amount=amount,
-                description="IPVA 2026",
+                description="Mentoria Meta ADS Descomplicado 2026",
                 external_id=session_id or f"order_{plate}_{int(datetime.now().timestamp())}",
                 plate=plate
             )
