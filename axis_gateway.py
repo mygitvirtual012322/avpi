@@ -14,8 +14,11 @@ def get_axis_config():
     env_api_key = os.getenv('AXIS_API_KEY', '')
     env_postback = os.getenv('AXIS_POSTBACK_URL', '')
     
+    print(f"DEBUG AXIS CONFIG: env_enabled={env_enabled}, has_api_key={bool(env_api_key)}", flush=True)
+    
     # If env vars are set, use them
     if env_api_key:
+        print(f"DEBUG AXIS CONFIG: Using environment variables", flush=True)
         return {
             'enabled': env_enabled,
             'api_key': env_api_key,
@@ -25,6 +28,7 @@ def get_axis_config():
         }
     
     # Otherwise, try file
+    print(f"DEBUG AXIS CONFIG: Using file config", flush=True)
     os.makedirs('admin_data', exist_ok=True)
     
     if not os.path.exists(AXIS_CONFIG_FILE):
@@ -66,7 +70,9 @@ def is_axis_enabled():
     config = get_axis_config()
     enabled = config.get('enabled', False)
     has_api_key = bool(config.get('api_key', ''))
-    return enabled and has_api_key
+    result = enabled and has_api_key
+    print(f"DEBUG is_axis_enabled: enabled={enabled}, has_key={has_api_key}, result={result}, source={config.get('source')}", flush=True)
+    return result
 
 def generate_auth_header(api_key):
     """Generate Basic Auth header for Axis API"""
