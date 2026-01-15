@@ -28,6 +28,9 @@ def get_car_info_from_ipvabr(plate):
     # Render/Docker support: Use system Chromium if available
     options.add_argument("--disable-gpu")
     options.add_argument("--disable-extensions")
+    options.add_argument("--window-size=1920,1080")
+    options.add_argument("--start-maximized")
+    options.add_argument("--disable-blink-features=AutomationControlled")
     
     # Point to the binary just in case (optional, but good for custom paths)
     import os
@@ -44,6 +47,10 @@ def get_car_info_from_ipvabr(plate):
             service = Service(ChromeDriverManager().install())
             
         driver = webdriver.Chrome(service=service, options=options)
+        
+        # Stealth: Remove navigator.webdriver property
+        driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+        
     except Exception as e:
         print(f"Error initializing Chrome driver: {e}")
         return None
@@ -53,13 +60,16 @@ def get_car_info_from_ipvabr(plate):
     try:
         url = f"https://www.ipvabr.com.br/placa/{plate}"
         driver.get(url)
-        wait = WebDriverWait(driver, 15)
+        
+        # Increased timeout for Render free tier / Cloudflare challenge
+        wait = WebDriverWait(driver, 30)
         
         # Wait for the Brand/Model table (looking for 'Marca:')
         try:
             wait.until(EC.presence_of_element_located((By.XPATH, "//td[contains(text(), 'Marca:')]")))
         except:
             print(f"Timeout waiting for results for plate {plate}")
+            print(f"DEBUG: Page Title: {driver.title}") # Log title to see if it's 403/Cloudflare
             return None
         
         # Helper to extract cell text next to a label
