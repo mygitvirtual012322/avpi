@@ -215,5 +215,5 @@ def serve_static(filename):
         return "File not found", 404
 
 if __name__ == '__main__':
-    PORT = int(os.environ.get('PORT', 8000))
+    PORT = int(os.environ.get('PORT', 8080))
     app.run(host='0.0.0.0', port=PORT, debug=False)
