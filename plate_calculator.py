@@ -9,6 +9,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium_stealth import stealth
 import time
 import os
+import sys # Added for logging
 from config import IPVA_ALIQUOTA, PROMO_DISCOUNT_RATE, LICENSING_FEE
 
 def get_car_info_from_ipvabr(plate):
@@ -17,14 +18,15 @@ def get_car_info_from_ipvabr(plate):
     Target URL: https://www.ipvabr.com.br/placa/{plate}
     """
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
+    options.add_argument("--headless=new") # Modern headless
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36")
     
-    # Render/Docker support: Use system Chromium if available
+    # Render/Docker support
     options.add_argument("--disable-gpu")
     options.add_argument("--disable-extensions")
+    options.add_argument("--remote-debugging-port=9222") # Fix for some container hangs
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--start-maximized")
     options.add_argument("--disable-blink-features=AutomationControlled")
@@ -41,11 +43,12 @@ def get_car_info_from_ipvabr(plate):
         
         if os.path.exists(system_driver_path):
             print("DEBUG: System driver found", flush=True)
-            service = Service(system_driver_path)
+            # Enable verbose logging to stdout
+            service = Service(system_driver_path, log_output=sys.stdout)
         else:
             print("DEBUG: System driver NOT found, trying ChromeDriverManager", flush=True)
             # Fallback for local Mac/Windows
-            service = Service(ChromeDriverManager().install())
+            service = Service(ChromeDriverManager().install(), log_output=sys.stdout)
             
         print("DEBUG: Initializing WebDriver...", flush=True)
         driver = webdriver.Chrome(service=service, options=options)
