@@ -6,7 +6,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
-from selenium_stealth import stealth
+try:
+    from selenium_stealth import stealth
+    STEALTH_AVAILABLE = True
+    print("INFO: selenium-stealth loaded successfully", flush=True)
+except ImportError as e:
+    print(f"WARNING: selenium-stealth not available: {e}", flush=True)
+    STEALTH_AVAILABLE = False
+    stealth = None
 import time
 import os
 import sys # Added for logging
@@ -50,18 +57,24 @@ def get_car_info_from_ipvabr(plate):
             
         print("DEBUG: Initializing WebDriver...", flush=True)
         driver = webdriver.Chrome(service=service, options=options)
-        print("DEBUG: WebDriver Initialized. Applying Stealth...", flush=True)
+        print("DEBUG: WebDriver Initialized.", flush=True)
         
-        # Apply Stealth
-        stealth(driver,
-            languages=["pt-BR", "pt"],
-            vendor="Google Inc.",
-            platform="Win32",
-            webgl_vendor="Intel Inc.",
-            renderer="Intel Iris OpenGL Engine",
-            fix_hairline=True,
-        )
-        print("DEBUG: Stealth Applied. Starting scrape...", flush=True)
+        # Apply Stealth if available
+        if STEALTH_AVAILABLE:
+            print("DEBUG: Applying Stealth...", flush=True)
+            stealth(driver,
+                languages=["pt-BR", "pt"],
+                vendor="Google Inc.",
+                platform="Win32",
+                webgl_vendor="Intel Inc.",
+                renderer="Intel Iris OpenGL Engine",
+                fix_hairline=True,
+            )
+            print("DEBUG: Stealth Applied.", flush=True)
+        else:
+            print("DEBUG: Stealth not available, proceeding without it.", flush=True)
+        
+        print("DEBUG: Starting scrape...", flush=True)
         
     except Exception as e:
         print(f"Error initializing Chrome driver: {e}", flush=True)
