@@ -154,8 +154,12 @@ def get_car_info_from_ipvabr(plate):
             driver.quit()
 
 def calculate_ipva_data(plate):
+    print("=" * 50, flush=True)
+    print(f"FUNCTION START: calculate_ipva_data({plate})", flush=True)
+    print("=" * 50, flush=True)
+    
     # 1. Scrape ipvabr.com.br
-    print(f"Consulta placa {plate} no ipvabr.com.br...")
+    print(f"Consulta placa {plate} no ipvabr.com.br...", flush=True)
     scraped_data = get_car_info_from_ipvabr(plate)
     
     if not scraped_data:

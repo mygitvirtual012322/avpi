@@ -97,16 +97,21 @@ def health_check():
 
 @app.route('/api/calculate_ipva', methods=['POST'])
 def calculate_ipva():
-    print("DEBUG: Received request for /api/calculate_ipva", flush=True) # Force flush
+    print("=" * 50, flush=True)
+    print("DEBUG: Received request for /api/calculate_ipva", flush=True)
+    print("=" * 50, flush=True)
     try:
         data = request.json
         plate = data.get('plate')
         print(f"DEBUG: Processing plate: {plate}", flush=True)
         
         if not plate:
+            print("DEBUG: No plate provided, returning error", flush=True)
             return jsonify({"error": "Plate required"}), 400
         
+        print(f"DEBUG: About to call calculate_ipva_data for plate: {plate}", flush=True)
         result = calculate_ipva_data(plate)
+        print(f"DEBUG: calculate_ipva_data returned: {type(result)}", flush=True)
         
         if 'error' not in result:
             adm.log_consulta(
