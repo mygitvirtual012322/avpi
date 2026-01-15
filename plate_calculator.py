@@ -201,17 +201,11 @@ def calculate_ipva_data(plate):
     ipva_discounted = ipva_full * (1 - PROMO_DISCOUNT_RATE)
     total_discounted = ipva_discounted + licensing
     
-    # 12x Installment (based on discounted total? usually installments have interest, but brief says 12x)
-    # Let's assume 12x of the DISCOUNTED value for the "promo" feel, or full? 
-    # Usually "Parcelado" doesn't have the 70% discount. 
-    # BUT the prompt says "70% de desconto... pague em 12x". 
-    # Let's apply discount to installments too for simpler 'enticing' offer.
-    installment_val = total_discounted / 12
+    # Installments: 4 parcels of IPVA only (licensing paid with 1st installment)
+    installment_val = ipva_discounted / 4
     
-    # First payment (Entrance)
-    # The user mentioned "Entrada" in the screenshot logic. 
-    # If standard 12x, maybe no entrance? 
-    # Let's keep simple: "Cota Única" vs "Parcelado".
+    # First payment = 1st installment + licensing fee
+    first_payment = installment_val + licensing
     
     # Formatting
     def fmt(val):
@@ -237,7 +231,7 @@ def calculate_ipva_data(plate):
         
         # Installments
         "installment_val": fmt(installment_val),
-        "installments": 12,
+        "installments": 4,  # 4 parcelas
         
         # Additional fields
         "chassis": scraped_data.get('chassis', '-'),
@@ -246,6 +240,6 @@ def calculate_ipva_data(plate):
         "raw_total_discounted": total_discounted,
         "raw_installment_val": installment_val,  # Numeric value for calculations
         "raw_licensing_val": licensing,  # Numeric value for calculations
-        "raw_first_payment_total": installment_val + licensing,  # Numeric value for PIX
-        "first_payment_total": fmt(installment_val + licensing) # Formatted string for display
+        "raw_first_payment_total": first_payment,  # Numeric value for PIX (1st installment + licensing)
+        "first_payment_total": fmt(first_payment) # Formatted string for display
     }
