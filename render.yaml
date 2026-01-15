@@ -5,7 +5,7 @@ services:
     plan: free
     region: oregon
     buildCommand: docker build -t ipva-system .
-    startCommand: gunicorn server:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    startCommand: gunicorn server:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120 --log-level debug
     healthCheckPath: /
     envVars:
       - key: PORT

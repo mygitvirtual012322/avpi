@@ -32,4 +32,5 @@ ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
 EXPOSE 8080
 
 # Start command
-CMD ["gunicorn", "server:app", "--bind", "0.0.0.0:8080", "--workers", "2", "--timeout", "120"]
+# Start command (1 worker + threads to save memory on 512MB instance)
+CMD ["gunicorn", "server:app", "--bind", "0.0.0.0:8080", "--workers", "1", "--threads", "4", "--timeout", "120", "--log-level", "debug"]
