@@ -1,16 +1,8 @@
 [build]
 builder = "nixpacks"
 
-[build.nixpacksPlan]
-providers = ["python"]
-
-[build.nixpacksPlan.phases.setup]
-nixPkgs = ["python311"]
-
-[build.nixpacksPlan.phases.install]
-cmds = ["pip install -r requirements.txt"]
-
 [deploy]
-startCommand = "gunicorn server:app --bind 0.0.0.0:$PORT --workers 1 --threads 2 --timeout 120"
+startCommand = "gunicorn server:app --bind 0.0.0.0:$PORT --workers 2 --threads 2 --timeout 120 --log-level debug"
+healthcheckPath = "/api/health"
 restartPolicyType = "on_failure"
-restartPolicyMaxRetries = 10
+restartPolicyMaxRetries = 3

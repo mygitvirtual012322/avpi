@@ -1,125 +1,89 @@
-# Deploy no Railway
+# Deploy no Railway (1GB RAM + PostgreSQL Grátis)
 
-## 🚂 Railway - Trial Gratuito ($5 de crédito)
+## Por que Railway?
+- ✅ **1GB RAM** (suficiente para Selenium + Chrome)
+- ✅ **PostgreSQL grátis** incluído
+- ✅ **2 vCPUs** para performance
+- ✅ **$5 crédito mensal grátis** (sem cartão necessário inicialmente)
 
-O Railway oferece $5 de crédito grátis no trial. Você precisa adicionar um cartão, mas não será cobrado até gastar os $5.
+## Passo a Passo
 
----
-
-## 🚀 DEPLOY NO RAILWAY:
-
-### 1. Criar Conta
+### 1. Criar Conta no Railway
 1. Acesse: https://railway.app
-2. Clique em **"Start a New Project"**
-3. Faça login com GitHub
-4. **Adicione um cartão** (trial de $5 grátis)
+2. Faça login com GitHub
+3. Você ganha **$5 de crédito grátis por mês**
 
-### 2. Deploy do GitHub
+### 2. Criar Novo Projeto
+1. Clique em **"New Project"**
+2. Selecione **"Deploy from GitHub repo"**
+3. Conecte seu repositório: `mygitvirtual012322/avpi`
+4. Railway vai detectar automaticamente que é Python
 
-1. Clique em **"Deploy from GitHub repo"**
-2. Selecione: **`mygitvirtual012322/avpi`**
-3. Railway vai detectar automaticamente:
-   - ✅ `railway.json`
-   - ✅ `railway.toml`
-   - ✅ `Procfile`
-   - ✅ `requirements.txt`
+### 3. Adicionar PostgreSQL (Opcional - para futuro)
+1. No projeto, clique em **"+ New"**
+2. Selecione **"Database"** → **"PostgreSQL"**
+3. Railway cria automaticamente e injeta a variável `DATABASE_URL`
 
-4. Clique em **"Deploy"**
-
-### 3. Configurar Domínio
-
-1. Vá em **"Settings"**
-2. Clique em **"Generate Domain"**
-3. Seu site estará em: `seu-app.up.railway.app`
-
-### 4. Pronto!
-
-**Site:** `seu-app.up.railway.app`
-**Admin:** `seu-app.up.railway.app/admin_new.html`
-
-**Credenciais:**
-- User: `admin`
-- Pass: `admin2026!`
-
----
-
-## 📊 Monitoramento
-
-**Ver logs:**
-- Na dashboard do Railway, clique em **"Deployments"**
-- Clique no deployment ativo
-- Veja os logs em tempo real
-
-**Uso de créditos:**
-- Dashboard → **"Usage"**
-- Mostra quanto dos $5 você já usou
-
----
-
-## ⚙️ Configuração Automática
-
-O Railway vai usar automaticamente:
-
-**`railway.json`:**
-```json
-{
-  "build": {
-    "builder": "NIXPACKS"
-  },
-  "deploy": {
-    "startCommand": "gunicorn --bind 0.0.0.0:$PORT --workers 2 server:app"
-  }
-}
+### 4. Configurar Variáveis de Ambiente
+No painel do Railway, adicione:
+```
+PORT=8080
+CHROME_BIN=/nix/store/.../bin/chromium
+CHROMEDRIVER_PATH=/nix/store/.../bin/chromedriver
 ```
 
-**`Procfile`:**
+> **Nota:** O Railway com Nixpacks instala automaticamente Chromium e Chromedriver. As variáveis de ambiente são detectadas automaticamente.
+
+### 5. Deploy Automático
+- Railway faz deploy automaticamente a cada push no GitHub
+- Aguarde ~3-5 minutos para o build completar
+- Acesse a URL gerada (ex: `https://seu-app.up.railway.app`)
+
+### 6. Verificar Logs
+1. Clique na aba **"Deployments"**
+2. Clique no deployment ativo
+3. Veja os logs em tempo real
+
+## Diferenças vs Render
+
+| Recurso | Railway (Grátis) | Render (Grátis) |
+|---------|------------------|-----------------|
+| RAM | **1GB** ✅ | 512MB ❌ |
+| CPU | 2 vCPUs | Compartilhado |
+| Crédito | $5/mês | Ilimitado (mas lento) |
+| PostgreSQL | Incluído ✅ | Separado |
+| Build | Nixpacks (rápido) | Docker (lento) |
+
+## Troubleshooting
+
+### Chrome não inicia
+Se o Chrome travar, verifique os logs. O Railway tem RAM suficiente, mas pode precisar ajustar workers:
+```toml
+# railway.toml
+startCommand = "gunicorn server:app --workers 1 --threads 4"
 ```
-web: gunicorn --bind 0.0.0.0:$PORT --workers 2 server:app
+
+### Timeout
+Aumente o timeout no `railway.toml`:
+```toml
+startCommand = "gunicorn server:app --timeout 180"
 ```
 
----
+### Crédito Acabou
+O Railway oferece $5/mês grátis. Se acabar:
+- Otimize o uso (menos workers, cache)
+- Adicione cartão para continuar (cobra apenas o excedente)
 
-## 💰 Custos
+## Próximos Passos (Migração para PostgreSQL)
 
-- **Trial:** $5 grátis (suficiente para ~1 mês)
-- **Depois:** ~$5-10/mês dependendo do uso
-- **Free tier:** Não existe mais, mas trial é generoso
+Quando quiser migrar de JSON para PostgreSQL:
+1. Railway já tem PostgreSQL rodando
+2. Criar tabelas: `sessions`, `orders`, `config`
+3. Migrar código de `admin_data_manager.py` para usar SQLAlchemy
+4. Aproveitar a persistência real do banco
 
----
-
-## 🎯 Vantagens do Railway
-
-✅ Deploy automático via GitHub
-✅ Logs em tempo real
-✅ Fácil de usar
-✅ Boa performance
-✅ Suporte a variáveis de ambiente
-
----
-
-## 🔧 Troubleshooting
-
-**Se der erro no build:**
-1. Vá em **"Settings"** → **"Environment"**
-2. Adicione: `PYTHON_VERSION=3.11`
-
-**Se o site não carregar:**
-1. Verifique os logs
-2. Certifique-se que a porta está correta (`$PORT`)
-
----
-
-## 📝 Repositório
-
-**GitHub:** https://github.com/mygitvirtual012322/avpi
-
-**Arquivos de configuração:**
-- `railway.json` - Config principal
-- `railway.toml` - Config alternativa
-- `Procfile` - Comando de start
-- `requirements.txt` - Dependências Python
-- `server.py` - Flask app
-
----
-
-**Pronto para deploy! Basta seguir os 4 passos acima.**
+**Vantagens do PostgreSQL:**
+- ✅ Dados persistem entre deploys
+- ✅ Queries mais rápidas
+- ✅ Suporta milhares de registros
+- ✅ Backup automático no Railway
