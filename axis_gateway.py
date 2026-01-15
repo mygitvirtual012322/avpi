@@ -127,6 +127,7 @@ def generate_axis_pix(name, email, cpf, phone, amount, description, external_id,
         )
         
         print(f"DEBUG AXIS: Response status: {response.status_code}", flush=True)
+        print(f"DEBUG AXIS: Response body: {response.text}", flush=True)
         
         if response.status_code == 200 or response.status_code == 201:
             data = response.json()
@@ -142,9 +143,17 @@ def generate_axis_pix(name, email, cpf, phone, amount, description, external_id,
         else:
             error_msg = response.text
             print(f"ERROR AXIS: {response.status_code} - {error_msg}", flush=True)
+            
+            # Try to parse error message
+            try:
+                error_data = response.json()
+                error_detail = error_data.get('message', error_data.get('error', 'Unknown error'))
+            except:
+                error_detail = error_msg[:200]  # First 200 chars
+            
             return {
                 'success': False,
-                'error': f'Axis API error: {response.status_code}'
+                'error': f'Axis API error: {response.status_code} - {error_detail}'
             }
             
     except requests.exceptions.Timeout:
