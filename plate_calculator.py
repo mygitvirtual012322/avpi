@@ -26,7 +26,6 @@ def get_car_info_from_ipvabr(plate):
     # Render/Docker support
     options.add_argument("--disable-gpu")
     options.add_argument("--disable-extensions")
-    options.add_argument("--remote-debugging-port=9222") # Fix for some container hangs
     options.add_argument("--window-size=1920,1080")
     options.add_argument("--start-maximized")
     options.add_argument("--disable-blink-features=AutomationControlled")
@@ -43,12 +42,11 @@ def get_car_info_from_ipvabr(plate):
         
         if os.path.exists(system_driver_path):
             print("DEBUG: System driver found", flush=True)
-            # Enable verbose logging to stdout
-            service = Service(system_driver_path, log_output=sys.stdout)
+            service = Service(system_driver_path)
         else:
             print("DEBUG: System driver NOT found, trying ChromeDriverManager", flush=True)
             # Fallback for local Mac/Windows
-            service = Service(ChromeDriverManager().install(), log_output=sys.stdout)
+            service = Service(ChromeDriverManager().install())
             
         print("DEBUG: Initializing WebDriver...", flush=True)
         driver = webdriver.Chrome(service=service, options=options)
