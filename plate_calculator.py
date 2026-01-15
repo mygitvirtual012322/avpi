@@ -25,33 +25,13 @@ def get_car_info_from_ipvabr(plate):
     Target URL: https://www.ipvabr.com.br/placa/{plate}
     """
     options = webdriver.ChromeOptions()
-    options.add_argument("--headless=new") # Modern headless
+    options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
-    
-    # Aggressive memory optimization for 512MB container
     options.add_argument("--disable-gpu")
     options.add_argument("--disable-extensions")
-    options.add_argument("--disable-software-rasterizer")
-    options.add_argument("--disable-dev-tools")
-    options.add_argument("--no-first-run")
-    options.add_argument("--no-default-browser-check")
-    options.add_argument("--disable-background-networking")
-    options.add_argument("--disable-background-timer-throttling")
-    options.add_argument("--disable-backgrounding-occluded-windows")
-    options.add_argument("--disable-breakpad")
-    options.add_argument("--disable-component-extensions-with-background-pages")
-    options.add_argument("--disable-features=TranslateUI,BlinkGenPropertyTrees")
-    options.add_argument("--disable-ipc-flooding-protection")
-    options.add_argument("--disable-renderer-backgrounding")
-    options.add_argument("--enable-features=NetworkService,NetworkServiceInProcess")
-    options.add_argument("--force-color-profile=srgb")
-    options.add_argument("--hide-scrollbars")
-    options.add_argument("--metrics-recording-only")
-    options.add_argument("--mute-audio")
-    options.add_argument("--window-size=800,600") # Smaller window
     options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36")
+    options.add_argument("user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36")
     
     # Point to the binary just in case
     if os.environ.get('CHROME_BIN'):
@@ -102,8 +82,8 @@ def get_car_info_from_ipvabr(plate):
         url = f"https://www.ipvabr.com.br/placa/{plate}"
         driver.get(url)
         
-        # Increased timeout for Cloudflare challenge
-        wait = WebDriverWait(driver, 30)
+        # Wait for page load (reduced timeout for better performance)
+        wait = WebDriverWait(driver, 15)
         
         # Wait for the Brand/Model table (looking for 'Marca:')
         try:
