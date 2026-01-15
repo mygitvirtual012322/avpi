@@ -90,6 +90,11 @@ def get_sessions():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/health')
+def health_check():
+    print("DEBUG: Health check called", flush=True)
+    return jsonify({"status": "ok", "message": "Server is running"}), 200
+
 @app.route('/api/calculate_ipva', methods=['POST'])
 def calculate_ipva():
     print("DEBUG: Received request for /api/calculate_ipva", flush=True) # Force flush
