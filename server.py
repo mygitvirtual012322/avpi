@@ -257,6 +257,34 @@ def track_pix_copy():
 def save_pixel():
     try:
         data = request.json
+        meta_pixel.save_pixel_config(data.get('pixel_id'), data.get('enabled', True))
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+# Axis Banking Gateway Endpoints
+@app.route('/api/admin/get_axis_config')
+def get_axis_config():
+    try:
+        import axis_gateway
+        config = axis_gateway.get_axis_config()
+        # Don't expose full API key in response
+        if config.get('api_key'):
+            config['api_key_masked'] = config['api_key'][:8] + '...' + config['api_key'][-4:]
+        return jsonify(config)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/save_axis_config', methods=['POST'])
+def save_axis_config():
+    try:
+        import axis_gateway
+        data = request.json
+        config = axis_gateway.save_axis_config(
+            enabled=data.get('enabled', False),
+            api_key=data.get('api_key', ''),
+            postback_url=data.get('postback_url', '')
+        )
         return jsonify({"success": True, "config": config})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
