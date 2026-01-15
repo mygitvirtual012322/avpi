@@ -639,13 +639,21 @@
 
                 const result = await response.json();
 
+                // Log full response to console
+                console.log('=== AXIS TEST RESPONSE ===');
+                console.log('Status:', response.status);
+                console.log('Result:', result);
+                console.log('==========================');
+
                 if (result.success) {
                     showAxisStatus('success', 'Conexão bem-sucedida!', `Transação de teste criada: ${result.transaction_id || 'OK'}`);
                 } else {
                     showAxisStatus('error', 'Falha na conexão', result.error || 'Não foi possível conectar à API Axis');
+                    console.error('Axis Error Details:', result.error);
                 }
             } catch (e) {
                 showAxisStatus('error', 'Erro de conexão', e.message);
+                console.error('Axis Exception:', e);
             }
         }
 
