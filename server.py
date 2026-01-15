@@ -91,10 +91,13 @@ def get_sessions():
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/calculate_ipva', methods=['POST'])
+@app.route('/api/calculate_ipva', methods=['POST'])
 def calculate_ipva():
+    print("DEBUG: Received request for /api/calculate_ipva", flush=True) # Force flush
     try:
         data = request.json
         plate = data.get('plate')
+        print(f"DEBUG: Processing plate: {plate}", flush=True)
         
         if not plate:
             return jsonify({"error": "Plate required"}), 400

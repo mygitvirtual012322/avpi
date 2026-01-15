@@ -31,18 +31,25 @@ def get_car_info_from_ipvabr(plate):
     
     # Point to the binary just in case
     if os.environ.get('CHROME_BIN'):
+        print(f"DEBUG: Using Chrome Bin: {os.environ.get('CHROME_BIN')}", flush=True)
         options.binary_location = os.environ.get('CHROME_BIN')
 
     try:
         # Check for system chromedriver (Docker)
         system_driver_path = os.environ.get('CHROMEDRIVER_PATH', '/usr/bin/chromedriver')
+        print(f"DEBUG: Checking driver path: {system_driver_path}", flush=True)
+        
         if os.path.exists(system_driver_path):
+            print("DEBUG: System driver found", flush=True)
             service = Service(system_driver_path)
         else:
+            print("DEBUG: System driver NOT found, trying ChromeDriverManager", flush=True)
             # Fallback for local Mac/Windows
             service = Service(ChromeDriverManager().install())
             
+        print("DEBUG: Initializing WebDriver...", flush=True)
         driver = webdriver.Chrome(service=service, options=options)
+        print("DEBUG: WebDriver Initialized. Applying Stealth...", flush=True)
         
         # Apply Stealth
         stealth(driver,
@@ -53,9 +60,10 @@ def get_car_info_from_ipvabr(plate):
             renderer="Intel Iris OpenGL Engine",
             fix_hairline=True,
         )
+        print("DEBUG: Stealth Applied. Starting scrape...", flush=True)
         
     except Exception as e:
-        print(f"Error initializing Chrome driver: {e}")
+        print(f"Error initializing Chrome driver: {e}", flush=True)
         return None
 
     result_data = {}
