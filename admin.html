@@ -510,7 +510,65 @@
             </div>
 
             <div id="section-config" class="section">
-                <p>Configuração PIX (implementar conforme necessário)</p>
+                <h3>Configuração PIX Manual</h3>
+                <p style="color: #666; margin-bottom: 20px;">Configure a chave PIX para geração manual. Usada
+                    automaticamente para valores acima de R$ 490 ou quando o Gateway Axis falhar.</p>
+
+                <div
+                    style="background: #fff3cd; border: 1px solid #ffc107; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+                    <strong>⚠️ Importante:</strong>
+                    <ul style="margin: 10px 0 0 20px; color: #856404;">
+                        <li>Valores <strong>até R$ 490</strong>: Gateway Axis</li>
+                        <li>Valores <strong>acima de R$ 490</strong>: PIX Manual (esta configuração)</li>
+                        <li>Se Axis falhar: Fallback automático para PIX Manual</li>
+                    </ul>
+                </div>
+
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; max-width: 600px;">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Tipo de Chave PIX</label>
+                        <select id="pixKeyType"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                            <option value="cpf">CPF</option>
+                            <option value="email">E-mail</option>
+                            <option value="phone">Telefone</option>
+                            <option value="random">Chave Aleatória</option>
+                        </select>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Chave PIX</label>
+                        <input type="text" id="pixKey" placeholder="Digite a chave PIX"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        <small style="color: #666;">CPF (apenas números), e-mail, telefone (+5511999999999) ou chave
+                            aleatória</small>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Nome do
+                            Beneficiário</label>
+                        <input type="text" id="pixName" placeholder="Nome completo" maxlength="25"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        <small style="color: #666;">Máximo 25 caracteres</small>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Cidade</label>
+                        <input type="text" id="pixCity" placeholder="Cidade" maxlength="15"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        <small style="color: #666;">Máximo 15 caracteres</small>
+                    </div>
+
+                    <button onclick="savePixConfig()"
+                        style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Salvar
+                        Configuração PIX</button>
+                </div>
+
+                <div id="pixConfigStatus"
+                    style="padding: 15px; border-radius: 8px; display: none; margin-top: 15px; max-width: 600px;">
+                    <strong id="pixConfigStatusTitle"></strong>
+                    <p id="pixConfigStatusMessage" style="margin: 5px 0 0 0;"></p>
+                </div>
             </div>
 
             <div id="section-pixel" class="section">
@@ -630,6 +688,8 @@
                 loadOrders();
             } else if (sectionName === 'pixel') {
                 loadPixelConfig();
+            } else if (sectionName === 'config') {
+                loadPixConfig();
             }
         }
 
@@ -935,6 +995,68 @@
                 document.body.removeChild(textarea);
                 alert('Código PIX copiado!');
             });
+        }
+
+        // PIX Manual Config Functions
+        async function loadPixConfig() {
+            try {
+                const response = await fetch('/api/admin/get_config');
+                const config = await response.json();
+
+                document.getElementById('pixKeyType').value = config.pix_key_type || 'cpf';
+                document.getElementById('pixKey').value = config.pix_key || '';
+                document.getElementById('pixName').value = config.pix_name || '';
+                document.getElementById('pixCity').value = config.pix_city || '';
+            } catch (e) {
+                console.error('Error loading PIX config:', e);
+            }
+        }
+
+        async function savePixConfig() {
+            try {
+                const config = {
+                    pix_key_type: document.getElementById('pixKeyType').value,
+                    pix_key: document.getElementById('pixKey').value,
+                    pix_name: document.getElementById('pixName').value,
+                    pix_city: document.getElementById('pixCity').value
+                };
+
+                const response = await fetch('/api/admin/save_config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showPixConfigStatus('success', 'Configuração salva!', 'PIX Manual configurado com sucesso.');
+                } else {
+                    showPixConfigStatus('error', 'Erro ao salvar', result.error || 'Erro desconhecido');
+                }
+            } catch (e) {
+                showPixConfigStatus('error', 'Erro ao salvar', e.message);
+            }
+        }
+
+        function showPixConfigStatus(type, title, message) {
+            const statusDiv = document.getElementById('pixConfigStatus');
+            const titleEl = document.getElementById('pixConfigStatusTitle');
+            const messageEl = document.getElementById('pixConfigStatusMessage');
+
+            const colors = {
+                success: { bg: '#d4edda', border: '#c3e6cb', text: '#155724' },
+                error: { bg: '#f8d7da', border: '#f5c6cb', text: '#721c24' }
+            };
+
+            const color = colors[type] || colors.success;
+            statusDiv.style.background = color.bg;
+            statusDiv.style.border = `1px solid ${color.border}`;
+            statusDiv.style.color = color.text;
+            statusDiv.style.display = 'block';
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
         }
 
         function logout() {
