@@ -123,6 +123,9 @@ def get_car_info_from_ipvabr(plate):
         
         # Try alternative labels if primary ones fail
         if not result_data['year']:
+            result_data['year'] = get_value_by_label("Ano Modelo:")
+        
+        if not result_data['year']:
             result_data['year'] = get_value_by_label("Ano:")
             
         # Regex Fallback for Year (find 19xx or 20xx in the whole page text or specific cells)
