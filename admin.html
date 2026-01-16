@@ -701,12 +701,6 @@
                 const data = await response.json();
 
                 const users = data.online_users || [];
-                const stats = data.stats || {};
-
-                // Update funnel counts
-                document.getElementById('count-stage-1').textContent = stats.stage_counts?.initial_form || 0;
-                document.getElementById('count-stage-2').textContent = stats.stage_counts?.viewing_results || 0;
-                document.getElementById('count-stage-3').textContent = stats.stage_counts?.pix_modal || 0;
 
                 // Update total online
                 document.getElementById('total-online').textContent = users.length;
