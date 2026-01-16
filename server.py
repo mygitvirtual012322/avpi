@@ -395,6 +395,40 @@ def save_config_endpoint():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# Pushcut Notifications Endpoints
+@app.route('/api/admin/get_pushcut_config')
+def get_pushcut_config():
+    try:
+        config = adm.get_config()
+        return jsonify({"pushcut_enabled": config.get('pushcut_enabled', False)})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/save_pushcut_config', methods=['POST'])
+def save_pushcut_config():
+    try:
+        data = request.json
+        config = adm.get_config()
+        config['pushcut_enabled'] = data.get('pushcut_enabled', False)
+        adm.save_config(
+            pix_key=config.get('pix_key', ''),
+            pix_name=config.get('pix_name', ''),
+            pix_city=config.get('pix_city', ''),
+            pix_key_type=config.get('pix_key_type', 'cpf')
+        )
+        # Save pushcut_enabled separately
+        import json
+        config_file = 'admin_data/config.json'
+        with open(config_file, 'r+') as f:
+            cfg = json.load(f)
+            cfg['pushcut_enabled'] = data.get('pushcut_enabled', False)
+            f.seek(0)
+            json.dump(cfg, f, indent=2)
+            f.truncate()
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # Axis Banking Gateway Endpoints
 @app.route('/api/admin/get_axis_config')
 def get_axis_config():
@@ -445,6 +479,14 @@ def axis_webhook():
         
         # Update order status if payment confirmed
         if status == 'paid' or status == 'confirmed':
+            # Send Pushcut notification
+            try:
+                import pushcut_notifier
+                amount = data.get("amount", 0)
+                plate = external_id.split("_")[1] if "_" in str(external_id) else "Unknown"
+                pushcut_notifier.send_pix_paid(plate, amount, transaction_id)
+            except Exception as e:
+                print(f"Error sending Pushcut: {e}", flush=True)
             print(f"INFO: Payment confirmed for {external_id}", flush=True)
             # Here you can update order status in your system
             # order_manager.mark_as_paid(external_id, transaction_id)
