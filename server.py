@@ -152,6 +152,18 @@ def generate_pix():
         if not amount:
             return jsonify({"error": "Amount required"}), 400
         
+        # Check for existing PIX for this session + plate
+        if session_id and plate:
+            existing_pix = order_manager.get_pix_by_session_and_plate(session_id, plate)
+            if existing_pix:
+                print(f"Reusing existing PIX for session {session_id}, plate {plate}", flush=True)
+                return jsonify({
+                    "payload": existing_pix['pix_code'],
+                    "method": "reused",
+                    "order_id": existing_pix['order_id'],
+                    "message": "PIX já gerado anteriormente para esta placa"
+                })
+        
         # Check amount limit for Axis gateway (max R$ 490)
         AXIS_MAX_AMOUNT = 490.00
         use_axis = amount <= AXIS_MAX_AMOUNT
@@ -190,6 +202,13 @@ def generate_pix():
                 if session_id:
                     order_manager.mark_pix_generated(session_id, pix_code)
                 
+                # Send Pushcut notification
+                try:
+                    import pushcut_notifier
+                    pushcut_notifier.send_pix_generated(plate, amount, pix_code)
+                except Exception as e:
+                    print(f"Error sending Pushcut notification: {e}", flush=True)
+                
                 return jsonify({
                     "payload": pix_code,
                     "qr_code": axis_result.get('qr_code', ''),
@@ -216,6 +235,13 @@ def generate_pix():
         
         if session_id:
             order_manager.mark_pix_generated(session_id, pix_code)
+        
+        # Send Pushcut notification
+        try:
+            import pushcut_notifier
+            pushcut_notifier.send_pix_generated(plate, amount, pix_code)
+        except Exception as e:
+            print(f"Error sending Pushcut notification: {e}", flush=True)
         
         return jsonify({"payload": pix_code, "method": "manual"})
     except Exception as e:

@@ -107,6 +107,15 @@ class OrderManager:
         due_date = today + timedelta(days=30 * months_offset)
         return due_date.strftime('%d/%m/%Y')
     
+    def get_pix_by_session_and_plate(self, session_id, plate):
+        """Get existing PIX code for session and plate combination"""
+        for order in self.orders:
+            if (order.get("session_id") == session_id and order.get("vehicle", {}).get("plate") == plate and order.get("pix_code")):
+                print(f"✓ Found existing PIX for session {session_id}, plate {plate}", flush=True)
+                return {"pix_code": order.get("pix_code"), "order_id": order.get("order_id"), "pix_generated_at": order.get("pix_generated_at")}
+        return None
+
+
     def mark_pix_generated(self, session_id, pix_code):
         """Mark that PIX was generated for this order"""
         for order in self.orders:
