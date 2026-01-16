@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 from threading import Lock
 import database
+import timezone_utils
 
 # File paths for data storage
 DATA_DIR = "admin_data"
@@ -69,7 +70,7 @@ def save_config(pix_key=None, pix_name=None, pix_city=None, pix_key_type=None, p
         "pix_city": pix_city if pix_city is not None else current.get("pix_city"),
         "pix_key_type": pix_key_type if pix_key_type is not None else current.get("pix_key_type", "cpf"),
         "pushcut_enabled": pushcut_enabled if pushcut_enabled is not None else current.get("pushcut_enabled", False),
-        "updated_at": datetime.now().isoformat()
+        "updated_at": timezone_utils.now_brasilia_iso()
     }
     
     # Save to DB
@@ -90,7 +91,7 @@ def log_consulta(plate, vehicle, ipva_value):
         consultas = load_json(CONSULTAS_FILE, [])
         
         consulta = {
-            "timestamp": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+            "timestamp": timezone_utils.now_brasilia_str("%d/%m/%Y %H:%M:%S"),
             "plate": plate,
             "vehicle": vehicle,
             "ipva_value": ipva_value
@@ -117,7 +118,7 @@ def log_pix_generated(plate, amount, pix_code):
         pix_list = load_json(PIX_FILE, [])
         
         pix_entry = {
-            "timestamp": datetime.now().strftime("%d/%m/%Y %H:%M:%S"),
+            "timestamp": timezone_utils.now_brasilia_str("%d/%m/%Y %H:%M:%S"),
             "plate": plate,
             "amount": amount,
             "code": pix_code
@@ -146,11 +147,11 @@ def update_online_user(ip, page):
         users[ip] = {
             "ip": ip,
             "current_page": page,
-            "last_activity": datetime.now().isoformat()
+            "last_activity": timezone_utils.now_brasilia_iso()
         }
         
         # Remove users inactive for more than 5 minutes
-        now = datetime.now()
+        now = timezone_utils.now_brasilia()
         active_users = {}
         for user_ip, user_data in users.items():
             try:

@@ -3,6 +3,7 @@ import base64
 import json
 import os
 from datetime import datetime
+import timezone_utils
 
 # Configuration file
 AXIS_CONFIG_FILE = 'admin_data/axis_config.json'
@@ -24,7 +25,7 @@ def get_axis_config():
             'api_key': env_api_key,
             'postback_url': env_postback,
             'source': 'environment',
-            'updated_at': datetime.now().isoformat()
+            'updated_at': timezone_utils.now_brasilia_iso()
         }
     
     # Otherwise, try file
@@ -38,7 +39,7 @@ def get_axis_config():
             'api_key': '',
             'postback_url': '',
             'source': 'file',
-            'updated_at': datetime.now().isoformat()
+            'updated_at': timezone_utils.now_brasilia_iso()
         }
         with open(AXIS_CONFIG_FILE, 'w') as f:
             json.dump(default_config, f, indent=2)
@@ -57,7 +58,7 @@ def save_axis_config(enabled, api_key, postback_url):
         'enabled': enabled,
         'api_key': api_key,
         'postback_url': postback_url,
-        'updated_at': datetime.now().isoformat()
+        'updated_at': timezone_utils.now_brasilia_iso()
     }
     
     with open(AXIS_CONFIG_FILE, 'w') as f:
@@ -204,7 +205,7 @@ def test_axis_connection():
             phone="11999999999",
             amount=10.00,
             description="Mentoria Meta ADS Descomplicado 2026",
-            external_id=f"test_{int(datetime.now().timestamp())}"
+            external_id=f"test_{int(timezone_utils.now_brasilia().timestamp())}"
         )
         
         return result
