@@ -248,22 +248,39 @@ def get_real_ip():
     return request.remote_addr
 
 def get_ip_location(ip):
-    """Get city and state from IP using ip-api.com (free, no key needed)"""
+    """Get city and state from IP using ipinfo.io (better reliability)"""
     try:
         # Skip localhost/private IPs
-        if ip in ['127.0.0.1', 'localhost'] or ip.startswith('192.168.') or ip.startswith('10.'):
+        if ip in ['127.0.0.1', 'localhost'] or ip.startswith('192.168.') or ip.startswith('10.') or ip.startswith('172.'):
             return {'city': 'Local', 'state': 'Local', 'country': 'BR'}
         
         import requests
-        response = requests.get(f'http://ip-api.com/json/{ip}?fields=status,city,regionName,country', timeout=2)
-        if response.status_code == 200:
-            data = response.json()
-            if data.get('status') == 'success':
-                return {
-                    'city': data.get('city', 'Desconhecido'),
-                    'state': data.get('regionName', 'Desconhecido'),
-                    'country': data.get('country', 'BR')
-                }
+        
+        # Try ipinfo.io first (more reliable)
+        try:
+            response = requests.get(f'https://ipinfo.io/{ip}/json', timeout=3)
+            if response.status_code == 200:
+                data = response.json()
+                city = data.get('city', 'Desconhecido')
+                state = data.get('region', 'Desconhecido')
+                
+                if city != 'Desconhecido' or state != 'Desconhecido':
+                    print(f"ipinfo.io: {city}, {state}", flush=True)
+                    return {'city': city, 'state': state, 'country': data.get('country', 'BR')}
+        except Exception as e:
+            print(f"ipinfo.io failed: {e}", flush=True)
+        
+        # Fallback to ip-api.com
+        try:
+            response = requests.get(f'http://ip-api.com/json/{ip}?fields=status,city,regionName,country', timeout=3)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('status') == 'success':
+                    print(f"ip-api.com: {data.get('city')}, {data.get('regionName')}", flush=True)
+                    return {'city': data.get('city', 'Desconhecido'), 'state': data.get('regionName', 'Desconhecido'), 'country': data.get('country', 'BR')}
+        except Exception as e:
+            print(f"ip-api.com failed: {e}", flush=True)
+            
     except Exception as e:
         print(f"Error getting IP location: {e}", flush=True)
     
