@@ -52,13 +52,14 @@ def get_config():
         })
         return config
 
-def save_config(pix_key, pix_name, pix_city):
+def save_config(pix_key, pix_name, pix_city, pix_key_type='cpf'):
     """Save PIX configuration"""
     with config_lock:
         config = {
             "pix_key": pix_key,
             "pix_name": pix_name,
             "pix_city": pix_city,
+            "pix_key_type": pix_key_type,
             "pix_description": "IPVA 2026",
             "updated_at": datetime.now().isoformat()
         }
