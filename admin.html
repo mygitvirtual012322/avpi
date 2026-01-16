@@ -731,13 +731,19 @@
                 const initials = user.ip.split('.').slice(2).join('');
                 const timeAgo = getTimeAgo(user.last_active);
 
+                // Location display
+                const city = user.city || 'Desconhecido';
+                const state = user.state || 'Desconhecido';
+                const location = `${city}, ${state}`;
+
                 return `
                     <div class="user-card">
                         <div class="user-info">
                             <div class="user-avatar">${initials}</div>
                             <div class="user-details">
-                                <div class="user-ip">${user.ip}</div>
-                                <div class="user-plate">Placa: ${user.plate || 'N/A'} • ${user.utm_source || 'Direct'}</div>
+                                <div class="user-ip">📍 ${user.ip}</div>
+                                <div class="user-plate">🌎 ${location}</div>
+                                <div class="user-plate">🚗 Placa: ${user.plate || 'N/A'} • ${user.utm_source || 'Direct'}</div>
                             </div>
                         </div>
                         <div class="user-stage">
