@@ -124,6 +124,25 @@ def get_car_info_from_ipvabr(plate):
         # Try alternative labels if primary ones fail
         if not result_data['year']:
             result_data['year'] = get_value_by_label("Ano:")
+            
+        # Regex Fallback for Year (find 19xx or 20xx in the whole page text or specific cells)
+        if not result_data['year']:
+            try:
+                # Search in all td elements for a year pattern
+                tds = driver.find_elements(By.TAG_NAME, "td")
+                for td in tds:
+                    text = td.text
+                    # Match 4 digits starting with 19 or 20, isolated or bound by non-digits
+                    match = re.search(r'\b(19|20)\d{2}\b', text)
+                    if match:
+                        # Check if it looks like a model year (often near "Ano" or "Fabricação")
+                        # This is a bit risky but better than null
+                        lbl_chk = td.find_element(By.XPATH, "./preceding-sibling::td").text rescue ""
+                        if "Ano" in lbl_chk or "Fabricação" in lbl_chk or "Modelo" in lbl_chk:
+                            result_data['year'] = match.group(0)
+                            break
+            except:
+                pass
         if not result_data['venal_value_str']:
             result_data['venal_value_str'] = get_value_by_label("Valor Venal:")
         
