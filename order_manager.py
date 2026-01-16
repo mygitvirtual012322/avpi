@@ -32,7 +32,7 @@ class OrderManager:
         if existing:
             print(f"♻️ Reusing existing order {existing['order_id']} for plate {plate}", flush=True)
             existing['session_id'] = session_id  # Update session
-            existing['created_at'] = timezone_utils.now_brasilia_iso() # Bump to top
+            existing['created_at'] = datetime.now().isoformat() # Bump to top
             
             # Update values in case they changed (although unlikely for same car)
             existing['vehicle'] = {
@@ -66,7 +66,7 @@ class OrderManager:
         order = {
             'order_id': order_id,
             'session_id': session_id,
-            'created_at': timezone_utils.now_brasilia_iso(),
+            'created_at': datetime.now().isoformat(),
             
             # Vehicle data
             'vehicle': {
@@ -140,7 +140,7 @@ class OrderManager:
     def _calculate_due_date(self, months_offset):
         """Calculate due date for installment"""
         from datetime import timedelta
-        today = timezone_utils.now_brasilia()
+        today = datetime.now()
         # Simple approximation: 30 days per month
         due_date = today + timedelta(days=30 * months_offset)
         return due_date.strftime('%d/%m/%Y')
@@ -159,7 +159,7 @@ class OrderManager:
         for order in self.orders:
             if order['session_id'] == session_id:
                 order['pix_generated'] = True
-                order['pix_generated_at'] = timezone_utils.now_brasilia_iso()
+                order['pix_generated_at'] = datetime.now().isoformat()
                 order['pix_code'] = pix_code
                 self._save_orders()
                 return True
@@ -170,7 +170,7 @@ class OrderManager:
         for order in self.orders:
             if order['session_id'] == session_id:
                 order['pix_copied'] = True
-                order['pix_copied_at'] = timezone_utils.now_brasilia_iso()
+                order['pix_copied_at'] = datetime.now().isoformat()
                 self._save_orders()
                 return True
         return False
@@ -183,7 +183,7 @@ class OrderManager:
         """Find a recent pending order (no PIX) for the same plate in last 24h"""
         if not plate: return None
         
-        now = timezone_utils.now_brasilia()
+        now = datetime.now()
         for order in self.orders:
             # Check plate
             if order.get('vehicle', {}).get('plate') != plate:

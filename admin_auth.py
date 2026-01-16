@@ -3,7 +3,6 @@ import secrets
 import json
 import os
 from datetime import datetime, timedelta
-import timezone_utils
 
 # Admin credentials file
 ADMIN_CREDS_FILE = 'admin_data/admin_credentials.json'
@@ -26,7 +25,7 @@ def init_admin_credentials():
         default_creds = {
             'username': 'admin',
             'password_hash': hash_password('admin2026!'),  # Secure default password
-            'created_at': timezone_utils.now_brasilia_iso()
+            'created_at': datetime.now().isoformat()
         }
         
         with open(ADMIN_CREDS_FILE, 'w') as f:
@@ -66,8 +65,8 @@ def create_session(username):
     # Add new session
     sessions[token] = {
         'username': username,
-        'created_at': timezone_utils.now_brasilia_iso(),
-        'expires_at': (timezone_utils.now_brasilia() + timedelta(hours=24)).isoformat()
+        'created_at': datetime.now().isoformat(),
+        'expires_at': (datetime.now() + timedelta(hours=24)).isoformat()
     }
     
     # Save sessions
@@ -90,7 +89,7 @@ def verify_session(token):
     session = sessions[token]
     expires_at = datetime.fromisoformat(session['expires_at'])
     
-    if timezone_utils.now_brasilia() > expires_at:
+    if datetime.now() > expires_at:
         # Session expired
         del sessions[token]
         with open(SESSIONS_FILE, 'w') as f:
@@ -108,7 +107,7 @@ def change_password(username, old_password, new_password):
         creds = json.load(f)
     
     creds['password_hash'] = hash_password(new_password)
-    creds['updated_at'] = timezone_utils.now_brasilia_iso()
+    creds['updated_at'] = datetime.now().isoformat()
     
     with open(ADMIN_CREDS_FILE, 'w') as f:
         json.dump(creds, f, indent=2)

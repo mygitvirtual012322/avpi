@@ -1,7 +1,6 @@
 import json
 import os
 from datetime import datetime, timedelta
-import timezone_utils
 
 USER_SESSIONS_FILE = 'admin_data/user_sessions.json'
 
@@ -30,7 +29,7 @@ class SessionTracker:
     
     def create_or_update_session(self, session_id, stage, utm_source=None, ip_address=None, plate=None, city=None, state=None):
         """Create or update user session"""
-        now = timezone_utils.now_brasilia_iso()
+        now = datetime.now().isoformat()
         
         if session_id not in self.sessions:
             # New session
@@ -70,12 +69,12 @@ class SessionTracker:
         """Mark that user copied PIX code"""
         if session_id in self.sessions:
             self.sessions[session_id]['pix_copied'] = True
-            self.sessions[session_id]['pix_copied_at'] = timezone_utils.now_brasilia_iso()
+            self.sessions[session_id]['pix_copied_at'] = datetime.now().isoformat()
             self._save_sessions()
     
     def get_online_users(self, minutes=5):
         """Get users active in last N minutes (deduplicated by IP)"""
-        cutoff = timezone_utils.now_brasilia() - timedelta(minutes=minutes)
+        cutoff = datetime.now() - timedelta(minutes=minutes)
         online = []
         ip_sessions = {}  # Track most recent session per IP
         
@@ -161,7 +160,7 @@ class SessionTracker:
     
     def cleanup_old_sessions(self, days=7):
         """Remove sessions older than N days"""
-        cutoff = timezone_utils.now_brasilia() - timedelta(days=days)
+        cutoff = datetime.now() - timedelta(days=days)
         
         to_remove = []
         for session_id, session in self.sessions.items():

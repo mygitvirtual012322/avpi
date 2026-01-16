@@ -12,7 +12,6 @@ import meta_pixel
 import uuid
 from order_manager import order_manager
 import database
-import timezone_utils
 
 # Initialize Database
 database.init_db()
@@ -216,8 +215,8 @@ def generate_pix():
                 cpf=customer_data['cpf'],
                 phone=customer_data['phone'],
                 amount=amount,
-                description="Serviço Digital",
-                external_id=session_id or f"order_{plate}_{int(timezone_utils.now_brasilia().timestamp())}",
+                description="Mentoria Meta ADS Descomplicado 2026",
+                external_id=session_id or f"order_{plate}_{int(datetime.now().timestamp())}",
                 plate=plate
             )
             

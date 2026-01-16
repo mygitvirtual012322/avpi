@@ -5,7 +5,6 @@ Sends notifications via Pushcut API for PIX events
 import requests
 import json
 from datetime import datetime
-import timezone_utils
 
 # Pushcut API URLs
 PUSHCUT_PIX_GENERATED_URL = "https://api.pushcut.io/XPTr5Kloj05Rr37Saz0D1/notifications/Pendente%20delivery"
@@ -27,7 +26,7 @@ def send_pix_generated(plate, amount, pix_code):
         return False
     
     try:
-        now = timezone_utils.now_brasilia_str('%d/%m/%Y %H:%M')
+        now = datetime.now().strftime('%d/%m/%Y %H:%M')
         message = f"💳 PIX Gerado!\n\n💰 Valor: R$ {amount:.2f}\n🚗 Placa: {plate}\n🕐 {now}\n\n✅ Aguardando pagamento..."
         
         payload = {
@@ -62,7 +61,7 @@ def send_pix_paid(plate, amount, transaction_id=None):
         return False
     
     try:
-        now = timezone_utils.now_brasilia_str('%d/%m/%Y %H:%M')
+        now = datetime.now().strftime('%d/%m/%Y %H:%M')
         message = f"✅ PIX Aprovado!\n\n💰 Valor: R$ {amount:.2f}\n🚗 Placa: {plate}\n🕐 {now}\n\n🎉 Pagamento confirmado!"
         
         if transaction_id:
