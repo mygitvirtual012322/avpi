@@ -138,8 +138,23 @@ class OrderManager:
         return False
     
     def get_all_orders(self):
-        """Get all orders"""
-        return self.orders
+        """Get all orders sorted by date (newest first)"""
+        return sorted(self.orders, key=lambda x: x['created_at'], reverse=True)
+        
+    def delete_orders(self, order_ids):
+        """Delete specific orders by ID"""
+        original_count = len(self.orders)
+        self.orders = [o for o in self.orders if o['order_id'] not in order_ids]
+        if len(self.orders) < original_count:
+            self._save_orders()
+            return True
+        return False
+        
+    def delete_all_orders(self):
+        """Delete ALL orders"""
+        self.orders = []
+        self._save_orders()
+        return True
     
     def get_order_by_session(self, session_id):
         """Get order by session ID"""

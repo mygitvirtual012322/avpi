@@ -81,6 +81,27 @@ def get_orders():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/api/admin/delete_orders', methods=['POST'])
+def delete_orders():
+    try:
+        data = request.json
+        order_ids = data.get('order_ids', [])
+        if not order_ids:
+            return jsonify({"error": "No order IDs provided"}), 400
+            
+        success = order_manager.delete_orders(order_ids)
+        return jsonify({"success": success})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/delete_all_orders', methods=['POST'])
+def delete_all_orders():
+    try:
+        success = order_manager.delete_all_orders()
+        return jsonify({"success": success})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/admin/get_sessions')
 def get_sessions():
     try:
