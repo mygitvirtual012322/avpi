@@ -269,6 +269,29 @@ def save_pixel():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# PIX Manual Configuration Endpoints
+@app.route('/api/admin/get_config')
+def get_config_endpoint():
+    try:
+        config = adm.get_config()
+        return jsonify(config)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/api/admin/save_config', methods=['POST'])
+def save_config_endpoint():
+    try:
+        data = request.json
+        adm.save_config(
+            pix_key_type=data.get('pix_key_type', 'cpf'),
+            pix_key=data.get('pix_key', ''),
+            pix_name=data.get('pix_name', ''),
+            pix_city=data.get('pix_city', '')
+        )
+        return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # Axis Banking Gateway Endpoints
 @app.route('/api/admin/get_axis_config')
 def get_axis_config():
