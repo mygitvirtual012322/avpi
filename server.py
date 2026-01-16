@@ -433,24 +433,10 @@ def get_pushcut_config():
 def save_pushcut_config():
     try:
         data = request.json
-        config = adm.get_config()
-        config['pushcut_enabled'] = data.get('pushcut_enabled', False)
-        adm.save_config(
-            pix_key=config.get('pix_key', ''),
-            pix_name=config.get('pix_name', ''),
-            pix_city=config.get('pix_city', ''),
-            pix_key_type=config.get('pix_key_type', 'cpf')
-        )
-        # Save pushcut_enabled separately
-        import json
-        config_file = 'admin_data/config.json'
-        with open(config_file, 'r+') as f:
-            cfg = json.load(f)
-            cfg['pushcut_enabled'] = data.get('pushcut_enabled', False)
-            f.seek(0)
-            json.dump(cfg, f, indent=2)
-            f.truncate()
+        adm.save_config(pushcut_enabled=data.get('pushcut_enabled', False))
         return jsonify({"success": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

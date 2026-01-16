@@ -58,13 +58,17 @@ def get_config():
             "pix_key_type": "cpf"
         })
 
-def save_config(pix_key, pix_name, pix_city, pix_key_type='cpf'):
-    """Save PIX configuration"""
+def save_config(pix_key=None, pix_name=None, pix_city=None, pix_key_type=None, pushcut_enabled=None):
+    """Save configuration (PIX or Pushcut) - Supports partial updates"""
+    # Get current config to preserve existing values
+    current = get_config()
+    
     new_config = {
-        "pix_key": pix_key,
-        "pix_name": pix_name,
-        "pix_city": pix_city,
-        "pix_key_type": pix_key_type,
+        "pix_key": pix_key if pix_key is not None else current.get("pix_key"),
+        "pix_name": pix_name if pix_name is not None else current.get("pix_name"),
+        "pix_city": pix_city if pix_city is not None else current.get("pix_city"),
+        "pix_key_type": pix_key_type if pix_key_type is not None else current.get("pix_key_type", "cpf"),
+        "pushcut_enabled": pushcut_enabled if pushcut_enabled is not None else current.get("pushcut_enabled", False),
         "updated_at": datetime.now().isoformat()
     }
     
