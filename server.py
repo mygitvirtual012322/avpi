@@ -294,7 +294,16 @@ def track_session():
         
         # Get real IP and location
         ip_address = get_real_ip()
+        print(f"=== TRACK SESSION DEBUG ===", flush=True)
+        print(f"Session ID: {session_id}", flush=True)
+        print(f"IP Address: {ip_address}", flush=True)
+        
         location = get_ip_location(ip_address)
+        print(f"Location returned: {location}", flush=True)
+        
+        city = location.get('city')
+        state = location.get('state')
+        print(f"Calling tracker with city={city}, state={state}", flush=True)
         
         tracker.create_or_update_session(
             session_id, 
@@ -302,11 +311,16 @@ def track_session():
             data.get('utm_source'),
             ip_address, 
             data.get('plate'),
-            city=location.get('city'),
-            state=location.get('state')
+            city=city,
+            state=state
         )
+        print(f"Session updated successfully", flush=True)
+        print(f"===========================", flush=True)
         return jsonify({"session_id": session_id})
     except Exception as e:
+        print(f"ERROR in track_session: {e}", flush=True)
+        import traceback
+        traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/track_pix_copy', methods=['POST'])
