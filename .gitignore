@@ -9,7 +9,7 @@ venv/
 ENV/
 
 # Environment variables (sensitive)
-.env
+# .env (Uncommenting to allow deploy with keys)
 
 # Admin data (sensitive)
 
