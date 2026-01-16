@@ -137,7 +137,12 @@ def get_car_info_from_ipvabr(plate):
                     if match:
                         # Check if it looks like a model year (often near "Ano" or "Fabricação")
                         # This is a bit risky but better than null
-                        lbl_chk = td.find_element(By.XPATH, "./preceding-sibling::td").text rescue ""
+                        # Check if it looks like a model year (often near "Ano" or "Fabricação")
+                        try:
+                            lbl_chk = td.find_element(By.XPATH, "./preceding-sibling::td").text
+                        except:
+                            lbl_chk = ""
+                        
                         if "Ano" in lbl_chk or "Fabricação" in lbl_chk or "Modelo" in lbl_chk:
                             result_data['year'] = match.group(0)
                             break
