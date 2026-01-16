@@ -11,6 +11,10 @@ from session_tracker import tracker
 import meta_pixel
 import uuid
 from order_manager import order_manager
+import database
+
+# Initialize Database
+database.init_db()
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 

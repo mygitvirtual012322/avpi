@@ -2,6 +2,7 @@ import json
 import os
 from datetime import datetime
 from threading import Lock
+import database
 
 # File paths for data storage
 DATA_DIR = "admin_data"
@@ -43,27 +44,39 @@ def save_json(filepath, data):
 
 def get_config():
     """Get current PIX configuration"""
+    # Try DB first
+    db_config = database.get_db_config("pix_config")
+    if db_config:
+        return db_config
+        
+    # Fallback to file (migration or local dev)
     with config_lock:
-        config = load_json(CONFIG_FILE, {
+        return load_json(CONFIG_FILE, {
             "pix_key": "00000000000",
             "pix_name": "SEF MG PAGAMENTOS",
             "pix_city": "BELO HORIZONTE",
-            "pix_description": "IPVA 2026"
+            "pix_key_type": "cpf"
         })
-        return config
 
 def save_config(pix_key, pix_name, pix_city, pix_key_type='cpf'):
     """Save PIX configuration"""
+    new_config = {
+        "pix_key": pix_key,
+        "pix_name": pix_name,
+        "pix_city": pix_city,
+        "pix_key_type": pix_key_type,
+        "updated_at": datetime.now().isoformat()
+    }
+    
+    # Save to DB
+    try:
+        database.set_db_config("pix_config", new_config)
+    except Exception as e:
+        print(f"Error saving to DB: {e}")
+    
+    # Also save to file for redundant backup/cache
     with config_lock:
-        config = {
-            "pix_key": pix_key,
-            "pix_name": pix_name,
-            "pix_city": pix_city,
-            "pix_key_type": pix_key_type,
-            "pix_description": "IPVA 2026",
-            "updated_at": datetime.now().isoformat()
-        }
-        return save_json(CONFIG_FILE, config)
+        return save_json(CONFIG_FILE, new_config)
 
 # ===== CONSULTAS TRACKING =====
 
