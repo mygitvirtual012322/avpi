@@ -84,6 +84,8 @@ class SessionTracker:
                     online.append({
                         'session_id': session_id,
                         'ip': session.get('ip_address', 'Unknown'),
+                        'city': session.get('city', 'Desconhecido'),
+                        'state': session.get('state', 'Desconhecido'),
                         'current_stage': session.get('current_stage', 'unknown'),
                         'utm_source': session.get('utm_source', 'direct'),
                         'last_active': session['last_active'],
