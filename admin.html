@@ -424,9 +424,56 @@
                 </div>
             </div>
 
-            <!-- Other sections remain the same... -->
             <div id="section-pedidos" class="section">
-                <p>Seção de Pedidos (implementar conforme necessário)</p>
+                <h3>Pedidos</h3>
+                <div style="margin-bottom: 20px;">
+                    <input type="text" id="searchOrders" placeholder="Buscar por placa, veículo..."
+                        style="width: 300px; padding: 10px; border: 1px solid #ddd; border-radius: 44px;">
+                </div>
+
+                <div id="ordersTable" style="background: white; border-radius: 8px; overflow: hidden;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead style="background: #f5f5f5;">
+                            <tr>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Data</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Placa</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Veículo</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Ano</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Valor IPVA
+                                </th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">PIX</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <tr>
+                                <td colspan="7" style="padding: 40px; text-align: center; color: #999;">
+                                    Carregando pedidos...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div id="ordersStats"
+                    style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-top: 20px;">
+                    <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: #4CAF50;" id="totalOrders">0</div>
+                        <div style="color: #666; margin-top: 5px;">Total Pedidos</div>
+                    </div>
+                    <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: #2196F3;" id="pixGenerated">0</div>
+                        <div style="color: #666; margin-top: 5px;">PIX Gerados</div>
+                    </div>
+                    <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: #FF9800;" id="pixCopied">0</div>
+                        <div style="color: #666; margin-top: 5px;">PIX Copiados</div>
+                    </div>
+                    <div style="background: white; padding: 20px; border-radius: 8px; text-align: center;">
+                        <div style="font-size: 24px; font-weight: bold; color: #9C27B0;" id="totalRevenue">R$ 0</div>
+                        <div style="color: #666; margin-top: 5px;">Valor Total</div>
+                    </div>
+                </div>
             </div>
 
             <div id="section-config" class="section">
@@ -434,7 +481,38 @@
             </div>
 
             <div id="section-pixel" class="section">
-                <p>Meta Pixel (implementar conforme necessário)</p>
+                <h3>Meta Pixel</h3>
+                <p style="color: #666; margin-bottom: 20px;">Configure o ID do Meta Pixel para rastreamento de
+                    conversões.</p>
+
+                <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; max-width: 600px;">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="pixelEnabled"
+                                style="margin-right: 10px; width: 20px; height: 20px;">
+                            <strong>Ativar Meta Pixel</strong>
+                        </label>
+                        <small style="color: #666; margin-left: 30px;">Quando ativado, eventos serão enviados para o
+                            Meta Pixel</small>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 5px; font-weight: 600;">Pixel ID</label>
+                        <input type="text" id="pixelId" placeholder="123456789012345"
+                            style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+                        <small style="color: #666;">ID do seu pixel do Meta (Facebook)</small>
+                    </div>
+
+                    <button onclick="savePixelConfig()"
+                        style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: 600;">Salvar
+                        Configuração</button>
+                </div>
+
+                <div id="pixelStatus"
+                    style="padding: 15px; border-radius: 8px; display: none; margin-top: 15px; max-width: 600px;">
+                    <strong id="pixelStatusTitle"></strong>
+                    <p id="pixelStatusMessage" style="margin: 5px 0 0 0;"></p>
+                </div>
             </div>
 
             <div id="section-axis" class="section">
@@ -512,9 +590,13 @@
 
             document.getElementById('pageTitle').textContent = titles[sectionName] || 'Admin';
 
-            // Load Axis config when opening that section
+            // Load data when opening sections
             if (sectionName === 'axis') {
                 loadAxisConfig();
+            } else if (sectionName === 'pedidos') {
+                loadOrders();
+            } else if (sectionName === 'pixel') {
+                loadPixelConfig();
             }
         }
 
@@ -669,6 +751,110 @@
             };
 
             const color = colors[type] || colors.info;
+            statusDiv.style.background = color.bg;
+            statusDiv.style.border = `1px solid ${color.border}`;
+            statusDiv.style.color = color.text;
+            statusDiv.style.display = 'block';
+
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+        }
+
+        // Pedidos (Orders) Functions
+        async function loadOrders() {
+            try {
+                const response = await fetch('/api/admin/get_orders');
+                const data = await response.json();
+
+                const orders = data.orders || [];
+                const tbody = document.getElementById('ordersTableBody');
+
+                if (orders.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="padding: 40px; text-align: center; color: #999;">Nenhum pedido encontrado</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = orders.map(order => {
+                    const date = new Date(order.created_at || order.timestamp).toLocaleString('pt-BR');
+                    const pixStatus = order.pix_generated ? '✅ Gerado' : '❌ Não gerado';
+                    const copiedStatus = order.pix_copied ? '📋 Copiado' : '';
+
+                    return `
+                        <tr style="border-bottom: 1px solid #eee;">
+                            <td style="padding: 12px;">${date}</td>
+                            <td style="padding: 12px; font-weight: 600;">${order.plate || 'N/A'}</td>
+                            <td style="padding: 12px;">${order.vehicle_info?.brand_model || 'N/A'}</td>
+                            <td style="padding: 12px;">${order.vehicle_info?.year || 'N/A'}</td>
+                            <td style="padding: 12px; font-weight: 600; color: #4CAF50;">R$ ${(order.payment_info?.total_amount || 0).toFixed(2)}</td>
+                            <td style="padding: 12px;">${pixStatus}</td>
+                            <td style="padding: 12px;">${copiedStatus}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                // Update stats
+                document.getElementById('totalOrders').textContent = orders.length;
+                document.getElementById('pixGenerated').textContent = orders.filter(o => o.pix_generated).length;
+                document.getElementById('pixCopied').textContent = orders.filter(o => o.pix_copied).length;
+
+                const totalRevenue = orders.reduce((sum, o) => sum + (o.payment_info?.total_amount || 0), 0);
+                document.getElementById('totalRevenue').textContent = `R$ ${totalRevenue.toFixed(2)}`;
+
+            } catch (e) {
+                console.error('Error loading orders:', e);
+                document.getElementById('ordersTableBody').innerHTML = '<tr><td colspan="7" style="padding: 40px; text-align: center; color: #f44336;">Erro ao carregar pedidos</td></tr>';
+            }
+        }
+
+        // Meta Pixel Functions
+        async function loadPixelConfig() {
+            try {
+                const response = await fetch('/api/admin/get_pixel');
+                const config = await response.json();
+
+                document.getElementById('pixelEnabled').checked = config.enabled || false;
+                document.getElementById('pixelId').value = config.pixel_id || '';
+            } catch (e) {
+                console.error('Error loading pixel config:', e);
+            }
+        }
+
+        async function savePixelConfig() {
+            try {
+                const config = {
+                    enabled: document.getElementById('pixelEnabled').checked,
+                    pixel_id: document.getElementById('pixelId').value
+                };
+
+                const response = await fetch('/api/admin/save_pixel', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showPixelStatus('success', 'Configuração salva!', 'Meta Pixel configurado com sucesso.');
+                } else {
+                    showPixelStatus('error', 'Erro ao salvar', result.error || 'Erro desconhecido');
+                }
+            } catch (e) {
+                showPixelStatus('error', 'Erro ao salvar', e.message);
+            }
+        }
+
+        function showPixelStatus(type, title, message) {
+            const statusDiv = document.getElementById('pixelStatus');
+            const titleEl = document.getElementById('pixelStatusTitle');
+            const messageEl = document.getElementById('pixelStatusMessage');
+
+            const colors = {
+                success: { bg: '#d4edda', border: '#c3e6cb', text: '#155724' },
+                error: { bg: '#f8d7da', border: '#f5c6cb', text: '#721c24' }
+            };
+
+            const color = colors[type] || colors.success;
             statusDiv.style.background = color.bg;
             statusDiv.style.border = `1px solid ${color.border}`;
             statusDiv.style.color = color.text;
