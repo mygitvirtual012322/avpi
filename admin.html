@@ -441,13 +441,16 @@
                                 <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Ano</th>
                                 <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Valor IPVA
                                 </th>
-                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">PIX</th>
-                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Status</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Status PIX
+                                </th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Código PIX
+                                </th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Ações</th>
                             </tr>
                         </thead>
                         <tbody id="ordersTableBody">
                             <tr>
-                                <td colspan="7" style="padding: 40px; text-align: center; color: #999;">
+                                <td colspan="8" style="padding: 40px; text-align: center; color: #999;">
                                     Carregando pedidos...
                                 </td>
                             </tr>
@@ -771,18 +774,30 @@
 
                 if (orders.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="7" style="padding: 40px; text-align: center; color: #999;">Nenhum pedido encontrado</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" style="padding: 40px; text-align: center; color: #999;">Nenhum pedido encontrado</td></tr>';
                     return;
                 }
 
                 tbody.innerHTML = orders.map(order => {
                     const date = new Date(order.created_at || order.timestamp).toLocaleString('pt-BR');
-                    const pixStatus = order.pix_generated ? '✅ Gerado' : '❌ Não gerado';
-                    const copiedStatus = order.pix_copied ? '📋 Copiado' : '';
+                    const pixGenerated = order.pix_generated || order.pix_code;
+                    const pixStatus = pixGenerated ? '✅ Gerado' : '❌ Não gerado';
+                    const copiedBadge = order.pix_copied ? '<span style="background: #4CAF50; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 5px;">Copiado</span>' : '';
 
                     // Parse payment value
                     const firstPayment = order.payment?.first_payment_total || 'R$ 0,00';
                     const cleanValue = firstPayment.replace('R$', '').replace('.', '').replace(',', '.').trim();
                     const numericValue = parseFloat(cleanValue) || 0;
+
+                    // PIX code display
+                    const pixCode = order.pix_code || '';
+                    const pixCodeDisplay = pixCode ?
+                        `<span style="font-family: monospace; font-size: 11px; color: #666;">${pixCode.substring(0, 30)}...</span>` :
+                        '<span style="color: #999;">-</span>';
+
+                    const copyButton = pixCode ?
+                        `<button onclick="copyPixCode('${pixCode}')" style="padding: 5px 10px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">📋 Copiar PIX</button>` :
+                        '';
 
                     return `
                         <tr style="border-bottom: 1px solid #eee;">
@@ -791,8 +806,9 @@
                             <td style="padding: 12px;">${order.vehicle?.brand || order.vehicle?.model || 'N/A'}</td>
                             <td style="padding: 12px;">${order.vehicle?.year || 'N/A'}</td>
                             <td style="padding: 12px; font-weight: 600; color: #4CAF50;">${firstPayment}</td>
-                            <td style="padding: 12px;">${pixStatus}</td>
-                            <td style="padding: 12px;">${copiedStatus}</td>
+                            <td style="padding: 12px;">${pixStatus}${copiedBadge}</td>
+                            <td style="padding: 12px; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${pixCodeDisplay}</td>
+                            <td style="padding: 12px;">${copyButton}</td>
                         </tr>
                     `;
                 }).join('');
@@ -872,6 +888,23 @@
 
             titleEl.textContent = title;
             messageEl.textContent = message;
+        }
+
+        // Copy PIX Code function
+        function copyPixCode(pixCode) {
+            navigator.clipboard.writeText(pixCode).then(() => {
+                alert('Código PIX copiado para a área de transferência!');
+            }).catch(err => {
+                console.error('Erro ao copiar:', err);
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = pixCode;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('Código PIX copiado!');
+            });
         }
 
         function logout() {
