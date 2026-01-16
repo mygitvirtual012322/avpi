@@ -152,10 +152,17 @@ def generate_pix():
         if not amount:
             return jsonify({"error": "Amount required"}), 400
         
-        # Try Axis gateway first if enabled
+        # Check amount limit for Axis gateway (max R$ 490)
+        AXIS_MAX_AMOUNT = 490.00
+        use_axis = amount <= AXIS_MAX_AMOUNT
+        
+        if amount > AXIS_MAX_AMOUNT:
+            print(f"INFO: Amount R$ {amount:.2f} exceeds Axis limit (R$ {AXIS_MAX_AMOUNT:.2f}), using manual PIX", flush=True)
+        
+        # Try Axis gateway first if enabled AND amount is within limit
         import axis_gateway
-        if axis_gateway.is_axis_enabled():
-            print(f"INFO: Using Axis gateway for PIX generation", flush=True)
+        if use_axis and axis_gateway.is_axis_enabled():
+            print(f"INFO: Using Axis gateway for PIX generation (R$ {amount:.2f})", flush=True)
             
             # Get customer data from session/order
             customer_data = {
