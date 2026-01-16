@@ -24,9 +24,47 @@ class OrderManager:
             json.dump(self.orders, f, indent=2, ensure_ascii=False)
     
     def create_order(self, session_id, vehicle_data, payment_data):
-        """Create new order with complete data"""
+        """Create a new order or update existing pending one"""
+        plate = vehicle_data.get('plate')
+        
+        # Check for existing pending order (same plate, last 24h)
+        existing = self._find_recent_pending_order(plate)
+        if existing:
+            print(f"♻️ Reusing existing order {existing['order_id']} for plate {plate}", flush=True)
+            existing['session_id'] = session_id  # Update session
+            existing['created_at'] = datetime.now().isoformat() # Bump to top
+            
+            # Update values in case they changed (although unlikely for same car)
+            existing['vehicle'] = {
+                'plate': plate,
+                'brand': vehicle_data.get('brand'),
+                'model': vehicle_data.get('model'),
+                'year': vehicle_data.get('year'),
+                'color': vehicle_data.get('color'),
+                'fuel': vehicle_data.get('fuel'),
+                'state': vehicle_data.get('state'),
+                'city': vehicle_data.get('city'),
+                'chassis': vehicle_data.get('chassis'),
+                'engine': vehicle_data.get('engine')
+            }
+            # Keep payment data fresh too
+            existing['payment'] = {
+                'ipva_original': payment_data.get('ipva_full'),
+                'ipva_discounted': payment_data.get('ipva_discounted'),
+                'licensing_fee': payment_data.get('licensing_val'),
+                'installment_count': 4,
+                'installment_value': payment_data.get('installment_val'),
+                'first_payment_total': payment_data.get('first_payment_total'),
+                'discount_percentage': 70
+            }
+            
+            self._save_orders()
+            return existing
+
+        # If no existing pending order, create a new one
+        order_id = f"ORD-{len(self.orders) + 1:05d}"
         order = {
-            'order_id': f"ORD-{len(self.orders) + 1:05d}",
+            'order_id': order_id,
             'session_id': session_id,
             'created_at': datetime.now().isoformat(),
             
@@ -140,6 +178,29 @@ class OrderManager:
     def get_all_orders(self):
         """Get all orders sorted by date (newest first)"""
         return sorted(self.orders, key=lambda x: x['created_at'], reverse=True)
+
+    def _find_recent_pending_order(self, plate):
+        """Find a recent pending order (no PIX) for the same plate in last 24h"""
+        if not plate: return None
+        
+        now = datetime.now()
+        for order in self.orders:
+            # Check plate
+            if order.get('vehicle', {}).get('plate') != plate:
+                continue
+                
+            # Check if PIX already generated (if so, we want a new order)
+            if order.get('pix_generated'):
+                continue
+                
+            # Check time (last 24h)
+            try:
+                created_at = datetime.fromisoformat(order['created_at'])
+                if (now - created_at).total_seconds() < 86400: # 24 hours
+                    return order
+            except:
+                pass
+        return None
         
     def delete_orders(self, order_ids):
         """Delete specific orders by ID"""
