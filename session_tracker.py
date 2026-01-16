@@ -73,47 +73,58 @@ class SessionTracker:
             self._save_sessions()
     
     def get_online_users(self, minutes=5):
-        """Get users active in last N minutes"""
+        """Get users active in last N minutes (deduplicated by IP)"""
         cutoff = datetime.now() - timedelta(minutes=minutes)
         online = []
+        ip_sessions = {}  # Track most recent session per IP
         
         for session_id, session in self.sessions.items():
             if 'last_active' in session:
                 last_active = datetime.fromisoformat(session['last_active'])
                 if last_active > cutoff:
-                    online.append({
-                        'session_id': session_id,
-                        'ip': session.get('ip_address', 'Unknown'),
-                        'city': session.get('city', 'Desconhecido'),
-                        'state': session.get('state', 'Desconhecido'),
-                        'current_stage': session.get('current_stage', 'unknown'),
-                        'utm_source': session.get('utm_source', 'direct'),
-                        'last_active': session['last_active'],
-                        'plate': session.get('plate', '-'),
-                        'pix_copied': session.get('pix_copied', False)
-                    })
+                    ip = session.get('ip_address', 'Unknown')
+                    
+                    # Keep only most recent session per IP
+                    if ip not in ip_sessions or last_active > datetime.fromisoformat(ip_sessions[ip]['last_active']):
+                        ip_sessions[ip] = {
+                            'session_id': session_id,
+                            'ip': ip,
+                            'city': session.get('city', 'Desconhecido'),
+                            'state': session.get('state', 'Desconhecido'),
+                            'current_stage': session.get('current_stage', 'unknown'),
+                            'utm_source': session.get('utm_source', 'direct'),
+                            'last_active': session['last_active'],
+                            'plate': session.get('plate', '-'),
+                            'pix_copied': session.get('pix_copied', False)
+                        }
         
-        return online
+        return list(ip_sessions.values())
     
     def get_stats(self):
         """Get session statistics"""
         total_sessions = len(self.sessions)
         online_count = len(self.get_online_users())
         
-        # Count by stage
+        # Count by stage (accumulated - all sessions that reached each stage)
         stage_counts = {
-            self.STAGE_INITIAL: 0,
-            self.STAGE_RESULTS: 0,
-            self.STAGE_PIX_MODAL: 0
+            'initial_form': 0,
+            'viewing_results': 0,
+            'pix_modal': 0
         }
         
         pix_copied_count = 0
         utm_sources = {}
         
         for session in self.sessions.values():
-            current_stage = session.get('current_stage')
-            if current_stage in stage_counts:
-                stage_counts[current_stage] += 1
+            # Count all stages this session has been through
+            stages_visited = set()
+            for stage_entry in session.get('stages', []):
+                stages_visited.add(stage_entry.get('stage'))
+            
+            # Increment counters for all stages visited
+            for stage in stages_visited:
+                if stage in stage_counts:
+                    stage_counts[stage] += 1
             
             if session.get('pix_copied'):
                 pix_copied_count += 1
