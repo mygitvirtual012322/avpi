@@ -348,6 +348,12 @@
                 </svg>
                 <span>Live View</span>
             </div>
+            <div class="nav-item" onclick="showSection('funil')">
+                <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                </svg>
+                <span>Funil</span>
+            </div>
             <div class="nav-item" onclick="showSection('pedidos')">
                 <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
@@ -389,38 +395,62 @@
         <div class="content-area">
             <!-- Live View Section -->
             <div id="section-live" class="section active">
-                <!-- Funnel -->
+                <h3>Usuários Online Agora</h3>
+                <p style="color: #666; margin-bottom: 20px;">
+                    <span class="live-indicator">
+                        <span class="live-dot"></span>
+                        AO VIVO
+                    </span>
+                    Usuários navegando no site neste momento
+                </p>
+
+                <!-- Online Users -->
+                <div class="online-users-container">
+                    <div class="users-title">Total Online: <span id="total-online">0</span></div>
+                    <div id="onlineUsersList"></div>
+                </div>
+            </div>
+
+            <!-- Funil Section -->
+            <div id="section-funil" class="section">
+                <h3>Funil de Conversão</h3>
+                <p style="color: #666; margin-bottom: 20px;">Estatísticas acumuladas de quantas pessoas chegaram em cada
+                    etapa</p>
+
                 <div class="funnel-container">
-                    <div class="funnel-title">
-                        <span>Funil de Conversão</span>
-                        <span class="live-indicator">
-                            <span class="live-dot"></span>
-                            AO VIVO
-                        </span>
-                    </div>
                     <div class="funnel-stages">
                         <div class="funnel-stage">
                             <div class="stage-label">Etapa 1</div>
-                            <div class="stage-count" id="count-stage-1">0</div>
+                            <div class="stage-count" id="count-stage-1-total">0</div>
                             <div class="stage-subtitle">Formulário</div>
                         </div>
                         <div class="funnel-stage">
                             <div class="stage-label">Etapa 2</div>
-                            <div class="stage-count" id="count-stage-2">0</div>
+                            <div class="stage-count" id="count-stage-2-total">0</div>
                             <div class="stage-subtitle">Visualizando</div>
                         </div>
                         <div class="funnel-stage">
                             <div class="stage-label">Etapa 3</div>
-                            <div class="stage-count" id="count-stage-3">0</div>
+                            <div class="stage-count" id="count-stage-3-total">0</div>
                             <div class="stage-subtitle">PIX Modal</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Online Users -->
-                <div class="online-users-container">
-                    <div class="users-title">Usuários Online Agora (<span id="total-online">0</span>)</div>
-                    <div id="onlineUsersList"></div>
+                <div style="margin-top: 30px; background: white; padding: 20px; border-radius: 8px;">
+                    <h4>Taxa de Conversão</h4>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px;">
+                        <div style="padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #4CAF50;" id="conversion-rate-1-2">0%
+                            </div>
+                            <div style="color: #666; margin-top: 5px;">Etapa 1 → 2</div>
+                        </div>
+                        <div style="padding: 15px; background: #f5f5f5; border-radius: 8px;">
+                            <div style="font-size: 24px; font-weight: bold; color: #2196F3;" id="conversion-rate-2-3">0%
+                            </div>
+                            <div style="color: #666; margin-top: 5px;">Etapa 2 → 3</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
