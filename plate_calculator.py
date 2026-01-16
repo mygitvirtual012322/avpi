@@ -206,7 +206,7 @@ def calculate_ipva_data(plate):
             scraped_data['venal_value_str'] = f"R$ {fipe_value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
         else:
             print(f"ERROR: FIPE API also failed", flush=True)
-            return {"error": "Valor venal não disponível para este veículo. Tente novamente mais tarde."}
+            return {"error": "Não foi possível obter o valor do veículo. A API FIPE está temporariamente indisponível. Por favor, tente novamente em alguns minutos."}
         
     venal_val = scraped_data['venal_value']
     

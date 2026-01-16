@@ -1,5 +1,6 @@
 import requests
 import re
+import time
 
 def get_fipe_value(brand, model, year):
     """
@@ -25,7 +26,7 @@ def get_fipe_value(brand, model, year):
         
         # 2. Get brands
         brands_url = f"{base_url}/{vehicle_type}/marcas"
-        brands_response = requests.get(brands_url, timeout=10)
+        brands_response = requests.get(brands_url, timeout=20)
         brands = brands_response.json()
         
         # Find matching brand
@@ -42,7 +43,7 @@ def get_fipe_value(brand, model, year):
         
         # 3. Get models for this brand
         models_url = f"{base_url}/{vehicle_type}/marcas/{brand_code}/modelos"
-        models_response = requests.get(models_url, timeout=10)
+        models_response = requests.get(models_url, timeout=20)
         models_data = models_response.json()
         
         # Find matching model
@@ -61,7 +62,7 @@ def get_fipe_value(brand, model, year):
         
         # 4. Get years for this model
         years_url = f"{base_url}/{vehicle_type}/marcas/{brand_code}/modelos/{model_code}/anos"
-        years_response = requests.get(years_url, timeout=10)
+        years_response = requests.get(years_url, timeout=20)
         years_data = years_response.json()
         
         # Find matching year
@@ -78,7 +79,7 @@ def get_fipe_value(brand, model, year):
         
         # 5. Get FIPE value
         value_url = f"{base_url}/{vehicle_type}/marcas/{brand_code}/modelos/{model_code}/anos/{year_code}"
-        value_response = requests.get(value_url, timeout=10)
+        value_response = requests.get(value_url, timeout=20)
         value_data = value_response.json()
         
         fipe_value_str = value_data.get('Valor', '')
