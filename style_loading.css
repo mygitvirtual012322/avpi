@@ -1,0 +1,78 @@
+/* Loading Screen Styles */
+#pageLoadingOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff; /* White background for official look */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    flex-direction: column;
+}
+
+#pageLoadingOverlay.hidden {
+    display: none !important;
+}
+
+.loading-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 80%;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #c62828; /* SEF Red */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+.loading-text {
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.loading-steps {
+    text-align: left;
+    margin-top: 10px;
+    width: 100%;
+    max-width: 350px;
+}
+
+.step {
+    padding: 8px 0;
+    font-size: 14px;
+    color: #999;
+    display: flex;
+    align-items: center;
+    opacity: 0.5;
+    transition: all 0.5s ease;
+}
+
+.step.active {
+    color: #333;
+    font-weight: 600;
+    opacity: 1;
+}
+
+.step.active::before {
+    content: "✓";
+    color: #28a745;
+    margin-right: 8px;
+    font-weight: bold;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

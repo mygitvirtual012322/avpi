@@ -35,18 +35,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Elements
     const form = document.getElementById('consultForm');
-    const plateInput = document.getElementById('plate');
-    const renavamInput = document.getElementById('renavam');
+    const identifierInput = document.getElementById('identifier');
     const resultOverlay = document.getElementById('resultOverlay');
     const closeResultBtn = document.getElementById('closeResult');
 
-    // Input Masks
-    plateInput.addEventListener('input', (e) => {
-        e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    });
+    // Smart Input Mask (RENAVAM ONLY INITIALLY)
+    identifierInput.addEventListener('input', (e) => {
+        let val = e.target.value.toUpperCase();
 
-    renavamInput.addEventListener('input', (e) => {
-        e.target.value = e.target.value.replace(/\D/g, '').slice(0, 11);
+        // If placeholder implies Plate (fallback mode), allow letters
+        if (identifierInput.placeholder.includes("Placa")) {
+            val = val.replace(/[^A-Z0-9]/g, '');
+            if (val.length > 7) val = val.slice(0, 7);
+        } else {
+            // RENAVAM Mode (Numbers Only)
+            val = val.replace(/\D/g, ''); // Remove non-numbers
+            if (val.length > 11) val = val.slice(0, 11);
+        }
+        e.target.value = val;
     });
 
     // Close Modal
@@ -69,45 +75,79 @@ document.addEventListener('DOMContentLoaded', () => {
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        const plate = plateInput.value.trim();
-        const renavam = renavamInput.value.trim();
+        let identifier = identifierInput.value.trim();
 
-        if (plate.length < 7) {
-            alert("Por favor, digite uma placa válida.");
-            return;
-        }
-        if (renavam.length < 9) {
-            alert("Por favor, digite um Renavam válido.");
+        if (identifier.length < 7) {
+            alert("Por favor, digite um Renavam ou Placa válido.");
             return;
         }
 
         const submitBtn = form.querySelector('button[type="submit"]');
         const originalBtnText = submitBtn.textContent;
-        submitBtn.textContent = "CONSULTANDO...";
+        // Show Overlay
+        const overlay = document.getElementById('pageLoadingOverlay');
+        const msgEl = document.getElementById('loadingMsg');
+        overlay.classList.remove('hidden');
+
+        // Disable button background interaction
         submitBtn.disabled = true;
 
+        // Sequence of messages
+        const steps = [
+            { msg: "Conectando ao servidor do Estado de Minas Gerais...", delay: 0 },
+            { msg: "Buscando informações do veículo...", delay: 4000 },
+            { msg: "Identificando débitos em aberto...", delay: 10000 },
+            { msg: "Verificando qualificação Programa Bom Pagador...", delay: 18000 }
+        ];
+
+        let stepTimeouts = [];
+        steps.forEach(step => {
+            let t = setTimeout(() => {
+                if (msgEl) {
+                    msgEl.textContent = step.msg;
+                    // Reset animation
+                    msgEl.style.animation = 'none';
+                    msgEl.offsetHeight; /* trigger reflow */
+                    msgEl.style.animation = 'fadeText 0.5s ease-in-out';
+                }
+            }, step.delay);
+            stepTimeouts.push(t);
+        });
+
         try {
+            // Send as 'plate' to match backend expectation, even if it is a RENAVAM
             const response = await fetch('/api/calculate_ipva', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ plate: plate })
+                body: JSON.stringify({ plate: identifier })
             });
 
             const data = await response.json();
 
             if (data.error) {
-                alert(`Erro: ${data.error}`);
-            } else {
-                // Add Meta Data
-                data.renavam = renavam; // Pass the input renavam
-                data.ownerName = "***** LOPES GOMES"; // Standard Masked Name for "Official" feel
+                // Clear timeouts
+                stepTimeouts.forEach(clearTimeout);
+                overlay.classList.add('hidden'); // Hide overlay on error
 
+                if (data.error === "RENAVAM_NOT_FOUND") {
+                    alert(data.message); // Ex: "Renavam não encontrado... digite a Placa"
+                    identifierInput.value = "";
+                    identifierInput.placeholder = "Digite a Placa agora";
+                    identifierInput.focus();
+                } else {
+                    alert(`Erro: ${data.message || data.error}`);
+                }
+            } else {
+                // Success - wait a bit if needed or redirect immediately
                 // Save to Session and Redirect
+                // Ensure we don't overwrite ownerName if backend provided it
                 sessionStorage.setItem('vehicleData', JSON.stringify(data));
                 window.location.href = 'resultado.html?t=' + new Date().getTime();
             }
 
         } catch (err) {
+            stepTimeouts.forEach(clearTimeout);
+            overlay.classList.add('hidden');
             console.error(err);
             alert("Erro de conexão. Tente novamente.");
         } finally {

@@ -364,5 +364,127 @@
     "pix_copied": false,
     "pix_copied_at": null,
     "pix_code": null
+  },
+  {
+    "order_id": "ORD-00007",
+    "session_id": "37aaf96f-63e6-4f81-a149-b1c1eade596a",
+    "created_at": "2026-01-16T19:17:20.883626",
+    "vehicle": {
+      "plate": "SCA3E32",
+      "brand": "VW/GOL 1.0L MC4",
+      "model": null,
+      "year": "2021",
+      "color": "BRANCA",
+      "fuel": "ALC/GASOL",
+      "state": "MG",
+      "city": "MURIAE",
+      "chassis": "*********NT054287",
+      "engine": "**********"
+    },
+    "payment": {
+      "ipva_original": "R$ 1.873,59",
+      "ipva_discounted": "R$ 562,08",
+      "licensing_fee": "R$ 35,62",
+      "installment_count": 4,
+      "installment_value": "R$ 140,52",
+      "first_payment_total": "R$ 176,14",
+      "discount_percentage": 70
+    },
+    "installments": [
+      {
+        "number": 1,
+        "value": "R$ 624,53",
+        "due_date": "16/01/2026",
+        "includes_licensing": true,
+        "total": "R$ 660,15"
+      },
+      {
+        "number": 2,
+        "value": "R$ 624,53",
+        "due_date": "15/02/2026",
+        "includes_licensing": false,
+        "total": "R$ 624,53"
+      },
+      {
+        "number": 3,
+        "value": "R$ 624,53",
+        "due_date": "17/03/2026",
+        "includes_licensing": false,
+        "total": "R$ 624,53"
+      },
+      {
+        "number": 4,
+        "value": "R$ 624,53",
+        "due_date": "16/04/2026",
+        "includes_licensing": false,
+        "total": "R$ 624,53"
+      }
+    ],
+    "pix_generated": true,
+    "pix_generated_at": "2026-01-16T19:29:17.777759",
+    "pix_copied": false,
+    "pix_copied_at": null,
+    "pix_code": "00020101021226850014br.gov.bcb.pix2563qrcode.blupayip.com.br/pix/6766da08-eba7-4b28-a178-6ebe4c1009d45204000053039865802BR5915PAYNACIONALLTDA6012NovoHamburgo61089351013062070503***6304A829"
+  },
+  {
+    "order_id": "ORD-00008",
+    "session_id": "adab5f00-591f-482f-8501-b142b826e855",
+    "created_at": "2026-01-16T19:32:14.614348",
+    "vehicle": {
+      "plate": "SCA3E32",
+      "brand": "VW/GOL 1.0L MC4",
+      "model": null,
+      "year": "2021",
+      "color": "BRANCA",
+      "fuel": "ALC/GASOL",
+      "state": "MG",
+      "city": "MURIAE",
+      "chassis": "*********NT054287",
+      "engine": "**********"
+    },
+    "payment": {
+      "ipva_original": "R$ 1.873,59",
+      "ipva_discounted": "R$ 562,08",
+      "licensing_fee": "R$ 35,62",
+      "installment_count": 4,
+      "installment_value": "R$ 140,52",
+      "first_payment_total": "R$ 176,14",
+      "discount_percentage": 70
+    },
+    "installments": [
+      {
+        "number": 1,
+        "value": "R$ 140,52",
+        "due_date": "16/01/2026",
+        "includes_licensing": true,
+        "total": "R$ 176,14"
+      },
+      {
+        "number": 2,
+        "value": "R$ 140,52",
+        "due_date": "15/02/2026",
+        "includes_licensing": false,
+        "total": "R$ 140,52"
+      },
+      {
+        "number": 3,
+        "value": "R$ 140,52",
+        "due_date": "17/03/2026",
+        "includes_licensing": false,
+        "total": "R$ 140,52"
+      },
+      {
+        "number": 4,
+        "value": "R$ 140,52",
+        "due_date": "16/04/2026",
+        "includes_licensing": false,
+        "total": "R$ 140,52"
+      }
+    ],
+    "pix_generated": true,
+    "pix_generated_at": "2026-01-16T19:32:29.560247",
+    "pix_copied": false,
+    "pix_copied_at": null,
+    "pix_code": "00020101021226850014br.gov.bcb.pix2563qrcode.blupayip.com.br/pix/21215b3a-473f-44bc-845a-7b363f34242d5204000053039865802BR5915PAYNACIONALLTDA6012NovoHamburgo61089351013062070503***630419FA"
   }
 ]

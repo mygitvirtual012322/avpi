@@ -34,6 +34,28 @@
         <div class="mg-footer-bg"></div>
     </div>
 
+    <!-- Fullscreen Loading Overlay (Custom SEF Style) -->
+    <div id="pageLoadingOverlay" class="hidden">
+        <div class="loading-content">
+            <img src="https://buscar-renavam-ipva-digital.fazenda.mg.gov.br/_next/image/?url=%2F_next%2Fstatic%2Fmedia%2FsefLogo02.1d6fc26d.png&w=384&q=75"
+                alt="SEF/MG" class="loading-logo">
+
+            <div class="loading-steps-container">
+                <div class="spinner-ring"></div>
+                <div class="loading-messages">
+                    <p id="loadingMsg" class="active-msg">Conectando ao servidor...</p>
+                </div>
+            </div>
+
+            <div class="secure-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+                Ambiente Seguro
+            </div>
+        </div>
+    </div>
+
     <!-- Main Container -->
     <main class="mg-container">
 
@@ -59,16 +81,10 @@
             <form id="consultForm" class="mg-form">
 
                 <div class="mg-input-group">
-                    <label for="plate">Placa *</label>
-                    <input type="text" id="plate" name="plate" placeholder="AAA-0A00" maxlength="8" required>
-                    <span class="error-msg" id="plateError"></span>
-                </div>
-
-                <div class="mg-input-group">
-                    <label for="renavam">Renavam *</label>
-                    <input type="text" id="renavam" name="renavam" placeholder="00000000000" maxlength="11" required>
-                    <span class="helper-text">O n° Renavam encontra-se no canto superior esquerdo do documento do
-                        veículo.</span>
+                    <label for="identifier">RENAVAM</label>
+                    <input type="text" id="identifier" name="identifier" placeholder="00000000000" maxlength="11"
+                        required>
+                    <span class="helper-text">Digite apenas os 11 números do RENAVAM.</span>
                 </div>
 
                 <div class="mg-actions">

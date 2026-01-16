@@ -15,6 +15,15 @@ except ImportError as e:
     STEALTH_AVAILABLE = False
     stealth = None
 import time
+import random
+
+# Try to import Fazenda API client (optional)
+try:
+    from fazenda_api_client import get_ipva_data_official
+    FAZENDA_API_AVAILABLE = True
+except ImportError:
+    FAZENDA_API_AVAILABLE = False
+    print("⚠️ Fazenda API client not available, using scraping only")
 import os
 import sys # Added for logging
 from config import IPVA_ALIQUOTA, PROMO_DISCOUNT_RATE, LICENSING_FEE
@@ -199,92 +208,269 @@ def get_car_info_from_ipvabr(plate):
         if 'driver' in locals():
             driver.quit()
 
-def calculate_ipva_data(plate):
-    print("=" * 50, flush=True)
-    print(f"FUNCTION START: calculate_ipva_data({plate})", flush=True)
-    print("=" * 50, flush=True)
-    
-    # 1. Scrape ipvabr.com.br
-    print(f"Consulta placa {plate} no ipvabr.com.br...", flush=True)
-    scraped_data = get_car_info_from_ipvabr(plate)
-    
-    if not scraped_data:
-        print(f"ERROR: Failed to scrape data for plate {plate}", flush=True)
-        return {"error": "Veículo não encontrado ou dados incompletos. Verifique a placa e tente novamente."}
-    
-    # If venal value is missing, try FIPE API as fallback
-    if 'venal_value' not in scraped_data or not scraped_data.get('venal_value'):
-        print(f"INFO: Venal value missing, trying FIPE API...", flush=True)
-        from fipe_api import get_fipe_value
-        
-        brand_model = scraped_data.get('brand_model', '')
-        year = scraped_data.get('year', '')
-        
-        # Extract brand and model
-        parts = brand_model.split(' ', 1)
-        brand = parts[0] if parts else ''
-        model = parts[1] if len(parts) > 1 else brand_model
-        
-        fipe_value = get_fipe_value(brand, model, year)
-        
-        if fipe_value:
-            print(f"SUCCESS: Got FIPE value: R$ {fipe_value:,.2f}", flush=True)
-            scraped_data['venal_value'] = fipe_value
-            scraped_data['venal_value_str'] = f"R$ {fipe_value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-        else:
-            print(f"ERROR: FIPE API also failed", flush=True)
-            return {"error": "Não foi possível obter o valor do veículo. A API FIPE está temporariamente indisponível. Por favor, tente novamente em alguns minutos."}
-        
-    venal_val = scraped_data['venal_value']
-    
-    # 2. Calculate Values
-    ipva_full = venal_val * IPVA_ALIQUOTA
-    licensing = LICENSING_FEE
-    total_full = ipva_full + licensing
-    
-    # Promo
-    ipva_discounted = ipva_full * (1 - PROMO_DISCOUNT_RATE)
-    total_discounted = ipva_discounted + licensing
-    
-    # Installments: 4 parcels of IPVA only (licensing paid with 1st installment)
-    installment_val = ipva_discounted / 4
-    
-    # First payment = 1st installment + licensing fee
-    first_payment = installment_val + licensing
-    
-    # Formatting
-    def fmt(val):
-        return f"R$ {val:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
-
-    return {
-        "plate": plate,
-        "brand": scraped_data['brand_model'],
-        "year": scraped_data.get('year', '-'),
-        "color": scraped_data.get('color', '-'),
-        "fuel": scraped_data.get('fuel', '-'),
-        "engine": scraped_data.get('engine', '-'),
-        "state": scraped_data.get('state', '-'),
-        "city": scraped_data.get('city', '-'),
-        "venal_value": fmt(venal_val),
-        "ipva_full": fmt(ipva_full),
-        "licensing_val": fmt(licensing),
-        "total_full": fmt(total_full),
-        
-        # Discounted
-        "ipva_discounted": fmt(ipva_discounted),
-        "total_with_discount": fmt(total_discounted),
-        
-        # Installments
-        "installment_val": fmt(installment_val),
-        "installments": 4,  # 4 parcelas
-        
-        # Additional fields
-        "chassis": scraped_data.get('chassis', '-'),
-        
-        # Raw values for frontend math if needed
-        "raw_total_discounted": total_discounted,
-        "raw_installment_val": installment_val,  # Numeric value for calculations
-        "raw_licensing_val": licensing,  # Numeric value for calculations
-        "raw_first_payment_total": first_payment,  # Numeric value for PIX (1st installment + licensing)
-        "first_payment_total": fmt(first_payment) # Formatted string for display
+def parse_official_debts(official_data):
+    """
+    Parses the official API data to extract exact values for 2026 and history for 2025/2024.
+    Returns a dict with formatted values and raw numbers.
+    """
+    parsed = {
+        'ipva_full': 0.0,
+        'licensing_val': 0.0,
+        'total_full': 0.0,
+        'ipva_discounted': 0.0,
+        'installment_val': 0.0,
+        'history': []
     }
+    
+    current_year = 2026
+    
+    if 'extratoDebitos' in official_data:
+        for debito in official_data['extratoDebitos']:
+            ano = debito.get('anoExercicio')
+            
+            # Process 2026 (Current Year)
+            if ano == current_year:
+                # Cota Unica (Discounted Total)
+                parsed['ipva_discounted'] = debito.get('valorTotalIpvaComDescontoBomPagador', 0.0)
+                parsed['ipva_full'] = debito.get('valorTotalIpvaSemDesconto', 0.0)
+                
+                # Check parcels to find Licensing fee and Installment value
+                for parcela in debito.get('parcelas', []):
+                    desc = parcela.get('descricao', '').upper()
+                    val = parcela.get('valorTotal', 0.0)
+                    
+                    if "LIC" in desc or "TAXA" in desc:
+                        parsed['licensing_val'] = val
+                    
+                    # Store one IPVA installment value (typically Parcel 1 has the standard value)
+                    if "IPVA 1" in desc:
+                        parsed['installment_val'] = val
+                        
+            # Process History (2025, 2024)
+            elif ano in [2025, 2024]:
+                # Calculate total debt for this year
+                total_ano = 0.0
+                detailed_items = [] 
+                status = "Em dia"
+                
+                for parcela in debito.get('parcelas', []):
+                    if not parcela.get('estaPago', False):
+                        val_parcela = parcela.get('valorTotal', 0.0)
+                        total_ano += val_parcela
+                        
+                        # Add detailed item for checkboxes
+                        detailed_items.append({
+                            'description': parcela.get('descricao'),
+                            'value': val_parcela,
+                            'formatted_value': f"R$ {val_parcela:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+                        })
+                        
+                        status = "Pendente"
+                
+                if total_ano > 0:
+                    parsed['history'].append({
+                        'year': ano,
+                        'status': status,
+                        'total': total_ano,
+                        'items': detailed_items # Now a List of Dicts
+                    })
+
+    # Calculate Totals
+    # Total Full = IPVA Full + Licensing (Standard Check)
+    parsed['total_full'] = parsed['ipva_full'] + parsed['licensing_val'] 
+    
+    # Total Discounted (Cota Unica)
+    # The API returns 'valorTotalIpvaComDescontoBomPagador' which usually includes ONLY IPVA.
+    # We need to add licensing to Get the real 'Pay Everything Now' price.
+    parsed['total_with_discount'] = parsed['ipva_discounted'] + parsed['licensing_val']
+    
+    # First Payment (Installment 1 + Licensing)
+    # If installment_val is 0 (maybe single quota only available?), fallback to math
+    if parsed['installment_val'] == 0 and parsed['ipva_full'] > 0:
+         parsed['installment_val'] = parsed['ipva_full'] / 3 # Estimate 3 parcels if not found
+         
+    parsed['first_payment_total'] = parsed['installment_val'] + parsed['licensing_val']
+    
+    return parsed
+
+def calculate_ipva_data(identifier):
+    print("=" * 50, flush=True)
+    print(f"FUNCTION START: calculate_ipva_data({identifier})", flush=True)
+    print("=" * 50, flush=True)
+    
+    # Clean identifier
+    identifier = str(identifier).replace("-", "").replace(".", "").strip().upper()
+    
+    is_renavam = identifier.isdigit() and len(identifier) == 11
+    
+    scraped_data = {}
+    official_data = None
+    
+    # --- FLOW 1: RENAVAM INPUT ---
+    if is_renavam:
+        print(f"INFO: Input identificado como RENAVAM: {identifier}", flush=True)
+        if FAZENDA_API_AVAILABLE:
+            try:
+                official_data = get_ipva_data_official(plate=None, renavam=identifier)
+                if not official_data:
+                    return {"error": "RENAVAM_NOT_FOUND", "message": "RENAVAM não encontrado ou API indisponível. Por favor, digite a Placa."}
+            except Exception as e:
+                print(f"ERROR: Falha na consulta por RENAVAM: {e}")
+                return {"error": "API_ERROR", "message": "Erro ao consultar. Tente com a Placa."}
+        else:
+             return {"error": "Configuração incompleta. API indisponível."}
+             
+    # --- FLOW 2: PLATE INPUT ---
+    else:
+        print(f"INFO: Input identificado como PLACA: {identifier}", flush=True)
+        # 1. Scrape ipvabr.com.br to get basic data and RENAVAM
+        scraped_data = get_car_info_from_ipvabr(identifier)
+        
+        if not scraped_data:
+            print(f"ERROR: Failed to scrape data for plate {identifier}", flush=True)
+            return {"error": "Veículo não encontrado. Verifique a placa e tente novamente."}
+        
+        renavam = scraped_data.get('chassis')
+        
+        # 2. Try official API with RENAVAM from scraping
+        if FAZENDA_API_AVAILABLE and renavam:
+            print(f"INFO: Tentando API oficial da Fazenda com RENAVAM obtido...", flush=True)
+            try:
+                official_data = get_ipva_data_official(identifier, renavam)
+            except Exception as e:
+                print(f"WARNING: Erro ao consultar API oficial: {e}", flush=True)
+
+    # --- MERGE DATA ---
+    final_data = {}
+    
+    # Helper formatter
+    def fmt(val):
+        if val is None: return "R$ 0,00"
+        return f"R$ {val:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    
+    # If we have official data (from either flow), use it for VALUES
+    if official_data:
+        print("SUCCESS: Usando dados oficiais para cálculos!", flush=True)
+        parsed_values = parse_official_debts(official_data)
+        
+        # Populate Vehicle Info from Official
+        if 'veiculo' in official_data:
+            v = official_data['veiculo']
+            final_data['brand'] = v.get('marcaModelo', scraped_data.get('brand_model')) or "Modelo não informado"
+            final_data['year'] = str(v.get('anoFabricacao', scraped_data.get('year')))
+            final_data['color'] = v.get('cor', scraped_data.get('color'))
+            final_data['fuel'] = v.get('combustivel', scraped_data.get('fuel'))
+            final_data['state'] = "MG" # API is MG specific
+            # Use 'or' to fallback if API returns empty string ""
+            final_data['plate'] = v.get('placa') or identifier
+            final_data['renavam'] = v.get('renavam') or identifier
+            final_data['chassis'] = v.get('chassi') or "**********"
+            final_data['engine'] = v.get('motor') or "**********"
+            
+        if 'proprietario' in official_data:
+            p = official_data['proprietario']
+            final_data['owner_name'] = p.get('nome')
+            final_data['owner_doc'] = p.get('cpfCnpj')
+            final_data['city'] = p.get('municipio', scraped_data.get('city'))
+        
+        # Populate Financials (REAL VALUES)
+        final_data['venal_value'] = fmt(0) # Not returned by debt API
+        final_data['ipva_full'] = fmt(parsed_values['ipva_full'])
+        final_data['licensing_val'] = fmt(parsed_values['licensing_val'])
+        final_data['total_full'] = fmt(parsed_values['total_full'])
+        
+        final_data['ipva_discounted'] = fmt(parsed_values['ipva_discounted'])
+        final_data['total_with_discount'] = fmt(parsed_values['total_with_discount'])
+        
+        # --- PROMO LOGIC OVERRIDE ---
+        # User requirement: FORCE 70% discount (30% of full value) and split into 4 installments
+        # We ignore parsed_values['ipva_discounted'] because API might return full value there if user not eligible.
+        # But for this site ("Promo"), we want to show the discounted price.
+        
+        promo_ipva_total = parsed_values['ipva_full'] * 0.30
+        print(f"DEBUG_CALC: Forced Promo Total (30% of {parsed_values['ipva_full']}): {promo_ipva_total}")
+
+        # Update the 'discounted' fields to reflect this forced math
+        # So the Frontend receives consistent values
+        parsed_values['ipva_discounted'] = promo_ipva_total
+        parsed_values['total_with_discount'] = promo_ipva_total + parsed_values['licensing_val']
+
+        final_data['ipva_discounted'] = fmt(promo_ipva_total)
+        final_data['total_with_discount'] = fmt(parsed_values['total_with_discount'])
+             
+        promo_installment_val = promo_ipva_total / 4
+        print(f"DEBUG_CALC: Promo Installment: {promo_installment_val} (Total: {promo_ipva_total} / 4)")
+        
+        promo_first_payment = promo_installment_val + parsed_values['licensing_val']
+        
+        final_data['installment_val'] = fmt(promo_installment_val)
+        final_data['installments'] = 4
+        final_data['first_payment_total'] = fmt(promo_first_payment)
+        
+        # Raw vars for frontend math
+        final_data['raw_total_discounted'] = parsed_values['total_with_discount'] if parsed_values['total_with_discount'] > 0 else (promo_ipva_total + parsed_values['licensing_val'])
+        final_data['raw_installment_val'] = promo_installment_val
+        final_data['raw_licensing_val'] = parsed_values['licensing_val']
+        final_data['raw_first_payment_total'] = promo_first_payment
+        
+        # History
+        final_data['history'] = parsed_values['history']
+
+    # --- FALLBACK: USE SCRAPED/ESTIMATED DATA ---
+    else:
+        if is_renavam:
+             # Should have been caught by "RENAVAM_NOT_FOUND" earlier, but safe fallback
+             return {"error": "RENAVAM_NOT_FOUND", "message": "Falha ao obter dados. Tente com a Placa."}
+             
+        print("INFO: Usando dados estimados (Fallback)...", flush=True)
+        # Use existing estimation logic
+        # 3. If venal value missing, try FIPE
+        if 'venal_value' not in scraped_data or not scraped_data.get('venal_value'):
+            from fipe_api import get_fipe_value
+            # ... (FIPE logic same as before, abbreviated here)
+            brand_model = scraped_data.get('brand_model', '')
+            parts = brand_model.split(' ', 1)
+            brand = parts[0] if parts else ''
+            model = parts[1] if len(parts) > 1 else brand_model
+            fipe_val = get_fipe_value(brand, model, scraped_data.get('year'))
+            if fipe_val:
+                scraped_data['venal_value'] = fipe_val
+            else:
+                 return {"error": "Dados insuficientes. Tente novamente mais tarde."}
+
+        # Calculate Estimates
+        venal_val = scraped_data['venal_value']
+        ipva_full = venal_val * IPVA_ALIQUOTA
+        licensing = LICENSING_FEE
+        total_full = ipva_full + licensing
+        ipva_discounted = ipva_full * (1 - PROMO_DISCOUNT_RATE)
+        total_discounted = ipva_discounted + licensing
+        installment_val = ipva_discounted / 4
+        first_payment = installment_val + licensing
+        
+        final_data = {
+            "plate": identifier,
+            "brand": scraped_data.get('brand_model'),
+            "year": scraped_data.get('year'),
+            "color": scraped_data.get('color'),
+            "fuel": scraped_data.get('fuel'),
+            "state": scraped_data.get('state'),
+            "city": scraped_data.get('city'),
+            "venal_value": fmt(venal_val),
+            "ipva_full": fmt(ipva_full),
+            "licensing_val": fmt(licensing),
+            "total_full": fmt(total_full),
+            "ipva_discounted": fmt(ipva_discounted),
+            "total_with_discount": fmt(total_discounted),
+            "installment_val": fmt(installment_val),
+            "installments": 4,
+            "first_payment_total": fmt(first_payment),
+            "raw_total_discounted": total_discounted,
+            "raw_installment_val": installment_val,
+            "raw_licensing_val": licensing,
+            "raw_first_payment_total": first_payment,
+            "history": [] # No history in fallback
+        }
+
+    return final_data
+

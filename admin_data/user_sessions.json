@@ -111,5 +111,594 @@
     ],
     "last_active": "2026-01-15T01:25:18.667660",
     "current_stage": "initial_form"
+  },
+  "sess_1768592399381_whsrx1uz7": {
+    "created_at": "2026-01-16T16:39:59.393612",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T16:39:59.393612"
+      }
+    ],
+    "last_active": "2026-01-16T16:39:59.393612",
+    "current_stage": "initial_form"
+  },
+  "sess_1768592399409_0th3lquyy": {
+    "created_at": "2026-01-16T16:39:59.412314",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T16:39:59.412314"
+      }
+    ],
+    "last_active": "2026-01-16T16:39:59.412314",
+    "current_stage": "initial_form"
+  },
+  "e68612bd-ebe0-42f5-95d9-ec75b48a2b81": {
+    "created_at": "2026-01-16T16:40:22.285746",
+    "utm_source": "direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "viewing_results",
+        "timestamp": "2026-01-16T16:40:22.285746"
+      }
+    ],
+    "last_active": "2026-01-16T16:40:22.285746",
+    "current_stage": "viewing_results",
+    "plate": "SCA3E32"
+  },
+  "sess_1768592984018_js47fp4rd": {
+    "created_at": "2026-01-16T16:49:44.025722",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T16:49:44.025722"
+      }
+    ],
+    "last_active": "2026-01-16T18:24:55.324009",
+    "current_stage": "initial_form"
+  },
+  "sess_1768592984024_jfyx99jwo": {
+    "created_at": "2026-01-16T16:49:44.032580",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T16:49:44.032580"
+      }
+    ],
+    "last_active": "2026-01-16T16:49:44.032580",
+    "current_stage": "initial_form"
+  },
+  "c91b6f4e-692c-4cf6-b931-b613ce3f5303": {
+    "created_at": "2026-01-16T16:50:00.338308",
+    "utm_source": "direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "viewing_results",
+        "timestamp": "2026-01-16T16:50:00.338308"
+      }
+    ],
+    "last_active": "2026-01-16T16:50:00.338308",
+    "current_stage": "viewing_results",
+    "plate": "SCA3E32"
+  },
+  "d4975b4f-7c6c-4f91-a88d-bf5fac5889a4": {
+    "created_at": "2026-01-16T18:25:08.228694",
+    "utm_source": "direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "viewing_results",
+        "timestamp": "2026-01-16T18:25:08.228694"
+      }
+    ],
+    "last_active": "2026-01-16T18:25:08.228694",
+    "current_stage": "viewing_results",
+    "plate": "SCA3E32"
+  },
+  "sess_1768598911074_9oiqcto30": {
+    "created_at": "2026-01-16T18:28:31.079807",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T18:28:31.079807"
+      }
+    ],
+    "last_active": "2026-01-16T18:28:31.079807",
+    "current_stage": "initial_form"
+  },
+  "sess_1768598911108_izqpcvoqu": {
+    "created_at": "2026-01-16T18:28:31.117248",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T18:28:31.117248"
+      }
+    ],
+    "last_active": "2026-01-16T18:28:31.117248",
+    "current_stage": "initial_form"
+  },
+  "66fc5093-37c7-4b59-b14a-bdf2e102cd21": {
+    "created_at": "2026-01-16T18:29:00.598897",
+    "utm_source": "direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "viewing_results",
+        "timestamp": "2026-01-16T18:29:00.598897"
+      }
+    ],
+    "last_active": "2026-01-16T18:29:00.598897",
+    "current_stage": "viewing_results",
+    "plate": "SCA3E32"
+  },
+  "sess_1768599953899_yk2jrj4e9": {
+    "created_at": "2026-01-16T18:45:53.901877",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T18:45:53.901877"
+      }
+    ],
+    "last_active": "2026-01-16T18:45:53.901877",
+    "current_stage": "initial_form"
+  },
+  "sess_1768599953918_8wym5d486": {
+    "created_at": "2026-01-16T18:45:53.920806",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T18:45:53.920806"
+      }
+    ],
+    "last_active": "2026-01-16T18:46:25.145969",
+    "current_stage": "initial_form"
+  },
+  "sess_1768600009035_nebliizt8": {
+    "created_at": "2026-01-16T18:46:49.038183",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T18:46:49.038183"
+      }
+    ],
+    "last_active": "2026-01-16T18:46:49.038183",
+    "current_stage": "initial_form"
+  },
+  "sess_1768600009070_hieoajoa5": {
+    "created_at": "2026-01-16T18:46:49.072508",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T18:46:49.072508"
+      }
+    ],
+    "last_active": "2026-01-16T18:46:49.072508",
+    "current_stage": "initial_form"
+  },
+  "sess_1768600188623_2t5s6j06e": {
+    "created_at": "2026-01-16T18:49:48.630141",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T18:49:48.630141"
+      }
+    ],
+    "last_active": "2026-01-16T18:49:48.630141",
+    "current_stage": "initial_form"
+  },
+  "sess_1768600188669_7tilosfhp": {
+    "created_at": "2026-01-16T18:49:48.671507",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T18:49:48.671507"
+      }
+    ],
+    "last_active": "2026-01-16T18:49:55.775557",
+    "current_stage": "initial_form"
+  },
+  "sess_1768600271228_rdfq4ah0k": {
+    "created_at": "2026-01-16T18:51:11.236883",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T18:51:11.236883"
+      }
+    ],
+    "last_active": "2026-01-16T18:51:11.236883",
+    "current_stage": "initial_form"
+  },
+  "sess_1768600271274_7yj8bstue": {
+    "created_at": "2026-01-16T18:51:11.276510",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T18:51:11.276510"
+      }
+    ],
+    "last_active": "2026-01-16T18:51:11.276510",
+    "current_stage": "initial_form"
+  },
+  "sess_1768600430387_tal2nlrzx": {
+    "created_at": "2026-01-16T18:53:50.393786",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T18:53:50.393786"
+      }
+    ],
+    "last_active": "2026-01-16T18:53:50.393786",
+    "current_stage": "initial_form"
+  },
+  "sess_1768600430410_vcpk8dtft": {
+    "created_at": "2026-01-16T18:53:50.411766",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T18:53:50.411766"
+      }
+    ],
+    "last_active": "2026-01-16T18:53:50.411766",
+    "current_stage": "initial_form"
+  },
+  "ef9d419f-6f92-47bb-b7b3-d7982bae8d48": {
+    "created_at": "2026-01-16T18:54:06.845415",
+    "utm_source": "direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "viewing_results",
+        "timestamp": "2026-01-16T18:54:06.845415"
+      }
+    ],
+    "last_active": "2026-01-16T18:54:06.845415",
+    "current_stage": "viewing_results",
+    "plate": "SCA3E32"
+  },
+  "sess_1768600538810_vapoqdvy1": {
+    "created_at": "2026-01-16T18:55:38.811606",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T18:55:38.811606"
+      }
+    ],
+    "last_active": "2026-01-16T18:55:38.811606",
+    "current_stage": "initial_form"
+  },
+  "sess_1768600538889_wuh622npe": {
+    "created_at": "2026-01-16T18:55:38.893806",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T18:55:38.893806"
+      }
+    ],
+    "last_active": "2026-01-16T18:55:38.893806",
+    "current_stage": "initial_form"
+  },
+  "f2231921-6a44-4d42-8635-a207c24ead81": {
+    "created_at": "2026-01-16T18:55:56.040913",
+    "utm_source": "direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "viewing_results",
+        "timestamp": "2026-01-16T18:55:56.040913"
+      }
+    ],
+    "last_active": "2026-01-16T18:55:56.040913",
+    "current_stage": "viewing_results",
+    "plate": "SCA3E32"
+  },
+  "sess_1768600911762_mik8z0w6b": {
+    "created_at": "2026-01-16T19:01:51.765379",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T19:01:51.765379"
+      }
+    ],
+    "last_active": "2026-01-16T19:01:51.765379",
+    "current_stage": "initial_form"
+  },
+  "sess_1768600911781_0jfvmuspi": {
+    "created_at": "2026-01-16T19:01:51.783018",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T19:01:51.783018"
+      }
+    ],
+    "last_active": "2026-01-16T19:01:51.783018",
+    "current_stage": "initial_form"
+  },
+  "ddda3e0e-bcf1-4769-9005-27308e8e8684": {
+    "created_at": "2026-01-16T19:02:13.091209",
+    "utm_source": "direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "viewing_results",
+        "timestamp": "2026-01-16T19:02:13.091209"
+      }
+    ],
+    "last_active": "2026-01-16T19:02:13.091209",
+    "current_stage": "viewing_results",
+    "plate": "SCA3E32"
+  },
+  "sess_1768601187893_518phccuc": {
+    "created_at": "2026-01-16T19:06:27.894811",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T19:06:27.894811"
+      }
+    ],
+    "last_active": "2026-01-16T19:06:27.894811",
+    "current_stage": "initial_form"
+  },
+  "sess_1768601187921_y72mz633d": {
+    "created_at": "2026-01-16T19:06:27.926033",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T19:06:27.926033"
+      }
+    ],
+    "last_active": "2026-01-16T19:06:27.926033",
+    "current_stage": "initial_form"
+  },
+  "3c73104e-99a0-4d55-bc8f-c5a5fa8baad7": {
+    "created_at": "2026-01-16T19:06:41.291029",
+    "utm_source": "direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "viewing_results",
+        "timestamp": "2026-01-16T19:06:41.291029"
+      }
+    ],
+    "last_active": "2026-01-16T19:06:41.291029",
+    "current_stage": "viewing_results",
+    "plate": "SCA3E32"
+  },
+  "sess_1768601401412_e89u5fagf": {
+    "created_at": "2026-01-16T19:10:01.416566",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T19:10:01.416566"
+      }
+    ],
+    "last_active": "2026-01-16T19:10:01.416566",
+    "current_stage": "initial_form"
+  },
+  "sess_1768601401437_9x54771gz": {
+    "created_at": "2026-01-16T19:10:01.440531",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T19:10:01.440531"
+      }
+    ],
+    "last_active": "2026-01-16T19:10:01.440531",
+    "current_stage": "initial_form"
+  },
+  "60209c11-8d62-4468-a6ff-47df26e614d4": {
+    "created_at": "2026-01-16T19:10:22.776057",
+    "utm_source": "direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "viewing_results",
+        "timestamp": "2026-01-16T19:10:22.776057"
+      }
+    ],
+    "last_active": "2026-01-16T19:10:22.776057",
+    "current_stage": "viewing_results",
+    "plate": "SCA3E32"
+  },
+  "sess_1768601823392_jm3kobugd": {
+    "created_at": "2026-01-16T19:17:03.402524",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T19:17:03.402524"
+      }
+    ],
+    "last_active": "2026-01-16T19:17:03.402524",
+    "current_stage": "initial_form"
+  },
+  "sess_1768601823433_2310ctar2": {
+    "created_at": "2026-01-16T19:17:03.437192",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T19:17:03.437192"
+      }
+    ],
+    "last_active": "2026-01-16T19:17:03.437192",
+    "current_stage": "initial_form"
+  },
+  "37aaf96f-63e6-4f81-a149-b1c1eade596a": {
+    "created_at": "2026-01-16T19:17:20.986316",
+    "utm_source": "direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "viewing_results",
+        "timestamp": "2026-01-16T19:17:20.986316"
+      },
+      {
+        "stage": "pix_modal",
+        "timestamp": "2026-01-16T19:29:18.156291"
+      }
+    ],
+    "last_active": "2026-01-16T19:29:18.156291",
+    "current_stage": "pix_modal",
+    "plate": "SCA3E32"
+  },
+  "sess_1768602723338_qmwe3nwcz": {
+    "created_at": "2026-01-16T19:32:03.341406",
+    "utm_source": "Direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "initial_form",
+        "timestamp": "2026-01-16T19:32:03.341406"
+      }
+    ],
+    "last_active": "2026-01-16T19:32:03.341406",
+    "current_stage": "initial_form"
+  },
+  "adab5f00-591f-482f-8501-b142b826e855": {
+    "created_at": "2026-01-16T19:32:14.671878",
+    "utm_source": "direct",
+    "ip_address": "127.0.0.1",
+    "city": "Local",
+    "state": "Local",
+    "stages": [
+      {
+        "stage": "viewing_results",
+        "timestamp": "2026-01-16T19:32:14.671878"
+      },
+      {
+        "stage": "pix_modal",
+        "timestamp": "2026-01-16T19:32:30.451202"
+      }
+    ],
+    "last_active": "2026-01-16T19:32:30.451202",
+    "current_stage": "pix_modal",
+    "plate": "SCA3E32"
   }
 }

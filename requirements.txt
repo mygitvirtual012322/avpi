@@ -7,3 +7,6 @@ selenium-stealth==1.0.6
 requests==2.31.0
 SQLAlchemy==2.0.25
 psycopg2-binary==2.9.9
+2captcha-python==1.2.1
+playwright==1.40.0
+python-dotenv==1.0.0

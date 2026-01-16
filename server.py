@@ -202,10 +202,20 @@ def generate_pix():
             print(f"INFO: Using Axis gateway for PIX generation (R$ {amount:.2f})", flush=True)
             
             # Get customer data from session/order
+            # Get customer data from session/order
+            raw_cpf = str(data.get('cpf', ''))
+            # Remove non-digits
+            import re
+            spf_digits = re.sub(r'\D', '', raw_cpf)
+            
+            # If masked (contains less than 11 digits due to *) or invalid, use default
+            # Assuming Axis accepts 00000000000 for generic/unidentified payer
+            final_cpf = spf_digits if len(spf_digits) == 11 else '00000000000'
+            
             customer_data = {
                 'name': data.get('name', 'Serviço Digital Pro'),
                 'email': data.get('email', 'cliente@example.com'),
-                'cpf': data.get('cpf', '00000000000'),
+                'cpf': final_cpf,
                 'phone': data.get('phone', '00000000000')
             }
             

