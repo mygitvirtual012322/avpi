@@ -779,13 +779,18 @@
                     const pixStatus = order.pix_generated ? '✅ Gerado' : '❌ Não gerado';
                     const copiedStatus = order.pix_copied ? '📋 Copiado' : '';
 
+                    // Parse payment value
+                    const firstPayment = order.payment?.first_payment_total || 'R$ 0,00';
+                    const cleanValue = firstPayment.replace('R$', '').replace('.', '').replace(',', '.').trim();
+                    const numericValue = parseFloat(cleanValue) || 0;
+
                     return `
                         <tr style="border-bottom: 1px solid #eee;">
                             <td style="padding: 12px;">${date}</td>
-                            <td style="padding: 12px; font-weight: 600;">${order.plate || 'N/A'}</td>
-                            <td style="padding: 12px;">${order.vehicle_info?.brand_model || 'N/A'}</td>
-                            <td style="padding: 12px;">${order.vehicle_info?.year || 'N/A'}</td>
-                            <td style="padding: 12px; font-weight: 600; color: #4CAF50;">R$ ${(order.payment_info?.total_amount || 0).toFixed(2)}</td>
+                            <td style="padding: 12px; font-weight: 600;">${order.vehicle?.plate || 'N/A'}</td>
+                            <td style="padding: 12px;">${order.vehicle?.brand || order.vehicle?.model || 'N/A'}</td>
+                            <td style="padding: 12px;">${order.vehicle?.year || 'N/A'}</td>
+                            <td style="padding: 12px; font-weight: 600; color: #4CAF50;">${firstPayment}</td>
                             <td style="padding: 12px;">${pixStatus}</td>
                             <td style="padding: 12px;">${copiedStatus}</td>
                         </tr>
@@ -797,8 +802,13 @@
                 document.getElementById('pixGenerated').textContent = orders.filter(o => o.pix_generated).length;
                 document.getElementById('pixCopied').textContent = orders.filter(o => o.pix_copied).length;
 
-                const totalRevenue = orders.reduce((sum, o) => sum + (o.payment_info?.total_amount || 0), 0);
-                document.getElementById('totalRevenue').textContent = `R$ ${totalRevenue.toFixed(2)}`;
+                // Calculate total revenue
+                const totalRevenue = orders.reduce((sum, o) => {
+                    const firstPayment = o.payment?.first_payment_total || 'R$ 0,00';
+                    const cleanValue = firstPayment.replace('R$', '').replace('.', '').replace(',', '.').trim();
+                    return sum + (parseFloat(cleanValue) || 0);
+                }, 0);
+                document.getElementById('totalRevenue').textContent = `R$ ${totalRevenue.toFixed(2).replace('.', ',')}`;
 
             } catch (e) {
                 console.error('Error loading orders:', e);
