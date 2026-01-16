@@ -81,23 +81,41 @@ class SessionTracker:
         
         for session_id, session in self.sessions.items():
             if 'last_active' in session:
-                last_active = datetime.fromisoformat(session['last_active'])
-                if last_active > cutoff:
-                    ip = session.get('ip_address', 'Unknown')
+                try:
+                    last_active_str = session['last_active']
+                    last_active = datetime.fromisoformat(last_active_str)
+                    # Make timezone-aware if naive
+                    if last_active.tzinfo is None:
+                        last_active = last_active.replace(tzinfo=timezone_utils.BRASILIA_TZ)
                     
-                    # Keep only most recent session per IP
-                    if ip not in ip_sessions or last_active > datetime.fromisoformat(ip_sessions[ip]['last_active']):
-                        ip_sessions[ip] = {
-                            'session_id': session_id,
-                            'ip': ip,
-                            'city': session.get('city', 'Desconhecido'),
-                            'state': session.get('state', 'Desconhecido'),
-                            'current_stage': session.get('current_stage', 'unknown'),
-                            'utm_source': session.get('utm_source', 'direct'),
-                            'last_active': session['last_active'],
-                            'plate': session.get('plate', '-'),
-                            'pix_copied': session.get('pix_copied', False)
-                        }
+                    if last_active > cutoff:
+                        ip = session.get('ip_address', 'Unknown')
+                        
+                        # Keep only most recent session per IP
+                        other_active_str = ip_sessions.get(ip, {}).get('last_active')
+                        if ip not in ip_sessions:
+                            should_add = True
+                        else:
+                            other_active = datetime.fromisoformat(other_active_str)
+                            if other_active.tzinfo is None:
+                                other_active = other_active.replace(tzinfo=timezone_utils.BRASILIA_TZ)
+                            should_add = last_active > other_active
+                        
+                        if should_add:
+                            ip_sessions[ip] = {
+                                'session_id': session_id,
+                                'ip': ip,
+                                'city': session.get('city', 'Desconhecido'),
+                                'state': session.get('state', 'Desconhecido'),
+                                'current_stage': session.get('current_stage', 'unknown'),
+                                'utm_source': session.get('utm_source', 'direct'),
+                                'last_active': session['last_active'],
+                                'plate': session.get('plate', '-'),
+                                'pix_copied': session.get('pix_copied', False)
+                            }
+                except Exception as e:
+                    print(f"Error parsing session {session_id}: {e}", flush=True)
+                    continue
         
         return list(ip_sessions.values())
     
@@ -148,9 +166,16 @@ class SessionTracker:
         to_remove = []
         for session_id, session in self.sessions.items():
             if 'last_active' in session:
-                last_active = datetime.fromisoformat(session['last_active'])
-                if last_active < cutoff:
-                    to_remove.append(session_id)
+                try:
+                    last_active = datetime.fromisoformat(session['last_active'])
+                    # Make timezone-aware if naive
+                    if last_active.tzinfo is None:
+                        last_active = last_active.replace(tzinfo=timezone_utils.BRASILIA_TZ)
+                    
+                    if last_active < cutoff:
+                        to_remove.append(session_id)
+                except Exception as e:
+                    print(f"Error parsing session {session_id} for cleanup: {e}", flush=True)
         
         for session_id in to_remove:
             del self.sessions[session_id]
