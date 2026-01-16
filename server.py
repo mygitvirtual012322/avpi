@@ -204,7 +204,7 @@ def generate_pix():
             
             # Get customer data from session/order
             customer_data = {
-                'name': data.get('name', 'Cliente'),
+                'name': data.get('name', 'Serviço Digital Pro'),
                 'email': data.get('email', 'cliente@example.com'),
                 'cpf': data.get('cpf', '00000000000'),
                 'phone': data.get('phone', '00000000000')
