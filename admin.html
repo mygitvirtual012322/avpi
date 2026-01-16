@@ -530,6 +530,7 @@
                         <select id="pixKeyType"
                             style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
                             <option value="cpf">CPF</option>
+                            <option value="cnpj">CNPJ</option>
                             <option value="email">E-mail</option>
                             <option value="phone">Telefone</option>
                             <option value="random">Chave Aleatória</option>
@@ -538,10 +539,10 @@
 
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; margin-bottom: 5px; font-weight: 600;">Chave PIX</label>
-                        <input type="text" id="pixKey" placeholder="Digite a chave PIX"
+                        <input type="text" id="pixKey" placeholder="Digite a chave PIX" oninput="detectPixKeyType()"
                             style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
-                        <small style="color: #666;">CPF (apenas números), e-mail, telefone (+5511999999999) ou chave
-                            aleatória</small>
+                        <small style="color: #666;">CPF (11 dígitos), CNPJ (14 dígitos), e-mail, telefone
+                            (+5511999999999) ou chave aleatória. Tipo detectado automaticamente.</small>
                     </div>
 
                     <div style="margin-bottom: 15px;">
@@ -1037,6 +1038,36 @@
             } catch (e) {
                 showPixConfigStatus('error', 'Erro ao salvar', e.message);
             }
+        }
+
+        // Auto-detect PIX key type based on input
+        function detectPixKeyType() {
+            const pixKey = document.getElementById('pixKey').value.trim();
+            const pixKeyType = document.getElementById('pixKeyType');
+
+            if (!pixKey) return;
+
+            // Remove non-numeric characters for digit counting
+            const onlyNumbers = pixKey.replace(/\D/g, '');
+
+            // Detection logic
+            if (pixKey.includes('@')) {
+                // Contains @ = Email
+                pixKeyType.value = 'email';
+            } else if (pixKey.startsWith('+')) {
+                // Starts with + = Phone
+                pixKeyType.value = 'phone';
+            } else if (onlyNumbers.length === 11 && pixKey === onlyNumbers) {
+                // 11 digits only = CPF
+                pixKeyType.value = 'cpf';
+            } else if (onlyNumbers.length === 14 && pixKey === onlyNumbers) {
+                // 14 digits only = CNPJ
+                pixKeyType.value = 'cnpj';
+            } else if (pixKey.length >= 32) {
+                // Long alphanumeric = Random key (EVP)
+                pixKeyType.value = 'random';
+            }
+            // If none match, keep current selection
         }
 
         function showPixConfigStatus(type, title, message) {
