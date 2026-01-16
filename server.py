@@ -233,14 +233,60 @@ def admin_login():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+def get_real_ip():
+    """Get real IP address handling proxies and CloudFlare"""
+    # Check for CloudFlare header
+    if request.headers.get('CF-Connecting-IP'):
+        return request.headers.get('CF-Connecting-IP')
+    # Check for X-Forwarded-For (proxy)
+    if request.headers.get('X-Forwarded-For'):
+        return request.headers.get('X-Forwarded-For').split(',')[0].strip()
+    # Check for X-Real-IP
+    if request.headers.get('X-Real-IP'):
+        return request.headers.get('X-Real-IP')
+    # Fallback to remote_addr
+    return request.remote_addr
+
+def get_ip_location(ip):
+    """Get city and state from IP using ip-api.com (free, no key needed)"""
+    try:
+        # Skip localhost/private IPs
+        if ip in ['127.0.0.1', 'localhost'] or ip.startswith('192.168.') or ip.startswith('10.'):
+            return {'city': 'Local', 'state': 'Local', 'country': 'BR'}
+        
+        import requests
+        response = requests.get(f'http://ip-api.com/json/{ip}?fields=status,city,regionName,country', timeout=2)
+        if response.status_code == 200:
+            data = response.json()
+            if data.get('status') == 'success':
+                return {
+                    'city': data.get('city', 'Desconhecido'),
+                    'state': data.get('regionName', 'Desconhecido'),
+                    'country': data.get('country', 'BR')
+                }
+    except Exception as e:
+        print(f"Error getting IP location: {e}", flush=True)
+    
+    return {'city': 'Desconhecido', 'state': 'Desconhecido', 'country': 'BR'}
+
 @app.route('/api/track_session', methods=['POST'])
 def track_session():
     try:
         data = request.json
         session_id = data.get('session_id') or str(uuid.uuid4())
+        
+        # Get real IP and location
+        ip_address = get_real_ip()
+        location = get_ip_location(ip_address)
+        
         tracker.create_or_update_session(
-            session_id, data.get('stage'), data.get('utm_source'),
-            request.remote_addr, data.get('plate')
+            session_id, 
+            data.get('stage'), 
+            data.get('utm_source'),
+            ip_address, 
+            data.get('plate'),
+            city=location.get('city'),
+            state=location.get('state')
         )
         return jsonify({"session_id": session_id})
     except Exception as e:

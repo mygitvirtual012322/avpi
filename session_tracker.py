@@ -27,7 +27,7 @@ class SessionTracker:
         with open(USER_SESSIONS_FILE, 'w') as f:
             json.dump(self.sessions, f, indent=2)
     
-    def create_or_update_session(self, session_id, stage, utm_source=None, ip_address=None, plate=None):
+    def create_or_update_session(self, session_id, stage, utm_source=None, ip_address=None, plate=None, city=None, state=None):
         """Create or update user session"""
         now = datetime.now().isoformat()
         
@@ -37,6 +37,8 @@ class SessionTracker:
                 'created_at': now,
                 'utm_source': utm_source or 'direct',
                 'ip_address': ip_address,
+                'city': city,
+                'state': state,
                 'stages': []
             }
         
@@ -44,6 +46,12 @@ class SessionTracker:
         session = self.sessions[session_id]
         session['last_active'] = now
         session['current_stage'] = stage
+        
+        # Update location if provided
+        if city:
+            session['city'] = city
+        if state:
+            session['state'] = state
         
         if plate:
             session['plate'] = plate
