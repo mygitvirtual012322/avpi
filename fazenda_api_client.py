@@ -377,6 +377,8 @@ class FazendaAPIClient:
             
             # CRITICAL: Configure proxy for requests (same as browser)
             proxy_server = os.getenv('PROXY_SERVER')
+            print(f"🔍 Debug Proxy Env: {proxy_server}") # Debug log
+            
             if proxy_server:
                 # Force SOCKS5 for requests (bypasses 503 block)
                 if 'proxy-seller' in proxy_server and not proxy_server.startswith('socks5'):
