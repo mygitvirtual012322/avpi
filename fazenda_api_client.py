@@ -224,68 +224,18 @@ class FazendaAPIClient:
                 token = await self._solve_turnstile_with_2captcha(sitekey)
                 
                 if token:
-                    print("💉 Injetando token e fazendo fetch direto no navegador...")
+                    print("✅ Token capturado!")
                     
-                    # Fetch API data directly in browser context (Railway-friendly)
-                    api_url = FAZENDA_API_BASE + FAZENDA_API_ENDPOINT.format(renavam=renavam)
+                    # Get cookies and UA before closing
+                    cookies = await page.context.cookies()
+                    user_agent = await page.evaluate("navigator.userAgent")
                     
-                    try:
-                        api_data = await page.evaluate('''async (args) => {
-                            try {
-                                const response = await fetch(args.apiUrl, {
-                                    method: 'GET',
-                                    headers: {
-                                        'Token': args.token,
-                                        'Accept': 'application/json',
-                                        'Referer': args.referer,
-                                        'Origin': args.origin
-                                    }
-                                });
-                                
-                                if (!response.ok) {
-                                    console.error('API returned status:', response.status);
-                                    return { error: 'HTTP_' + response.status };
-                                }
-                                
-                                const data = await response.json();
-                                return data;
-                            } catch (err) {
-                                console.error('Fetch error:', err);
-                                return { error: err.message };
-                            }
-                        }''', {
-                            'token': token,
-                            'apiUrl': api_url,
-                            'referer': FAZENDA_PAGE_URL,
-                            'origin': FAZENDA_API_BASE
-                        })
-                        
-                        print("✅ Fetch completado no navegador!")
-                        
-                        # Check if we got valid data
-                        if api_data and not api_data.get('error'):
-                            print("✅ Dados obtidos via navegador!")
-                            await browser.close()
-                            return {'data': api_data, 'token': token}
-                        else:
-                            print(f"⚠️ API retornou erro: {api_data.get('error') if api_data else 'None'}")
-                            # Fallback: return token for requests to try
-                            cookies = await page.context.cookies()
-                            user_agent = await page.evaluate("navigator.userAgent")
-                            await browser.close()
-                            return {'token': token, 'cookies': cookies, 'ua': user_agent}
-                            
-                    except Exception as e:
-                        print(f"⚠️ Erro no fetch do navegador: {e}")
-                        # Fallback: return token for requests to try
-                        try:
-                            cookies = await page.context.cookies()
-                            user_agent = await page.evaluate("navigator.userAgent")
-                            await browser.close()
-                            return {'token': token, 'cookies': cookies, 'ua': user_agent}
-                        except:
-                            await browser.close()
-                            return {'token': token, 'cookies': [], 'ua': 'Mozilla/5.0'}
+                    # Close browser immediately to free resources
+                    print("🔒 Fechando navegador...")
+                    await browser.close()
+                    
+                    # Return token for requests library to use
+                    return {'token': token, 'cookies': cookies, 'ua': user_agent}
                 else:
                     print("❌ Falha ao resolver CAPTCHA")
                     await browser.close()
