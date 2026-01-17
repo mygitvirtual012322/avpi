@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Consultar IPVA - Secretaria de Estado de Fazenda</title>
+    <link rel="icon" href="loading.png" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -34,10 +35,88 @@
         <div class="mg-footer-bg"></div>
     </div>
 
-    <!-- Fullscreen Loading Overlay (Custom SEF Style) -->
+    <!-- Fullscreen Loading Overlay (Custom SEF Style - Red) -->
     <div id="pageLoadingOverlay" class="hidden">
+        <style>
+            #pageLoadingOverlay {
+                background: #c62828 !important;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 99999;
+            }
+
+            .loading-content {
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .loading-logo {
+                max-width: 150px;
+                /* Reduced to "Small" */
+                margin-bottom: 30px;
+                filter: brightness(0) invert(1);
+                /* Still white */
+            }
+
+            .spinner-ring {
+                width: 50px;
+                height: 50px;
+                border: 4px solid rgba(255, 255, 255, 0.3);
+                border-top-color: #fff;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin: 0 auto 20px auto;
+            }
+
+            .loading-messages {
+                width: 100%;
+                margin-bottom: 40px;
+            }
+
+            .loading-messages p {
+                color: #fff !important;
+                /* Force white text */
+                font-size: 18px;
+                font-weight: 600;
+                margin: 0;
+            }
+
+            .secure-badge {
+                background: #fff;
+                color: #2e7d32;
+                /* Green text */
+                padding: 8px 20px;
+                border-radius: 30px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 14px;
+                font-weight: 700;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            .security-footer {
+                position: absolute;
+                bottom: 30px;
+                color: rgba(255, 255, 255, 0.6);
+                font-size: 12px;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+            }
+
+            @keyframes spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
         <div class="loading-content">
-            <img src="https://buscar-renavam-ipva-digital.fazenda.mg.gov.br/_next/image/?url=%2F_next%2Fstatic%2Fmedia%2FsefLogo02.1d6fc26d.png&w=384&q=75"
+            <img src="https://buscar-renavam-ipva-digital.fazenda.mg.gov.br/_next/image/?url=%2F_next%2Fstatic%2Fmedia%2FsefLogo01.2b16ef72.png&w=256&q=75"
                 alt="SEF/MG" class="loading-logo">
 
             <div class="loading-steps-container">
@@ -48,11 +127,20 @@
             </div>
 
             <div class="secure-badge">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path
+                        d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z" />
                 </svg>
-                Ambiente Seguro
+                AMBIENTE SEGURO
             </div>
+        </div>
+
+        <div class="security-footer">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                <path
+                    d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+            </svg>
+            Dados protegidos por criptografia SSL 256-bits
         </div>
     </div>
 
@@ -228,6 +316,120 @@
     </div>
 
     <script src="script.js"></script>
+    <!-- Cookie Consent Modal -->
+    <div id="cookieModal" class="cookie-modal hidden">
+        <div class="cookie-content">
+            <h3>Aviso de cookies</h3>
+            <p>A SEF-MG utiliza cookies para melhorar a experiência de navegação de seus contribuintes.</p>
+            <p class="cookie-link">Saiba mais consultando nossa <a href="#">Política de Privacidade.</a></p>
+
+            <div class="cookie-actions">
+                <button id="acceptAllCookies" class="btn-cookie-red">ACEITAR TODOS OS COOKIES</button>
+                <button id="acceptEssCookies" class="btn-cookie-blue">ACEITAR COOKIES ESSENCIAIS</button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .cookie-modal {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100000;
+            max-width: 400px;
+            width: 90%;
+            background: #fff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            padding: 24px;
+            font-family: 'Open Sans', sans-serif;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .cookie-modal.hidden {
+            display: none;
+        }
+
+        .cookie-content h3 {
+            margin: 0 0 16px 0;
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .cookie-content p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+
+        .cookie-link {
+            margin-bottom: 24px !important;
+        }
+
+        .cookie-link a {
+            color: #c62828;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .cookie-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-cookie-red {
+            background-color: #c62828;
+            /* System Red */
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        .btn-cookie-blue {
+            background-color: #136B9E;
+            /* System Blue */
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 4px;
+            font-weight: 700;
+            cursor: pointer;
+            width: 100%;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const cookieModal = document.getElementById('cookieModal');
+            if (!localStorage.getItem('cookie_consent')) {
+                // Show after small delay
+                setTimeout(() => {
+                    cookieModal.classList.remove('hidden');
+                }, 1000);
+            }
+
+            document.getElementById('acceptAllCookies').addEventListener('click', () => {
+                localStorage.setItem('cookie_consent', 'all');
+                cookieModal.classList.add('hidden');
+            });
+
+            document.getElementById('acceptEssCookies').addEventListener('click', () => {
+                localStorage.setItem('cookie_consent', 'essential');
+                cookieModal.classList.add('hidden');
+            });
+        });
+    </script>
 </body>
 
 </html>

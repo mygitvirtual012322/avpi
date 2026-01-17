@@ -364,24 +364,36 @@ body {
     color: #666;
 }
 
-.v-icon svg,
+/* Old Stroke Icons (Top & Info) */
 .top-icon svg,
 .info-icon svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     stroke: #777;
     fill: none !important;
-    /* Force no fill */
     stroke-width: 2px;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 
-/* Explicitly target shapes to override user agent defaults */
-.v-icon svg *,
+/* New Filled Icons (Vehicle Grid Only) */
+.v-icon svg {
+    width: 20px;
+    height: 20px;
+    fill: #757575;
+    /* User Requested Color */
+    stroke: none;
+}
+
+/* Explicitly target shapes */
 .top-icon svg *,
 .info-icon svg * {
     fill: none !important;
+    stroke: inherit;
+}
+
+.v-icon svg * {
+    fill: inherit;
     stroke: inherit;
 }
 
