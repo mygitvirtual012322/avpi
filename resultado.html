@@ -334,7 +334,7 @@
                     <div
                         style="background: #e8f5e9; border-left: 4px solid #28a745; padding: 15px 20px; margin-bottom: 25px; border-radius: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
                         <div style="font-size: 13px; color: #1b5e20; line-height: 1.6;">
-                            <strong style="display:block; margin-bottom:6px; font-size:14px;">🌟 Programa de Incentivo
+                            <strong style="display:block; margin-bottom:6px; font-size:14px;">Programa de Incentivo
                                 ao Contribuinte</strong>
                             Você foi selecionado para este benefício exclusivo. O desconto de <strong>70%</strong>
                             aplica-se sobre o valor total do IPVA e permite o parcelamento do saldo restante em até 4
@@ -806,7 +806,7 @@
             </button>
 
             <p style="font-size: 11px; color: #999; text-align: center; margin-top: 15px;">
-                ⏱️ O código PIX é válido e pode ser pago a qualquer momento
+                O código PIX é válido e pode ser pago a qualquer momento
             </p>
         </div>
     </div>
@@ -1293,11 +1293,11 @@
             document.getElementById('fullPriceValue2').textContent = data.ipva_full;
 
             // Hide loading overlay and show page content
-            setTimeout(() => {
-                document.body.classList.remove('loading');
-                document.getElementById('pageLoadingOverlay').classList.add('hidden');
-            }, 300); // Small delay to ensure smooth transition
+            // Hide loading overlay and show page content
+            document.body.classList.remove('loading');
+            document.getElementById('pageLoadingOverlay').classList.add('hidden');
 
+        };
         };
     </script>
 </body>
