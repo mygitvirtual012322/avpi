@@ -290,9 +290,9 @@ class FazendaAPIClient:
             return None
         
         try:
-            # Get CAPTCHA token
+            # Get CAPTCHA token and data via browser
             print(f"🔐 Obtendo token CAPTCHA para RENAVAM {renavam}...")
-            result = await self._get_captcha_token_playwright(sitekey=None)
+            result = await self._get_captcha_token_playwright(sitekey=None, renavam=renavam)
             
             if not result or (not result.get('token') and not result.get('data')):
                 print("❌ Falha ao obter token ou dados")
