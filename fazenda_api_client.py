@@ -309,6 +309,24 @@ class FazendaAPIClient:
                 'Referer': FAZENDA_PAGE_URL
             })
             
+            # CRITICAL: Configure proxy for requests (same as browser)
+            proxy_server = os.getenv('PROXY_SERVER')
+            if proxy_server:
+                proxy_user = os.getenv('PROXY_USERNAME')
+                proxy_pass = os.getenv('PROXY_PASSWORD')
+                
+                if proxy_user and proxy_pass:
+                    # Format: http://user:pass@host:port
+                    proxy_url = proxy_server.replace('://', f'://{proxy_user}:{proxy_pass}@')
+                else:
+                    proxy_url = proxy_server
+                
+                self.session.proxies = {
+                    'http': proxy_url,
+                    'https': proxy_url
+                }
+                print(f"🔒 Usando proxy para HTTP requests: {proxy_server}")
+            
             # Add cookies from browser
             if result.get('cookies'):
                 for cookie in result['cookies']:
