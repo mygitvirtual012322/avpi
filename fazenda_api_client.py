@@ -233,11 +233,38 @@ class FazendaAPIClient:
                     # Fallback: Fetch direto no contexto do navegador
                     # Return token immediately after successful resolution
                     # Skipping "Fetch direto" as it was causing timeouts in production
-                # Capture cookies and UA
+                # Capture cookies and UA (legacy support)
                 cookies = await page.context.cookies()
                 user_agent = await page.evaluate("navigator.userAgent")
                 
-                print("✅ Token e Cookies capturados!")
+                # OPTIMIZATION: Fetch data DIRECTLY in browser (Navigation Method)
+                # This bypasses all WAF blocks because it IS the browser
+                if renavam:
+                    try:
+                        api_url = FAZENDA_API_BASE + FAZENDA_API_ENDPOINT.format(renavam=renavam)
+                        print(f"🚀 Navegando diretamente para API no browser: {api_url}")
+                        
+                        # Set Token header for navigation
+                        await page.set_extra_http_headers({
+                            'Token': token,
+                            'Referer': FAZENDA_PAGE_URL
+                        })
+                        
+                        # Go to API URL
+                        resp = await page.goto(api_url, timeout=30000, wait_until='networkidle')
+                        
+                        try:
+                            json_data = await resp.json()
+                            print("✅ Dados obtidos diretamente pelo navegador!")
+                            await browser.close()
+                            return {'data': json_data}
+                        except Exception as json_err:
+                            print(f"⚠️ Resposta não é JSON: {await resp.text()[:100]}")
+                            
+                    except Exception as nav_err:
+                        print(f"⚠️ Erro ao navegar para API: {nav_err}")
+
+                print("✅ Token capturado (fallback)!")
                 await browser.close()
                 return {'token': token, 'cookies': cookies, 'ua': user_agent}
             
@@ -267,10 +294,15 @@ class FazendaAPIClient:
             print(f"🔐 Obtendo token CAPTCHA para RENAVAM {renavam}...")
             result = await self._get_captcha_token_playwright(sitekey=None)
             
-            if not result or not result.get('token'):
-                print("❌ Falha ao obter token CAPTCHA")
+            if not result or (not result.get('token') and not result.get('data')):
+                print("❌ Falha ao obter token ou dados")
                 return None
             
+            # Optimization: If data was fetched in browser, return it!
+            if result.get('data'):
+                print("✅ Retornando dados obtidos via Navegador!")
+                return result.get('data')
+
             token = result['token']
             
             # Update session with browser cookies and UA
