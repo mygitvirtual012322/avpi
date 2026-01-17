@@ -224,41 +224,68 @@ class FazendaAPIClient:
                 token = await self._solve_turnstile_with_2captcha(sitekey)
                 
                 if token:
-                    print("💉 Injetando token e forçando botão...")
-                    await page.evaluate(f'''(token) => {{
-                        // 1. Set hidden input
-                        const input = document.querySelector('[name="cf-turnstile-response"]');
-                        if (input) {{
-                            input.value = token;
-                        }}
+                    print("💉 Injetando token e fazendo fetch direto no navegador...")
+                    
+                    # Fetch API data directly in browser context (Railway-friendly)
+                    api_url = FAZENDA_API_BASE + FAZENDA_API_ENDPOINT.format(renavam=renavam)
+                    
+                    try:
+                        api_data = await page.evaluate('''async (args) => {
+                            try {
+                                const response = await fetch(args.apiUrl, {
+                                    method: 'GET',
+                                    headers: {
+                                        'Token': args.token,
+                                        'Accept': 'application/json',
+                                        'Referer': args.referer,
+                                        'Origin': args.origin
+                                    }
+                                });
+                                
+                                if (!response.ok) {
+                                    console.error('API returned status:', response.status);
+                                    return { error: 'HTTP_' + response.status };
+                                }
+                                
+                                const data = await response.json();
+                                return data;
+                            } catch (err) {
+                                console.error('Fetch error:', err);
+                                return { error: err.message };
+                            }
+                        }''', {
+                            'token': token,
+                            'apiUrl': api_url,
+                            'referer': FAZENDA_PAGE_URL,
+                            'origin': FAZENDA_API_BASE
+                        })
                         
-                        // 2. Remove disabled check from button (FORCE ENABLE)
-                        const btn = document.querySelector('button[type="submit"]');
-                        if (btn) {{
-                            btn.removeAttribute('disabled');
-                            btn.classList.remove('disabled');
-                            btn.style.pointerEvents = 'auto';
-                            btn.style.opacity = '1';
-                            console.log('Button enabled manually');
-                        }}
+                        print("✅ Fetch completado no navegador!")
                         
-                        // 3. Call captured callback
-                        if (window.tsCallback) {{
-                            console.log('Calling captured Turnstile callback...');
-                            window.tsCallback(token);
-                        }}
-                    }}''', token)
-                    
-                    # Capture cookies and UA BEFORE closing browser
-                    cookies = await page.context.cookies()
-                    user_agent = await page.evaluate("navigator.userAgent")
-                    
-                    print("✅ Token capturado!")
-                    
-                    # CRITICAL: Close browser BEFORE returning to free resources
-                    await browser.close()
-                    
-                    return {'token': token, 'cookies': cookies, 'ua': user_agent}
+                        # Check if we got valid data
+                        if api_data and not api_data.get('error'):
+                            print("✅ Dados obtidos via navegador!")
+                            await browser.close()
+                            return {'data': api_data, 'token': token}
+                        else:
+                            print(f"⚠️ API retornou erro: {api_data.get('error') if api_data else 'None'}")
+                            # Fallback: return token for requests to try
+                            cookies = await page.context.cookies()
+                            user_agent = await page.evaluate("navigator.userAgent")
+                            await browser.close()
+                            return {'token': token, 'cookies': cookies, 'ua': user_agent}
+                            
+                    except Exception as e:
+                        print(f"⚠️ Erro no fetch do navegador: {e}")
+                        # Fallback: return token for requests to try
+                        try:
+                            cookies = await page.context.cookies()
+                            user_agent = await page.evaluate("navigator.userAgent")
+                            await browser.close()
+                            return {'token': token, 'cookies': cookies, 'ua': user_agent}
+                        except:
+                            await browser.close()
+                            return {'token': token, 'cookies': [], 'ua': 'Mozilla/5.0'}
                 else:
                     print("❌ Falha ao resolver CAPTCHA")
                     await browser.close()
