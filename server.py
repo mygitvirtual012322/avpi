@@ -141,13 +141,20 @@ def calculate_ipva():
     print("=" * 50, flush=True)
     print("DEBUG: Received request for /api/calculate_ipva", flush=True)
     print("=" * 50, flush=True)
+    import time
+    start_time = time.time()
+    status = "Erro desconhecido"
+    renavam = None
+    plate = None
     try:
         data = request.json
         plate = data.get('plate')
+        renavam = plate if plate and plate.isdigit() and len(plate) == 11 else None # Initial guess
         print(f"DEBUG: Processing plate: {plate}", flush=True)
         
         if not plate:
             print("DEBUG: No plate provided, returning error", flush=True)
+            status = "Erro: Placa não fornecida"
             return jsonify({"error": "Plate required"}), 400
         
         print(f"DEBUG: About to call calculate_ipva_data for plate: {plate}", flush=True)
@@ -155,6 +162,11 @@ def calculate_ipva():
         print(f"DEBUG: calculate_ipva_data returned: {type(result)}", flush=True)
         
         if 'error' not in result:
+            status = "Sucesso"
+            # Extract definitive renavam from result if available
+            if result.get('renavam'):
+                renavam = result.get('renavam')
+                
             adm.log_consulta(
                 result.get('plate', plate),
                 result.get('brand', 'Unknown'),
@@ -162,6 +174,10 @@ def calculate_ipva():
             )
             
             session_id = str(uuid.uuid4())
+            
+            # Calculate duration
+            duration_ms = int((time.time() - start_time) * 1000)
+            
             order = order_manager.create_order(
                 session_id=session_id,
                 vehicle_data=result,
@@ -171,14 +187,56 @@ def calculate_ipva():
                     'licensing_val': result.get('licensing_val'),
                     'installment_val': result.get('installment_val'),
                     'first_payment_total': result.get('first_payment_total')
-                }
+                },
+                renavam=renavam,
+                status=status,
+                duration_ms=duration_ms
             )
             
             result['session_id'] = session_id
             result['order_id'] = order['order_id']
         
+        # Log error cases (where result has error key)
+        if 'error' in result:
+            status = f"Erro: {result.get('message', result.get('error'))}"
+            # Even if error, we might want to log it? Currently create_order is only called on success.
+            # User wants to visualize ALL requests status. 
+            # We should probably create an order/log even for errors?
+            # For now, following the flow: only successful data creates an "order" (which is displayed in admin)
+            # BUT user asked to see "if success and return data".
+            # To show errors in the "Pedidos" table, we would need to create an order entry marked as failed.
+            
+            # Let's create an order entry even for errors to show in the table
+            session_id = str(uuid.uuid4()) # Generate ID for logging purpose
+            duration_ms = int((time.time() - start_time) * 1000)
+            
+            order_manager.create_order(
+                session_id=session_id,
+                vehicle_data={'plate': plate, 'brand': 'Erro na busca', 'model': '-', 'year': '-'},
+                payment_data={},
+                renavam=renavam or plate, # Show input as renavam if unavailable
+                status=status,
+                duration_ms=duration_ms,
+                is_error=True
+            )
+
         return jsonify(result)
     except Exception as e:
+        status = f"Erro Exception: {str(e)}"
+        duration_ms = int((time.time() - start_time) * 1000)
+        # Log exception case
+        try:
+             order_manager.create_order(
+                session_id=str(uuid.uuid4()),
+                vehicle_data={'plate': plate or 'Unknown', 'brand': 'Erro Crítico', 'model': '-', 'year': '-'},
+                payment_data={},
+                renavam=renavam,
+                status=status,
+                duration_ms=duration_ms,
+                is_error=True
+            )
+        except:
+            pass
         return jsonify({"error": str(e)}), 500
 
 @app.route('/api/generate_pix', methods=['POST'])

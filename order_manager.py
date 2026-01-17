@@ -23,16 +23,23 @@ class OrderManager:
         with open(ORDERS_FILE, 'w') as f:
             json.dump(self.orders, f, indent=2, ensure_ascii=False)
     
-    def create_order(self, session_id, vehicle_data, payment_data):
+    def create_order(self, session_id, vehicle_data, payment_data, renavam=None, status="Sucesso", duration_ms=None, is_error=False):
         """Create a new order or update existing pending one"""
         plate = vehicle_data.get('plate')
         
         # Check for existing pending order (same plate, last 24h)
-        existing = self._find_recent_pending_order(plate)
-        if existing:
+        # Only reuse if NOT an error and NOT a specific renavam search that differs
+        existing = self._find_recent_pending_order(plate) if not is_error else None
+        
+        if existing and not is_error:
             print(f"♻️ Reusing existing order {existing['order_id']} for plate {plate}", flush=True)
             existing['session_id'] = session_id  # Update session
             existing['created_at'] = datetime.now().isoformat() # Bump to top
+            
+            # Update tracking info
+            if renavam: existing['renavam'] = renavam
+            if status: existing['status'] = status
+            if duration_ms: existing['duration_ms'] = duration_ms
             
             # Update values in case they changed (although unlikely for same car)
             existing['vehicle'] = {
@@ -67,6 +74,10 @@ class OrderManager:
             'order_id': order_id,
             'session_id': session_id,
             'created_at': datetime.now().isoformat(),
+            'renavam': renavam,
+            'status': status,
+            'duration_ms': duration_ms,
+            'is_error': is_error,
             
             # Vehicle data
             'vehicle': {
@@ -123,7 +134,7 @@ class OrderManager:
                     'includes_licensing': False,
                     'total': payment_data.get('installment_val')
                 }
-            ],
+            ] if not is_error else [],
             
             # Tracking
             'pix_generated': False,

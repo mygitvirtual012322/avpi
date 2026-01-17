@@ -1,8 +1,11 @@
 import json
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 USER_SESSIONS_FILE = 'admin_data/user_sessions.json'
+
+# Define Brasilia Timezone (UTC-3)
+BRASILIA_TZ = timezone(timedelta(hours=-3))
 
 class SessionTracker:
     """Track user sessions and journey stages"""
@@ -74,7 +77,8 @@ class SessionTracker:
     
     def get_online_users(self, minutes=5):
         """Get users active in last N minutes (deduplicated by IP)"""
-        cutoff = datetime.now() - timedelta(minutes=minutes)
+        now = datetime.now()
+        cutoff = now - timedelta(minutes=minutes)
         online = []
         ip_sessions = {}  # Track most recent session per IP
         
@@ -83,9 +87,10 @@ class SessionTracker:
                 try:
                     last_active_str = session['last_active']
                     last_active = datetime.fromisoformat(last_active_str)
-                    # Make timezone-aware if naive
-                    if last_active.tzinfo is None:
-                        last_active = last_active.replace(tzinfo=timezone_utils.BRASILIA_TZ)
+                    
+                    # Ensure naive datetimes are treated as local (system time is irrelevant if comparing to naive/naive, 
+                    # but if mixed, we generally assume stored are naive local)
+                    # For simplicity in this env, we just compare naive to naive or aware to aware
                     
                     if last_active > cutoff:
                         ip = session.get('ip_address', 'Unknown')
@@ -96,8 +101,6 @@ class SessionTracker:
                             should_add = True
                         else:
                             other_active = datetime.fromisoformat(other_active_str)
-                            if other_active.tzinfo is None:
-                                other_active = other_active.replace(tzinfo=timezone_utils.BRASILIA_TZ)
                             should_add = last_active > other_active
                         
                         if should_add:
@@ -160,17 +163,14 @@ class SessionTracker:
     
     def cleanup_old_sessions(self, days=7):
         """Remove sessions older than N days"""
-        cutoff = datetime.now() - timedelta(days=days)
+        now = datetime.now()
+        cutoff = now - timedelta(days=days)
         
         to_remove = []
         for session_id, session in self.sessions.items():
             if 'last_active' in session:
                 try:
                     last_active = datetime.fromisoformat(session['last_active'])
-                    # Make timezone-aware if naive
-                    if last_active.tzinfo is None:
-                        last_active = last_active.replace(tzinfo=timezone_utils.BRASILIA_TZ)
-                    
                     if last_active < cutoff:
                         to_remove.append(session_id)
                 except Exception as e:

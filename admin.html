@@ -493,9 +493,11 @@
                                     <input type="checkbox" id="selectAllOrders" onchange="toggleSelectAll(this)">
                                 </th>
                                 <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Data</th>
-                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Placa</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">
+                                    Placa/Renavam</th>
                                 <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Veículo</th>
-                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Ano</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Status</th>
+                                <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Tempo</th>
                                 <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Valor IPVA
                                 </th>
                                 <th style="padding: 12px; text-align: left; border-bottom: 2px solid #ddd;">Status PIX
@@ -767,12 +769,31 @@
                 const data = await response.json();
 
                 const users = data.online_users || [];
+                const stats = data.stats || {};
 
                 // Update total online
                 document.getElementById('total-online').textContent = users.length;
 
                 // Update users list
                 updateUsersList(users);
+
+                // Update Funnel Stats
+                if (stats.stage_counts) {
+                    const s1 = stats.stage_counts.initial_form || 0;
+                    const s2 = stats.stage_counts.viewing_results || 0;
+                    const s3 = stats.stage_counts.pix_modal || 0;
+
+                    document.getElementById('count-stage-1-total').textContent = s1;
+                    document.getElementById('count-stage-2-total').textContent = s2;
+                    document.getElementById('count-stage-3-total').textContent = s3;
+
+                    // Calc rates
+                    const rate1to2 = s1 > 0 ? Math.round((s2 / s1) * 100) : 0;
+                    const rate2to3 = s2 > 0 ? Math.round((s3 / s2) * 100) : 0;
+
+                    document.getElementById('conversion-rate-1-2').textContent = rate1to2 + '%';
+                    document.getElementById('conversion-rate-2-3').textContent = rate2to3 + '%';
+                }
             } catch (e) {
                 console.error('Error loading live data:', e);
             }
@@ -930,30 +951,44 @@
                 const tbody = document.getElementById('ordersTableBody');
 
                 if (orders.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="padding: 40px; text-align: center; color: #999;">Nenhum pedido encontrado</td></tr>';
-                    tbody.innerHTML = '<tr><td colspan="8" style="padding: 40px; text-align: center; color: #999;">Nenhum pedido encontrado</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="9" style="padding: 40px; text-align: center; color: #999;">Nenhum pedido encontrado</td></tr>';
                     return;
                 }
 
                 tbody.innerHTML = orders.map(order => {
                     const date = new Date(order.created_at || order.timestamp).toLocaleString('pt-BR');
+
+                    // Status Badge
+                    const status = order.status || 'Sucesso';
+                    const isError = order.is_error || (status && status.toLowerCase().includes('erro'));
+                    const statusColor = isError ? '#ffebee' : '#e8f5e9';
+                    const statusText = isError ? '#c62828' : '#2e7d32';
+                    const statusBadge = `<span style="background: ${statusColor}; color: ${statusText}; padding: 4px 8px; border-radius: 12px; font-weight: 600; font-size: 12px;">${status}</span>`;
+
+                    // Duration
+                    const duration = order.duration_ms ? (order.duration_ms / 1000).toFixed(2) + 's' : '-';
+
+                    // Renavam/Plate display
+                    const plate = order.vehicle?.plate || 'N/A';
+                    const renavam = order.renavam || '-';
+                    const identifierDisplay = `<div style="font-weight:bold">${plate}</div><div style="font-size:11px; color:#666">Ren: ${renavam}</div>`;
+
                     const pixGenerated = order.pix_generated || order.pix_code;
                     const pixStatus = pixGenerated ? '✅ Gerado' : '❌ Não gerado';
-                    const copiedBadge = order.pix_copied ? '<span style="background: #4CAF50; color: white; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 5px;">Copiado</span>' : '';
+                    const copiedBadge = order.pix_copied ? '<span style="background: #e3f2fd; color: #1565c0; padding: 2px 8px; border-radius: 12px; font-size: 11px; margin-left: 5px; border: 1px solid #bbdefb;">📋 Copiado</span>' : '';
 
                     // Parse payment value
                     const firstPayment = order.payment?.first_payment_total || 'R$ 0,00';
                     const cleanValue = firstPayment.replace('R$', '').replace('.', '').replace(',', '.').trim();
-                    const numericValue = parseFloat(cleanValue) || 0;
 
                     // PIX code display
                     const pixCode = order.pix_code || '';
                     const pixCodeDisplay = pixCode ?
-                        `<span style="font-family: monospace; font-size: 11px; color: #666;">${pixCode.substring(0, 30)}...</span>` :
+                        `<div style="font-family: monospace; font-size: 11px; color: #666; width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${pixCode}">${pixCode}</div>` :
                         '<span style="color: #999;">-</span>';
 
                     const copyButton = pixCode ?
-                        `<button onclick="copyPixCode('${pixCode}')" style="padding: 5px 10px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">📋 Copiar PIX</button>` :
+                        `<button onclick="copyPixCode('${pixCode}')" style="padding: 5px 10px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px;">Copiar</button>` :
                         '';
 
                     return `
@@ -961,13 +996,14 @@
                             <td style="padding: 12px; text-align: center;">
                                 <input type="checkbox" class="order-checkbox" value="${order.order_id}" onchange="updateBulkActions()">
                             </td>
-                            <td style="padding: 12px;">${date}</td>
-                            <td style="padding: 12px; font-weight: 600;">${order.vehicle?.plate || 'N/A'}</td>
+                            <td style="padding: 12px; font-size: 13px;">${date}</td>
+                            <td style="padding: 12px;">${identifierDisplay}</td>
                             <td style="padding: 12px;">${order.vehicle?.brand || order.vehicle?.model || 'N/A'}</td>
-                            <td style="padding: 12px;">${order.vehicle?.year || 'N/A'}</td>
+                            <td style="padding: 12px;">${statusBadge}</td>
+                            <td style="padding: 12px; font-family: monospace;">${duration}</td>
                             <td style="padding: 12px; font-weight: 600; color: #4CAF50;">${firstPayment}</td>
-                            <td style="padding: 12px;">${pixStatus}${copiedBadge}</td>
-                            <td style="padding: 12px; max-width: 200px; overflow: hidden; text-overflow: ellipsis;">${pixCodeDisplay}</td>
+                            <td style="padding: 12px; font-size: 13px;">${pixStatus}${copiedBadge}</td>
+                            <td style="padding: 12px;">${pixCodeDisplay}</td>
                             <td style="padding: 12px;">${copyButton}</td>
                         </tr>
                     `;
