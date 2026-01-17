@@ -121,6 +121,21 @@ def health_check():
     print("DEBUG: Health check called", flush=True)
     return jsonify({"status": "ok", "message": "Server is running"}), 200
 
+@app.route('/api/server_ip')
+def get_server_ip():
+    """Retorna o IP público do servidor Railway para whitelist no proxy"""
+    try:
+        import requests
+        # Usa serviço externo para descobrir o IP público
+        response = requests.get('https://api.ipify.org?format=json', timeout=5)
+        ip_data = response.json()
+        return jsonify({
+            "server_ip": ip_data.get('ip'),
+            "message": "Use este IP para autorizar no painel do proxy"
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route('/api/calculate_ipva', methods=['POST'])
 def calculate_ipva():
     print("=" * 50, flush=True)
