@@ -233,13 +233,17 @@ class FazendaAPIClient:
                     # Fallback: Fetch direto no contexto do navegador
                     # Return token immediately after successful resolution
                     # Skipping "Fetch direto" as it was causing timeouts in production
-                    print("✅ Token pronto para uso!")
-                    await browser.close()
-                    return token
+                # Capture cookies and UA
+                cookies = await page.context.cookies()
+                user_agent = await page.evaluate("navigator.userAgent")
                 
+                print("✅ Token e Cookies capturados!")
                 await browser.close()
-                return None
-                
+                return {'token': token, 'cookies': cookies, 'ua': user_agent}
+            
+            await browser.close()
+            return None
+            
         except Exception as e:
             print(f"❌ Erro no Playwright: {e}")
             return None
@@ -261,11 +265,21 @@ class FazendaAPIClient:
         try:
             # Get CAPTCHA token
             print(f"🔐 Obtendo token CAPTCHA para RENAVAM {renavam}...")
-            token = await self._get_captcha_token_playwright(sitekey=None)
+            result = await self._get_captcha_token_playwright(sitekey=None)
             
-            if not token:
+            if not result or not result.get('token'):
                 print("❌ Falha ao obter token CAPTCHA")
                 return None
+            
+            token = result['token']
+            
+            # Update session with browser cookies and UA
+            if result.get('cookies'):
+                for cookie in result['cookies']:
+                    self.session.cookies.set(cookie['name'], cookie['value'])
+            
+            if result.get('ua'):
+                self.session.headers['User-Agent'] = result['ua']
             
             # Call API
             url = FAZENDA_API_BASE + FAZENDA_API_ENDPOINT.format(renavam=renavam)
@@ -273,12 +287,12 @@ class FazendaAPIClient:
             
             headers = {
                 'Token': token,
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Referer': 'https://buscar-renavam-ipva-digital.fazenda.mg.gov.br/buscar-renavam/',
                 'Origin': 'https://buscar-renavam-ipva-digital.fazenda.mg.gov.br',
                 'Accept': 'application/json, text/plain, */*',
                 'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7'
             }
+            # User-Agent is already set in session headers from browser
             
             response = self.session.get(
                 url,
