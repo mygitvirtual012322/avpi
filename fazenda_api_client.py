@@ -156,7 +156,19 @@ class FazendaAPIClient:
         try:
             async with async_playwright() as p:
                 print("🚀 Iniciando navegador...")
-                browser = await p.chromium.launch(headless=True)
+                
+                # Proxy configuration (optional)
+                launch_options = {'headless': True}
+                proxy_server = os.getenv('PROXY_SERVER')
+                if proxy_server:
+                    print(f"🔒 Usando proxy: {proxy_server}")
+                    launch_options['proxy'] = {
+                        'server': proxy_server,
+                        'username': os.getenv('PROXY_USERNAME'),
+                        'password': os.getenv('PROXY_PASSWORD')
+                    }
+                
+                browser = await p.chromium.launch(**launch_options)
                 page = await browser.new_page()
                 
                 print(f"📡 Navegando para {FAZENDA_PAGE_URL}")
