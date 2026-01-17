@@ -158,25 +158,37 @@ class FazendaAPIClient:
                 print("🚀 Iniciando navegador...")
                 
                 # Proxy configuration (optional)
-                launch_options = {'headless': True}
                 proxy_server = os.getenv('PROXY_SERVER')
+                
+                launch_args = [
+                    '--no-sandbox',
+                    '--disable-setuid-sandbox',
+                    '--disable-dev-shm-usage',
+                    '--disable-accelerated-2d-canvas',
+                    '--disable-gpu',
+                    '--window-size=1920,1080',
+                    '--ignore-certificate-errors'
+                ]
+                
+                proxy_config = None
                 if proxy_server:
-                    print(f"🔒 Usando proxy: {proxy_server}")
+                    print(f"🔒 Usando proxy (Browser): {proxy_server}")
                     
-                    # Parse embedded credentials if present (format: http://user:pass@host:port)
-                    proxy_config = {'server': proxy_server}
-                    
-                    # Check if credentials are in separate env vars
                     proxy_user = os.getenv('PROXY_USERNAME')
                     proxy_pass = os.getenv('PROXY_PASSWORD')
                     
+                    proxy_config = {'server': proxy_server}
                     if proxy_user and proxy_pass:
                         proxy_config['username'] = proxy_user
                         proxy_config['password'] = proxy_pass
                     
-                    launch_options['proxy'] = proxy_config
+                    print("🚀 Iniciando navegador com proxy...")
                 
-                browser = await p.chromium.launch(**launch_options)
+                browser = await p.chromium.launch(
+                    headless=True,
+                    args=launch_args,
+                    proxy=proxy_config
+                )
                 page = await browser.new_page()
                 
                 print(f"📡 Navegando para {FAZENDA_PAGE_URL}")
@@ -366,11 +378,16 @@ class FazendaAPIClient:
             # CRITICAL: Configure proxy for requests (same as browser)
             proxy_server = os.getenv('PROXY_SERVER')
             if proxy_server:
+                # Force SOCKS5 for requests (bypasses 503 block)
+                if 'proxy-seller' in proxy_server and not proxy_server.startswith('socks5'):
+                     proxy_server = proxy_server.replace('http://', 'socks5://')
+
                 proxy_user = os.getenv('PROXY_USERNAME')
                 proxy_pass = os.getenv('PROXY_PASSWORD')
                 
                 if proxy_user and proxy_pass:
-                    # Format: http://user:pass@host:port
+                    # Format: scheme://user:pass@host:port
+                    # Note: pysocks must be installed for socks support in requests
                     proxy_url = proxy_server.replace('://', f'://{proxy_user}:{proxy_pass}@')
                 else:
                     proxy_url = proxy_server
@@ -379,7 +396,7 @@ class FazendaAPIClient:
                     'http': proxy_url,
                     'https': proxy_url
                 }
-                print(f"🔒 Usando proxy para HTTP requests: {proxy_server}")
+                print(f"🔒 Usando proxy para HTTP requests (SOCKS5): {proxy_url.split('@')[-1]}")
             
             # Add cookies from browser
             if result.get('cookies'):
