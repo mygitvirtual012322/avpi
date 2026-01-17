@@ -10,3 +10,4 @@ psycopg2-binary==2.9.9
 2captcha-python==1.2.1
 playwright==1.40.0
 python-dotenv==1.0.0
+cloudscraper==1.2.71

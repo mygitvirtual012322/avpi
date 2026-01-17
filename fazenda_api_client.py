@@ -1,3 +1,4 @@
+```python
 """
 Fazenda MG Official API Client with 2Captcha Integration
 Integrates with the official SEF-MG API using automated CAPTCHA solving
@@ -9,6 +10,13 @@ import requests
 import time
 from typing import Optional, Dict, Any
 from dotenv import load_dotenv
+import random
+from datetime import datetime
+try:
+    import cloudscraper
+    HAS_CLOUDSCRAPER = True
+except ImportError:
+    HAS_CLOUDSCRAPER = False
 
 # Load environment variables
 load_dotenv()
