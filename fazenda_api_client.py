@@ -1,4 +1,3 @@
-```python
 """
 Fazenda MG Official API Client with 2Captcha Integration
 Integrates with the official SEF-MG API using automated CAPTCHA solving
@@ -36,7 +35,13 @@ class FazendaAPIClient:
     
     def __init__(self, api_key: Optional[str] = None):
         self.api_key = api_key or CAPTCHA_API_KEY
-        self.session = requests.Session()
+        
+        if HAS_CLOUDSCRAPER:
+            self.session = cloudscraper.create_scraper()
+            print("🚀 Cloudscraper initialized for WAF bypass")
+        else:
+            self.session = requests.Session()
+            print("⚠️ Cloudscraper not found, using standard requests")
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
             'Accept': 'application/json',
