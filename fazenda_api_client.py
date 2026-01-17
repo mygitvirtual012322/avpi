@@ -239,70 +239,17 @@ class FazendaAPIClient:
                 
                 if token:
                     print("✅ Token capturado!")
-                    print("💉 Tentando fetch direto no navegador (Proxy Safe)...")
+                    # Performance Optimization: Skip browser fetch (requests is faster/reliable with SOCKS5)
                     
-                    # Fetch API data directly in browser context
-                    # This bypasses the 'requests' library proxy issues
-                    api_url = FAZENDA_API_BASE + FAZENDA_API_ENDPOINT.format(renavam=renavam)
-                    
-                    try:
-                        api_data = await page.evaluate('''async (args) => {
-                            const controller = new AbortController();
-                            const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
-                            
-                            try {
-                                const response = await fetch(args.apiUrl, {
-                                    method: 'GET',
-                                    headers: {
-                                        'Token': args.token,
-                                        'Accept': 'application/json',
-                                        'Referer': args.referer,
-                                        'Origin': args.origin
-                                    },
-                                    signal: controller.signal
-                                });
-                                clearTimeout(timeoutId);
-                                
-                                if (!response.ok) {
-                                    return { error: 'HTTP_' + response.status };
-                                }
-                                
-                                const data = await response.json();
-                                return data;
-                            } catch (err) {
-                                return { error: err.message };
-                            }
-                        }''', {
-                            'token': token,
-                            'apiUrl': api_url,
-                            'referer': FAZENDA_PAGE_URL,
-                            'origin': FAZENDA_API_BASE
-                        })
-                        
-                        # Check if we got valid data
-                        if api_data and not api_data.get('error'):
-                            print("✅ Fetch obtido via navegador!")
-                            
-                            # Get cookies/ua just in case
-                            cookies = await page.context.cookies()
-                            user_agent = await page.evaluate("navigator.userAgent")
-                            
-                            await browser.close()
-                            return {'data': api_data, 'token': token, 'cookies': cookies, 'ua': user_agent}
-                        else:
-                            print(f"⚠️ Fetch navegador falhou: {api_data.get('error')}")
-                            # Fallback flow below
-                            
-                    except Exception as e:
-                        print(f"⚠️ Erro no evaluate: {e}")
-
-                    # Fallback to requests (if browser fetch failed)
+                    # Get cookies and UA before closing
                     cookies = await page.context.cookies()
                     user_agent = await page.evaluate("navigator.userAgent")
                     
-                    print("🔒 Fechando navegador...")
+                    # Close browser immediately to free resources
+                    print("🔒 Fechando navegador (Fast Path)...")
                     await browser.close()
                     
+                    # Return token immediately for requests library to use
                     return {'token': token, 'cookies': cookies, 'ua': user_agent}
                 else:
                     print("❌ Falha ao resolver CAPTCHA")
