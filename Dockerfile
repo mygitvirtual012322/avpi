@@ -1,9 +1,9 @@
-FROM python:3.11-slim
+# Use official Playwright image (includes Python, Browsers, and Deps)
+# This fixes the "Build Timeout" by avoiding heavy installations
+FROM mcr.microsoft.com/playwright/python:v1.40.0-jammy
 
-# Install system dependencies and Chromium + Driver
-# Chromium from Debian repos is more stable for this environment
+# Install Chromium Driver for Selenium support (Platform fallback)
 RUN apt-get update && apt-get install -y \
-    chromium \
     chromium-driver \
     wget \
     unzip \
@@ -15,8 +15,6 @@ WORKDIR /app
 # Copy requirements and install
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-RUN playwright install chromium
-RUN playwright install-deps chromium
 
 # Copy application code
 COPY . .
@@ -27,6 +25,7 @@ RUN mkdir -p admin_data && chmod 777 admin_data
 # Environment variables
 ENV PORT=8080
 ENV PYTHONUNBUFFERED=1
+# Selenium will use the system chromium-driver from apt
 ENV CHROME_BIN=/usr/bin/chromium
 ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
 
@@ -34,5 +33,4 @@ ENV CHROMEDRIVER_PATH=/usr/bin/chromedriver
 EXPOSE 8080
 
 # Start command
-# Start command (1 worker + threads to save memory on 512MB instance)
 CMD ["gunicorn", "server:app", "--bind", "0.0.0.0:8080", "--workers", "1", "--threads", "4", "--timeout", "120", "--log-level", "debug"]
