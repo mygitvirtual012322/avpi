@@ -101,7 +101,7 @@ class FazendaAPIClient:
             attempt = 0
             
             while attempt < max_attempts:
-                await asyncio.sleep(2)
+                await asyncio.sleep(1) # Check every 1s for faster response
                 attempt += 1
                 
                 result_response = requests.post(
