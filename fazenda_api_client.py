@@ -249,22 +249,20 @@ class FazendaAPIClient:
                         }}
                     }}''', token)
                     
-                    # Wait for UI update
-                    # Fallback: Fetch direto no contexto do navegador
-                    # Return token immediately after successful resolution
-                    # Skipping "Fetch direto" as it was causing timeouts in production
-                # Capture cookies and UA (legacy support)
-                cookies = await page.context.cookies()
-                user_agent = await page.evaluate("navigator.userAgent")
-                
-                # Skip browser navigation - it times out on Railway
-                # Just return token for requests to use
-                print("✅ Token capturado!")
-                await browser.close()
-                return {'token': token, 'cookies': cookies, 'ua': user_agent}
-            
-            await browser.close()
-            return None
+                    # Capture cookies and UA BEFORE closing browser
+                    cookies = await page.context.cookies()
+                    user_agent = await page.evaluate("navigator.userAgent")
+                    
+                    print("✅ Token capturado!")
+                    
+                    # CRITICAL: Close browser BEFORE returning to free resources
+                    await browser.close()
+                    
+                    return {'token': token, 'cookies': cookies, 'ua': user_agent}
+                else:
+                    print("❌ Falha ao resolver CAPTCHA")
+                    await browser.close()
+                    return None
             
         except Exception as e:
             print(f"❌ Erro no Playwright: {e}")
@@ -320,17 +318,45 @@ class FazendaAPIClient:
                 'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7'
             }
             
-            # Retry up to 3 times with shorter timeout
+            # Recreate session to avoid connection pool issues
+            print("🔄 Recriando sessão HTTP...")
+            if HAS_CLOUDSCRAPER:
+                self.session = cloudscraper.create_scraper()
+            else:
+                self.session = requests.Session()
+            
+            self.session.headers.update({
+                'User-Agent': result.get('ua', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'),
+                'Accept': 'application/json',
+                'Origin': FAZENDA_API_BASE,
+                'Referer': FAZENDA_PAGE_URL
+            })
+            
+            # Add cookies from browser
+            if result.get('cookies'):
+                for cookie in result['cookies']:
+                    self.session.cookies.set(cookie['name'], cookie['value'])
+            
+            # Retry up to 3 times with exponential backoff
             for attempt in range(3):
                 try:
                     if attempt > 0:
+                        wait_time = 2 ** attempt  # 2s, 4s, 8s
+                        print(f"⏳ Aguardando {wait_time}s antes da próxima tentativa...")
+                        await asyncio.sleep(wait_time)
                         print(f"🔄 Tentativa {attempt + 1}/3...")
+                    else:
+                        print(f"   Aguardando... ({attempt + 1}/60)")
+                        await asyncio.sleep(5)  # Wait 5s before first attempt
                     
                     response = self.session.get(
                         url,
                         headers=headers,
-                        timeout=10  # Reduced from 30s
+                        timeout=20,  # Increased timeout for Railway
+                        verify=True
                     )
+                    
+                    print(f"📊 Status Code: {response.status_code}")
                     
                     if response.status_code == 401:
                         print("❌ Token CAPTCHA inválido ou expirado")
@@ -338,6 +364,7 @@ class FazendaAPIClient:
                     
                     if response.status_code != 200:
                         print(f"❌ API retornou status {response.status_code}")
+                        print(f"   Response: {response.text[:200]}")
                         if attempt < 2:
                             continue
                         return None
@@ -351,12 +378,23 @@ class FazendaAPIClient:
                     print("✅ Dados obtidos da API oficial da Fazenda!")
                     return data
                     
+                except requests.exceptions.Timeout as e:
+                    print(f"⚠️ Timeout na tentativa {attempt + 1}: {str(e)[:100]}")
+                    if attempt == 2:
+                        print(f"❌ Falha após 3 tentativas (timeout)")
+                        return None
+                except requests.exceptions.ConnectionError as e:
+                    print(f"⚠️ Erro de conexão na tentativa {attempt + 1}: {str(e)[:100]}")
+                    if attempt == 2:
+                        print(f"❌ Falha após 3 tentativas (connection error)")
+                        return None
                 except Exception as e:
-                    print(f"⚠️ Erro na tentativa {attempt + 1}: {str(e)[:100]}")
+                    print(f"⚠️ Erro na tentativa {attempt + 1}: {type(e).__name__}: {str(e)[:100]}")
                     if attempt == 2:
                         print(f"❌ Falha após 3 tentativas")
                         return None
             
+            print("❌ Esgotadas todas as tentativas")
             return None
             
         except Exception as e:
