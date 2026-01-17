@@ -258,9 +258,18 @@ class FazendaAPIClient:
             url = FAZENDA_API_BASE + FAZENDA_API_ENDPOINT.format(renavam=renavam)
             print(f"📡 Consultando API da Fazenda: {url}")
             
+            headers = {
+                'Token': token,
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Referer': 'https://buscar-renavam-ipva-digital.fazenda.mg.gov.br/buscar-renavam/',
+                'Origin': 'https://buscar-renavam-ipva-digital.fazenda.mg.gov.br',
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7'
+            }
+            
             response = self.session.get(
                 url,
-                headers={'Token': token},
+                headers=headers,
                 timeout=30
             )
             
