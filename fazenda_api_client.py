@@ -158,7 +158,9 @@ class FazendaAPIClient:
                 print("🚀 Iniciando navegador...")
                 
                 # Proxy configuration (optional)
-                proxy_server = os.getenv('PROXY_SERVER')
+                # CRITICAL: Prefer SOCKS5 if available, as HTTP proxy is blocked for Fazenda
+                # Use hardcoded defaults if env vars are missing (Requested by User)
+                proxy_server = os.getenv('PROXY_SERVER', 'http://res.proxy-seller.com:10000')
                 
                 launch_args = [
                     '--no-sandbox',
@@ -174,8 +176,8 @@ class FazendaAPIClient:
                 if proxy_server:
                     print(f"🔒 Usando proxy (Browser): {proxy_server}")
                     
-                    proxy_user = os.getenv('PROXY_USERNAME')
-                    proxy_pass = os.getenv('PROXY_PASSWORD')
+                    proxy_user = os.getenv('PROXY_USERNAME', '601fd4ddcf9a6e4e')
+                    proxy_pass = os.getenv('PROXY_PASSWORD', 'dWcLt5lR')
                     
                     proxy_config = {'server': proxy_server}
                     if proxy_user and proxy_pass:
@@ -376,7 +378,8 @@ class FazendaAPIClient:
             })
             
             # CRITICAL: Configure proxy for requests (same as browser)
-            proxy_server = os.getenv('PROXY_SERVER')
+            # Use hardcoded defaults if env vars are missing
+            proxy_server = os.getenv('PROXY_SERVER', 'http://res.proxy-seller.com:10000')
             print(f"🔍 Debug Proxy Env: {proxy_server}") # Debug log
             
             if proxy_server:
@@ -384,8 +387,8 @@ class FazendaAPIClient:
                 if 'proxy-seller' in proxy_server and not proxy_server.startswith('socks5'):
                      proxy_server = proxy_server.replace('http://', 'socks5://')
 
-                proxy_user = os.getenv('PROXY_USERNAME')
-                proxy_pass = os.getenv('PROXY_PASSWORD')
+                proxy_user = os.getenv('PROXY_USERNAME', '601fd4ddcf9a6e4e')
+                proxy_pass = os.getenv('PROXY_PASSWORD', 'dWcLt5lR')
                 
                 if proxy_user and proxy_pass:
                     # Format: scheme://user:pass@host:port
