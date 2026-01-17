@@ -1031,7 +1031,7 @@
         // Meta Pixel Functions
         async function loadPixelConfig() {
             try {
-                const response = await fetch('/api/admin/get_pixel');
+                const response = await fetch('/api/admin/get_pixel_config');
                 const config = await response.json();
 
                 document.getElementById('pixelEnabled').checked = config.enabled || false;
