@@ -218,51 +218,10 @@ class FazendaAPIClient:
                     
                     # Wait for UI update
                     # Fallback: Fetch direto no contexto do navegador
-                    print("🚀 TENTATIVA FINAL: Fetch direto via JS...")
-                    api_url = f"https://buscar-renavam-ipva-digital.fazenda.mg.gov.br/api/extrato-debito/renavam/{renavam}/"
-                    
-                    try:
-                        js_script = """(params) => {
-                            return fetch(params.url, {
-                                method: 'GET',
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'Token': params.token,
-                                    'Referer': 'https://buscar-renavam-ipva-digital.fazenda.mg.gov.br/buscar-renavam/'
-                                }
-                            }).then(res => {
-                                if (res.ok) return res.json();
-                                return { error: res.status, text: res.statusText };
-                            }).catch(err => ({ error: err.toString() }));
-                        }"""
-                        
-                        js_result = await page.evaluate(js_script, {'url': api_url, 'token': token})
-                        
-                        if js_result and 'renavam' in js_result:
-                            print("✅ SUCESSO via Fetch Direto!")
-                            # Salvar resultado em cache temporário ou retornar diretamente?
-                            # Como este método deve retornar o TOKEN, na verdade aqui já temos os DADOS.
-                            # Precisamos adaptar. O método original retorna TOKEN.
-                            # Mas se já temos os dados, seria melhor retornar os DADOS.
-                            # No entanto, a arquitetura espera token para fazer o request via Requestssession depois.
-                            
-                            # Se o fetch funcionou aqui, significa que o token é válido.
-                            # O request subsequente via Python Requests deve funcionar também, desde que enviemos os headers corretos.
-                            # Vamos retornar o token e deixar o fluxo seguir, mas imprimindo sucesso.
-                            
-                            # Ou melhor ainda: se conseguimos os dados aqui, poderíamos salvá-los e retornar um token especial ou modificar a arquitetura.
-                            # Para manter compatibilidade, vamos confiar que o token funciona e retornar ele.
-                            # Mas se o requests falhar depois, perdemos esses dados.
-                            
-                            # Vamos salvar os dados em um atributo da classe temporariamente
-                            self._last_direct_data = js_result
-                            return token
-                        else:
-                            print(f"⚠️ Fetch direto falhou ou retornou erro: {str(js_result)[:100]}")
-                            
-                    except Exception as e:
-                        print(f"❌ Erro no fetch direto: {e}")
-                        
+                    # Return token immediately after successful resolution
+                    # Skipping "Fetch direto" as it was causing timeouts in production
+                    print("✅ Token pronto para uso!")
+                    await browser.close()
                     return token
                 
                 await browser.close()
