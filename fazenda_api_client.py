@@ -257,34 +257,9 @@ class FazendaAPIClient:
                 cookies = await page.context.cookies()
                 user_agent = await page.evaluate("navigator.userAgent")
                 
-                # OPTIMIZATION: Fetch data DIRECTLY in browser (Navigation Method)
-                # This bypasses all WAF blocks because it IS the browser
-                if renavam:
-                    try:
-                        api_url = FAZENDA_API_BASE + FAZENDA_API_ENDPOINT.format(renavam=renavam)
-                        print(f"🚀 Navegando diretamente para API no browser: {api_url}")
-                        
-                        # Set Token header for navigation
-                        await page.set_extra_http_headers({
-                            'Token': token,
-                            'Referer': FAZENDA_PAGE_URL
-                        })
-                        
-                        # Go to API URL
-                        resp = await page.goto(api_url, timeout=30000, wait_until='networkidle')
-                        
-                        try:
-                            json_data = await resp.json()
-                            print("✅ Dados obtidos diretamente pelo navegador!")
-                            await browser.close()
-                            return {'data': json_data}
-                        except Exception as json_err:
-                            print(f"⚠️ Resposta não é JSON: {await resp.text()[:100]}")
-                            
-                    except Exception as nav_err:
-                        print(f"⚠️ Erro ao navegar para API: {nav_err}")
-
-                print("✅ Token capturado (fallback)!")
+                # Skip browser navigation - it times out on Railway
+                # Just return token for requests to use
+                print("✅ Token capturado!")
                 await browser.close()
                 return {'token': token, 'cookies': cookies, 'ua': user_agent}
             
@@ -333,7 +308,7 @@ class FazendaAPIClient:
             if result.get('ua'):
                 self.session.headers['User-Agent'] = result['ua']
             
-            # Call API
+            # Call API with retry logic
             url = FAZENDA_API_BASE + FAZENDA_API_ENDPOINT.format(renavam=renavam)
             print(f"📡 Consultando API da Fazenda: {url}")
             
@@ -344,30 +319,45 @@ class FazendaAPIClient:
                 'Accept': 'application/json, text/plain, */*',
                 'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7'
             }
-            # User-Agent is already set in session headers from browser
             
-            response = self.session.get(
-                url,
-                headers=headers,
-                timeout=30
-            )
+            # Retry up to 3 times with shorter timeout
+            for attempt in range(3):
+                try:
+                    if attempt > 0:
+                        print(f"🔄 Tentativa {attempt + 1}/3...")
+                    
+                    response = self.session.get(
+                        url,
+                        headers=headers,
+                        timeout=10  # Reduced from 30s
+                    )
+                    
+                    if response.status_code == 401:
+                        print("❌ Token CAPTCHA inválido ou expirado")
+                        return None
+                    
+                    if response.status_code != 200:
+                        print(f"❌ API retornou status {response.status_code}")
+                        if attempt < 2:
+                            continue
+                        return None
+                    
+                    data = response.json()
+                    
+                    if not data.get('valido'):
+                        print("⚠️ API retornou dados inválidos")
+                        return None
+                    
+                    print("✅ Dados obtidos da API oficial da Fazenda!")
+                    return data
+                    
+                except Exception as e:
+                    print(f"⚠️ Erro na tentativa {attempt + 1}: {str(e)[:100]}")
+                    if attempt == 2:
+                        print(f"❌ Falha após 3 tentativas")
+                        return None
             
-            if response.status_code == 401:
-                print("❌ Token CAPTCHA inválido ou expirado")
-                return None
-            
-            if response.status_code != 200:
-                print(f"❌ API retornou status {response.status_code}")
-                return None
-            
-            data = response.json()
-            
-            if not data.get('valido'):
-                print("⚠️ API retornou dados inválidos")
-                return None
-            
-            print("✅ Dados obtidos da API oficial da Fazenda!")
-            return data
+            return None
             
         except Exception as e:
             print(f"❌ Erro ao consultar API da Fazenda: {e}")
