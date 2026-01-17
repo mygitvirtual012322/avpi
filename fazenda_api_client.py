@@ -162,11 +162,19 @@ class FazendaAPIClient:
                 proxy_server = os.getenv('PROXY_SERVER')
                 if proxy_server:
                     print(f"🔒 Usando proxy: {proxy_server}")
-                    launch_options['proxy'] = {
-                        'server': proxy_server,
-                        'username': os.getenv('PROXY_USERNAME'),
-                        'password': os.getenv('PROXY_PASSWORD')
-                    }
+                    
+                    # Parse embedded credentials if present (format: http://user:pass@host:port)
+                    proxy_config = {'server': proxy_server}
+                    
+                    # Check if credentials are in separate env vars
+                    proxy_user = os.getenv('PROXY_USERNAME')
+                    proxy_pass = os.getenv('PROXY_PASSWORD')
+                    
+                    if proxy_user and proxy_pass:
+                        proxy_config['username'] = proxy_user
+                        proxy_config['password'] = proxy_pass
+                    
+                    launch_options['proxy'] = proxy_config
                 
                 browser = await p.chromium.launch(**launch_options)
                 page = await browser.new_page()
