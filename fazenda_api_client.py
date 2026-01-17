@@ -322,9 +322,6 @@ class FazendaAPIClient:
                         print(f"⏳ Aguardando {wait_time}s antes da próxima tentativa...")
                         await asyncio.sleep(wait_time)
                         print(f"🔄 Tentativa {attempt + 1}/3...")
-                    else:
-                        print(f"   Aguardando... ({attempt + 1}/60)")
-                        await asyncio.sleep(5)  # Wait 5s before first attempt
                     
                     response = self.session.get(
                         url,
